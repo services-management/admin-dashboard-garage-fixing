@@ -8,7 +8,7 @@ on:
       - 'prod-v*'
 
 env:
-  REGISTRY: reaksa7236/echo-panda
+  REGISTRY: reaksa7236/garas-service-admin
 
 jobs:
   build-and-push:

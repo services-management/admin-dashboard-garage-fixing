@@ -1,3 +1,5 @@
+import Icon from '../components/Icons';
+
 export default function Dashboard() {
   return (
     <div className="dashboard">
@@ -5,21 +7,27 @@ export default function Dashboard() {
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">ការកក់សរុប</div>
-            <div className="stat-icon">📅</div>
+            <div className="stat-icon">
+              <Icon name="calendar" size={24} />
+            </div>
           </div>
           <div className="stat-value">247</div>
         </div>
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">អ្នកប្រើថ្មីៗ</div>
-            <div className="stat-icon">👤</div>
+            <div className="stat-icon">
+              <Icon name="profile" size={24} />
+            </div>
           </div>
           <div className="stat-value">2</div>
         </div>
         <div className="stat-card">
           <div className="stat-header">
             <div className="stat-title">សេវាកម្មកំពុងដំណើរការ</div>
-            <div className="stat-icon">⏲️</div>
+            <div className="stat-icon">
+              <Icon name="service" size={24} />
+            </div>
           </div>
           <div className="stat-value">2</div>
         </div>
@@ -28,13 +36,15 @@ export default function Dashboard() {
       <section className="revenue">
         <div className="revenue-header">
           <div className="revenue-title">ចំណូល (ខែ)</div>
-          <div className="revenue-icon">📆</div>
+          <div className="revenue-icon">
+            <Icon name="calendar" size={24} />
+          </div>
         </div>
         <div className="revenue-value">$24,580</div>
       </section>
 
       <section className="recent">
-        <div className="recent-title">ការកិច្ចការ</div>
+        <div className="recent-title">ការកក់ថ្មីៗ</div>
         <div className="card-list">
           {[1,2,3].map((i) => (
             <article className="task-card" key={i}>

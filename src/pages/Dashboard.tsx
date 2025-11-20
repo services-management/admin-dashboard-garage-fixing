@@ -26,7 +26,7 @@ export default function Dashboard() {
           <div className="stat-header">
             <div className="stat-title">សេវាកម្មកំពុងដំណើរការ</div>
             <div className="stat-icon">
-              <Icon name="service" size={24} />
+              <Icon name="services" size={24} />
             </div>
           </div>
           <div className="stat-value">2</div>

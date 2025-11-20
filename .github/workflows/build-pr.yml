@@ -2,9 +2,9 @@ name: Development
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   lint:
@@ -29,7 +29,7 @@ jobs:
           node-version: '20'
       - run: npm install
       - run: echo "Test Unit"
-      # - run: npm run test:unit
+      - run: npm run test:unit
 
   integration-test:
     name: Integration Tests
@@ -55,7 +55,7 @@ jobs:
           node-version: '18'
       - run: npm install
       - run: echo "Test E2E"
-      # - run: npm run test:e2e
+      - run: npm run test:e2e
 
   build:
     name: Build
@@ -68,7 +68,7 @@ jobs:
           node-version: '18'
       - run: npm install
       - run: echo "Run Build"
-      # - run: npm run build
+      - run: npm run build
 
   deploy:
     name: Deploy
@@ -80,4 +80,4 @@ jobs:
         with:
           node-version: '18'
       - run: npm install
-      - run: echo "Deployment"
+      - run: echo "Check Points for Deploy"

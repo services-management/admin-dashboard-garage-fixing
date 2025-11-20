@@ -25,7 +25,7 @@ export default function Login() {
   }
 
   return (
-    <div className="auth-page">
+    <div className="login-wrapper">
       <div className="login-card" role="main">
         <div className="logo-wrap">
           <img src="/MR-LUBE.png" alt="MR-LUBE Logo" className="logo-image" />

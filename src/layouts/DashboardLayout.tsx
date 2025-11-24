@@ -1,7 +1,8 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import companyLogo from "../assets/garage-logo.svg";
-import Icon, { IconName } from "../components/Icons";
+import Icon from "../components/Icons";
+import type { IconName } from "../components/Icons";
 
 // Sidebar navigation item with active state and icon
 function NavItem({ to, label, iconName }: { to: string; label: string; iconName: IconName }) {

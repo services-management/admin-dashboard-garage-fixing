@@ -3,8 +3,9 @@
  * https://jestjs.io/docs/configuration
  */
 
-/** @type {import('jest').Config} */
-const config = {
+import type {Config} from 'jest';
+
+const config: Config = {
   // All imported modules in your tests should be mocked automatically
   // automock: false,
 
@@ -90,8 +91,11 @@ const config = {
   //   "node"
   // ],
 
-  // A map from regular expressions to module names or to arrays of module names that allow to stub out resources with a single module
-  // moduleNameMapper: {},
+  // Stub static assets and styles when running tests
+  moduleNameMapper: {
+    '\\.(css|less|sass|scss)$': '<rootDir>/tests/__mocks__/styleMock.ts',
+    '\\.(gif|jpg|jpeg|png|svg)$': '<rootDir>/tests/__mocks__/fileMock.ts',
+  },
 
   // An array of regexp pattern strings, matched against all module paths before considered 'visible' to the module loader
   // modulePathIgnorePatterns: [],
@@ -146,6 +150,16 @@ const config = {
   // A list of paths to snapshot serializer modules Jest should use for snapshot testing
   // snapshotSerializers: [],
 
+  // The test environment that will be used for testing
+  // Use TypeScript setup file for testing-library matchers
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
+  // Use ts-jest to transform TypeScript/TSX files (configure transform to use a Jest-specific tsconfig)
+  preset: 'ts-jest',
+  transform: {
+    '^.+\\.(ts|tsx)$': ['ts-jest', { tsconfig: 'tsconfig.jest.json' }],
+  },
+  // Ignore e2e tests (Playwright) and node_modules
+  testPathIgnorePatterns: ['/node_modules/', '/e2e/'],
   // The test environment that will be used for testing
   testEnvironment: "jsdom",
 

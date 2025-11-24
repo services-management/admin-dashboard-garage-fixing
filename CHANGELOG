@@ -1,0 +1,51 @@
+Keep a Changelog
+All notable changes to this project will be documented in this file.
+This project adheres to Semantic Versioning: https://semver.org/
+
+Unreleased
+- Added
+    - New Analytics panel: fleet uptime, average repair time, and service throughput charts.
+    - Role-based access control: Admin, Manager, Technician with configurable permissions.
+    - CSV export for job lists and invoices.
+    - Bulk actions in the Jobs table (assign, change status, export).
+- Changed
+    - Refactored frontend to modular components and centralized state for faster load and easier maintenance.
+    - Updated API endpoints to v2 (backward compatible) and added pagination to list endpoints.
+    - UI/UX improvements: responsive layout, clearer form validation messages.
+- Fixed
+    - Resolved intermittent race condition when creating jobs from templates.
+    - Fixed timezone handling for scheduled jobs and reports.
+    - Corrected sorting behavior in the Vehicles table.
+- Security
+    - Bumped dependencies: express, react, sequelize to address known vulnerabilities.
+    - Enforced CSP headers and tightened cookie flags.
+
+1.2.0 - 2025-09-15
+- Added
+    - Notifications center for job updates and alerts.
+    - Audit log for critical actions (user changes, billing edits).
+- Changed
+    - Optimized database queries for reports, reducing report generation time by ~60%.
+- Fixed
+    - Fixed broken file uploads for large attachments (>10MB).
+    - Fixed incorrect tax calculation on some invoice scenarios.
+
+1.1.0 - 2025-06-01
+- Added
+    - Initial invoicing module: draft invoices, preview, and PDF export.
+    - Vehicle maintenance schedule and reminders.
+- Changed
+    - Improved search across jobs, customers, and vehicles.
+- Fixed
+    - Resolved UI clipping on smaller screens.
+    - Fixed session timeout handling.
+
+1.0.0 - 2025-01-10
+- Added
+    - Initial public release: core admin dashboard features (jobs, customers, vehicles, basic settings).
+    - Authentication and user management.
+    - Basic reporting (jobs per day, revenue summary).
+
+Unreleased notes:
+- Follow semantic versioning. Tag releases in Git and update this file prior to publishing.
+- Use this changelog for release notes and deploy summaries.

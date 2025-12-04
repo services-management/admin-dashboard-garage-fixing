@@ -1,7 +1,7 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import companyLogo from "../assets/garage-logo.svg";
-import Icon, { IconName } from "../components/Icons";
+import Icon, { type IconName } from "../components/Icons";
 import SidebarDropdown from "../components/SidebarDropdown";
 
 

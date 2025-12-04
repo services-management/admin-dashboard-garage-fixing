@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import Icon, { IconName } from "../components/Icons";
+import Icon, { type IconName } from "../components/Icons";
 
 interface SidebarDropdownProps {
   label: string;

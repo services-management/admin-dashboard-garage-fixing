@@ -13,6 +13,9 @@ import {
   RiSunLine,
   RiTimeLine,
   RiQuestionLine, // fallback icon
+  RiShoppingBagLine,   // new
+  RiBox3Line,           // new
+  RiSuitcaseLine,
 } from "react-icons/ri";
 
 // Allowed icon names used across the app
@@ -29,7 +32,10 @@ export type IconName =
   | "night"
   | "sun"
   | "clock"
-  | "calendar";
+  | "calendar"
+  | "products"
+  | "box"
+  | "service_package";
 
 interface IconProps {
   name: IconName;
@@ -52,6 +58,9 @@ const iconMap: Record<IconName, React.ComponentType<{ className?: string; size?:
   sun: RiSunLine,
   clock: RiTimeLine,
   calendar: RiCalendarLine,
+  products: RiShoppingBagLine,   // new
+  box: RiBox3Line,                // optional new
+  service_package: RiSuitcaseLine
 };
 
 // Render the requested icon, with a safe fallback

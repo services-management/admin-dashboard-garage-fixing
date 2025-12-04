@@ -1,8 +1,9 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import companyLogo from "../assets/garage-logo.svg";
-import Icon from "../components/Icons";
-import type { IconName } from "../components/Icons";
+import Icon, { type IconName } from "../components/Icons";
+import SidebarDropdown from "../components/SidebarDropdown";
+
 
 // Sidebar navigation item with active state and icon
 function NavItem({ to, label, iconName }: { to: string; label: string; iconName: IconName }) {
@@ -52,12 +53,20 @@ export default function DashboardLayout() {
         <nav className="sidebar-nav">
           <ul>
             <NavItem to="/dashboard" label="ផ្ទាំងទូទៅ" iconName="dashboard" />
-            <NavItem to="/services" label="សេវាកម្ម" iconName="services" />
-            <NavItem to="/booking" label="ការកក់" iconName="booking" />
-            <NavItem to="/invoices" label="វិក្កយបត្រ" iconName="invoices" />
-            <NavItem to="/notifications" label="ការជូនដំណឹង" iconName="notifications" />
-            <NavItem to="/profile" label="ប្រវត្តិរូប" iconName="profile" />
-            <NavItem to="/settings" label="ការកំណត់" iconName="settings" />
+            <SidebarDropdown
+              label="សេវាកម្ម"
+              iconName="box"
+              items={[
+                { to: "/dashboard/services", label: "សេវាកម្មទាំងអស់", iconName: "services" },
+                { to: "/dashboard/products", label: "ផលិតផល", iconName: "products" },
+                { to: "/dashboard/service_package", label: "កញ្ចប់សេវាកម្ម", iconName: "service_package" },
+              ]}
+            />
+            <NavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
+            <NavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />
+            <NavItem to="/dashboard/notifications" label="ការជូនដំណឹង" iconName="notifications" />
+            <NavItem to="/dashboard/profile" label="ប្រវត្តិរូប" iconName="profile" />
+            <NavItem to="/dashboard/settings" label="ការកំណត់" iconName="settings" />
           </ul>
         </nav>
 

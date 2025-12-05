@@ -37,7 +37,7 @@ export default function Login() {
           <label className="field">
             <input
               value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
+              onChange={(e) => { setIdentifier(e.target.value); }}
               placeholder="ឈ្មោះ "
               className="input"
               aria-label="name"
@@ -48,7 +48,7 @@ export default function Login() {
             <input
               type="password"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => { setPassword(e.target.value); }}
               placeholder="ពាក្យសម្ងាត់"
               className="input"
               aria-label="password"

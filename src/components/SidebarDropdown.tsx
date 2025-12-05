@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
+
 import Icon, { type IconName } from "../components/Icons";
 
 interface SidebarDropdownProps {
@@ -17,7 +18,7 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
       {/* Parent item looks like a normal NavItem */}
       <div
         className={`sidebar-link ${open ? "active" : ""}`}
-        onClick={() => setOpen(!open)}
+        onClick={() => { setOpen(!open); }}
       >
         <span className="sidebar-icon" aria-hidden="true">
           <Icon name={iconName} size={20} />

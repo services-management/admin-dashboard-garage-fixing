@@ -11,7 +11,7 @@ declare global {
     interface Matchers<R = void, T = {}> extends TestingLibraryMatchers<T, R> {}
   }
 
-  interface JestMatchers<T = HTMLElement> extends TestingLibraryMatchers<T, void> {}
+  interface JestMatchers<T = HTMLElement> extends TestingLibraryMatchers<T> {}
 }
 
 declare module '@jest/expect' {

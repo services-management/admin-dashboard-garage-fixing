@@ -78,19 +78,31 @@ body {
 /* Shell */
 .app-shell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 1fr;
   min-height: 100vh;
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    grid-template-columns: 260px 1fr;
+  }
 }
 
 .sidebar {
   position: sticky;
-  top: 0;                /* required for sticky to work */
-  height: 100vh;         /* full viewport height */
+  top: 0;
+  height: 100vh;
   background: var(--sidebar-bg);
   border-right: 4px solid var(--brand-red);
-  display: flex;
+  display: none;
   flex-direction: column;
   padding: 16px 12px;
+}
+
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+  }
 }
 .icon-red {
   color: var(--brand-red);
@@ -122,17 +134,73 @@ body {
 .user-name { font-weight: 700; font-size: 14px; }
 .user-email { color: var(--muted); font-size: 12px; }
 
-.content { padding: 20px 28px; }
+.content { 
+  padding: 20px;
+  width: 100%;
+  max-width: 100%;
+}
+
+@media (min-width: 768px) {
+  .content {
+    padding: 20px 28px;
+  }
+}
 
 /* Topbar */
-.topbar { position: sticky; top: 0; z-index: 10; background: var(--surface); border-bottom: 1px solid var(--border); margin: -20px -28px 16px; padding: 12px 28px; display: flex; align-items: center; justify-content: space-between; }
-.search { display: flex; align-items: center; gap: 8px; background: var(--surface-2); border: 1px solid var(--border); padding: 8px 10px; border-radius: 10px; min-width: 280px; }
+.topbar { 
+  position: sticky; 
+  top: 0; 
+  z-index: 10; 
+  background: var(--surface); 
+  border-bottom: 1px solid var(--border); 
+  margin: -20px -20px 16px; 
+  padding: 12px 20px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: space-between; 
+}
+
+@media (min-width: 768px) {
+  .topbar {
+    margin: -20px -28px 16px;
+    padding: 12px 28px;
+  }
+}
+.search { 
+  display: flex; 
+  align-items: center; 
+  gap: 8px; 
+  background: var(--surface-2); 
+  border: 1px solid var(--border); 
+  padding: 8px 10px; 
+  border-radius: 10px; 
+  width: 100%;
+  max-width: 200px;
+}
+
+@media (min-width: 768px) {
+  .search {
+    min-width: 280px;
+    max-width: none;
+  }
+}
 .search-input { border: none; outline: none; background: transparent; color: var(--text); width: 100%; }
 .topbar-actions { display: flex; align-items: center; gap: 10px; }
 .theme-btn { background: var(--surface-2); border: 1px solid var(--border); padding: 8px 10px; border-radius: 10px; cursor: pointer; }
 
 /* Dashboard */
-.stats-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.stats-grid { 
+  display: grid; 
+  grid-template-columns: 1fr; 
+  gap: 12px; 
+}
+
+@media (min-width: 640px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 .stat-card { border-left: 6px solid var(--brand-red); background: var(--surface); padding: 14px; border-radius: 8px; box-shadow: 0 0 0 1px var(--border); }
 .stat-header { display: flex; align-items: center; justify-content: space-between; color: var(--muted); font-weight: 700; }
 .stat-title { font-size: 14px; }
@@ -146,35 +214,108 @@ body {
 
 .recent { margin-top: 22px; }
 .recent-title { font-size: 24px; font-weight: 900; margin-bottom: 12px; }
-.card-list { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
-.task-card { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-radius: 8px; background: var(--card); margin-bottom: 10px; }
-.task-main { display: grid; }
-.task-name { font-weight: 800; }
-.task-sub { font-size: 12px; color: var(--muted); }
-.task-meta { display: flex; align-items: center; gap: 10px; }
-.task-date { font-size: 12px; color: var(--muted); }
-.task-badge { font-size: 11px; padding: 4px 8px; border-radius: 999px; font-weight: 700; }
-.task-badge.pending { background: var(--badge-pending); }
-.task-badge.success { background: var(--badge-success); }
 
-@media (max-width: 900px) {
-  .app-shell { grid-template-columns: 80px 1fr; }
-  .sidebar-label { display: none; }
+.card-list {
+  display: grid;
+  gap: 12px;
 }
-/* Service Package Styles  */
+
+.task-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: all 0.2s ease;
+}
+
+.task-card:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
+}
+
+.task-main {
+  flex: 1;
+}
+
+.task-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.task-sub {
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.task-meta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.task-date {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.task-badge {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.task-badge.pending {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.task-badge.success {
+  background: #d4edda;
+  color: #155724;
+}
 
 /* ==================== HEADER SECTION ==================== */
 .service-package-header {
     display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 20px;
+    padding: 0;
+}
+
+@media (min-width: 768px) {
+  .service-package-header {
+    flex-direction: row;
     justify-content: space-between;
     align-items: center;
     margin-bottom: 30px;
+  }
 }
 
 .service-package-header h1 {
-    font-size: 28px;
+    font-size: 22px;
     font-weight: 600;
     color: #1a1a1a;
+    margin: 0;
+}
+
+@media (min-width: 768px) {
+  .service-package-header h1 {
+    font-size: 28px;
+  }
+}
+
+/* ==================== BUTTONS ==================== */
+.btn-primary {
+    font-family: 'Battambang';
+    background: #dc3545;
     margin: 0;
 }
 
@@ -273,12 +414,19 @@ body {
 
 .btn-remove:hover {
     background: #c82333;
+/* ==================== GRID LAYOUT ==================== */
+.service-grid-two-col {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
 }
 
-.btn-upload {
-    background: #dc3545;
-    color: white;
-    padding: 10px 20px;
+@media (min-width: 640px) {
+  .service-grid-two-col {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+  }
+}   padding: 10px 20px;
     border-radius: 8px;
     cursor: pointer;
     font-size: 14px;

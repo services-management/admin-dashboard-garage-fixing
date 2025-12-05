@@ -299,10 +299,10 @@ export default function ServicePackage() {
               <div className="service-card-footer">
                 <div className="service-price">${pkg.price.toFixed(2)}</div>
                 <div className="card-actions">
-                  <button className="btn-small btn-edit" onClick={() => openEditModal(pkg)}>
+                  <button className="btn-small btn-edit" onClick={() => { openEditModal(pkg); }}>
                     កែសម្រួល
                   </button>
-                  <button className="btn-small btn-delete" onClick={() => handleDelete(pkg.id)}>
+                  <button className="btn-small btn-delete" onClick={() => { handleDelete(pkg.id); }}>
                     លុប
                   </button>
                 </div>
@@ -355,7 +355,7 @@ export default function ServicePackage() {
                       <button
                         type="button"
                         className="btn-remove-image"
-                        onClick={() => setImagePreview('')}
+                        onClick={() => { setImagePreview(''); }}
                       >
                         Remove Image
                       </button>
@@ -383,7 +383,7 @@ export default function ServicePackage() {
                     className="form-input"
                     placeholder="e.g., Premium Wash Combo"
                     value={formData.name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                    onChange={(e) => { setFormData(prev => ({ ...prev, name: e.target.value })); }}
                   />
                 </div>
                 <div className="form-group">
@@ -392,7 +392,7 @@ export default function ServicePackage() {
                     className="form-textarea"
                     placeholder="Short explanation about what the combo includes..."
                     value={formData.description}
-                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    onChange={(e) => { setFormData(prev => ({ ...prev, description: e.target.value })); }}
                   />
                 </div>
                 <div className="form-row">
@@ -404,7 +404,7 @@ export default function ServicePackage() {
                       placeholder="0.00"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => setFormData(prev => ({ ...prev, price: e.target.value }))}
+                      onChange={(e) => { setFormData(prev => ({ ...prev, price: e.target.value })); }}
                     />
                     <div className="auto-price-note">
                       Leave empty for auto-calculation: ${autoCalculatePrice}
@@ -415,7 +415,7 @@ export default function ServicePackage() {
                     <select
                       className="form-select"
                       value={formData.status}
-                      onChange={(e) => setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' }))}
+                      onChange={(e) => { setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' })); }}
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
@@ -430,7 +430,7 @@ export default function ServicePackage() {
                 <div className="multi-select-container">
                   <div className="select-header">
                     <span style={{ fontSize: '13px', color: '#666' }}>Add services to this combo</span>
-                    <button type="button" className="btn-add" onClick={() => setShowServiceDialog(true)}>
+                    <button type="button" className="btn-add" onClick={() => { setShowServiceDialog(true); }}>
                       + Add Service
                     </button>
                   </div>
@@ -445,7 +445,7 @@ export default function ServicePackage() {
                           <div className="item-info">
                             <span className="item-name">{service}</span>
                           </div>
-                          <button type="button" className="btn-remove" onClick={() => removeService(service)}>
+                          <button type="button" className="btn-remove" onClick={() => { removeService(service); }}>
                             Remove
                           </button>
                         </div>
@@ -461,7 +461,7 @@ export default function ServicePackage() {
                 <div className="multi-select-container">
                   <div className="select-header">
                     <span style={{ fontSize: '13px', color: '#666' }}>Add products with quantities</span>
-                    <button type="button" className="btn-add" onClick={() => setShowProductDialog(true)}>
+                    <button type="button" className="btn-add" onClick={() => { setShowProductDialog(true); }}>
                       + Add Product
                     </button>
                   </div>
@@ -479,11 +479,11 @@ export default function ServicePackage() {
                               type="number"
                               className="quantity-input"
                               value={product.quantity}
-                              onChange={(e) => updateProductQuantity(product.name, parseInt(e.target.value) || 1)}
+                              onChange={(e) => { updateProductQuantity(product.name, parseInt(e.target.value) || 1); }}
                               min="1"
                             />
                           </div>
-                          <button type="button" className="btn-remove" onClick={() => removeProduct(product.name)}>
+                          <button type="button" className="btn-remove" onClick={() => { removeProduct(product.name); }}>
                             Remove
                           </button>
                         </div>
@@ -545,8 +545,8 @@ export default function ServicePackage() {
 
       {/* Service Selection Dialog */}
       {showServiceDialog && (
-        <div className="dialog-overlay" onClick={() => setShowServiceDialog(false)}>
-          <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
+        <div className="dialog-overlay" onClick={() => { setShowServiceDialog(false); }}>
+          <div className="dialog-box" onClick={(e) => { e.stopPropagation(); }}>
             <div className="dialog-header">
               <h3>Select a Service</h3>
             </div>
@@ -558,7 +558,7 @@ export default function ServicePackage() {
                     <div
                       key={service.id}
                       className="dialog-item"
-                      onClick={() => addServiceToPackage(service.name)}
+                      onClick={() => { addServiceToPackage(service.name); }}
                     >
                       <span className="dialog-item-name">{service.name}</span>
                       <span className="dialog-item-price">${service.price}</span>
@@ -572,7 +572,7 @@ export default function ServicePackage() {
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="btn-secondary" onClick={() => setShowServiceDialog(false)}>
+              <button className="btn-secondary" onClick={() => { setShowServiceDialog(false); }}>
                 Close
               </button>
             </div>
@@ -582,8 +582,8 @@ export default function ServicePackage() {
 
       {/* Product Selection Dialog */}
       {showProductDialog && (
-        <div className="dialog-overlay" onClick={() => setShowProductDialog(false)}>
-          <div className="dialog-box" onClick={(e) => e.stopPropagation()}>
+        <div className="dialog-overlay" onClick={() => { setShowProductDialog(false); }}>
+          <div className="dialog-box" onClick={(e) => { e.stopPropagation(); }}>
             <div className="dialog-header">
               <h3>Select a Product</h3>
             </div>
@@ -595,7 +595,7 @@ export default function ServicePackage() {
                     <div
                       key={product.id}
                       className="dialog-item"
-                      onClick={() => addProductToPackage(product.name)}
+                      onClick={() => { addProductToPackage(product.name); }}
                     >
                       <span className="dialog-item-name">{product.name}</span>
                       <span className="dialog-item-price">${product.price}</span>
@@ -609,7 +609,7 @@ export default function ServicePackage() {
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="btn-secondary" onClick={() => setShowProductDialog(false)}>
+              <button className="btn-secondary" onClick={() => { setShowProductDialog(false); }}>
                 Close
               </button>
             </div>

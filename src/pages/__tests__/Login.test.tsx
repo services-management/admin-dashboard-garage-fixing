@@ -1,10 +1,11 @@
 import '@testing-library/jest-dom';
-import { render, screen, fireEvent } from '@testing-library/react';
-import {beforeEach, describe, expect, jest, test} from '@jest/globals';
+import { beforeEach, describe, expect, jest, test } from '@jest/globals';
+import { fireEvent, render, screen } from '@testing-library/react';
+
 const mockNavigate = jest.fn();
 
 jest.mock('react-router-dom', () => ({
-  ...(jest.requireActual('react-router-dom') as any),
+  ...(jest.requireActual('react-router-dom') as Record<string, unknown>),
   useNavigate: () => mockNavigate,
 }));
 

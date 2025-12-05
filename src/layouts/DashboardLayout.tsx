@@ -1,5 +1,6 @@
-import { Outlet, Link, useLocation } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
+import { Outlet, Link, useLocation } from "react-router-dom";
+
 import companyLogo from "../assets/garage-logo.svg";
 import Icon, { type IconName } from "../components/Icons";
 import SidebarDropdown from "../components/SidebarDropdown";
@@ -87,7 +88,7 @@ export default function DashboardLayout() {
             </span>
             <input
               value={query}
-              onChange={(e) => setQuery(e.target.value)}
+              onChange={(e) => { setQuery(e.target.value); }}
               className="search-input"
               placeholder={placeholder}
             />
@@ -98,7 +99,7 @@ export default function DashboardLayout() {
               type="button"
               className="theme-btn"
               aria-label="Toggle dark mode"
-              onClick={() => setTheme((t) => (t === "dark" ? "light" : "dark"))}
+              onClick={() => { setTheme((t) => (t === "dark" ? "light" : "dark")); }}
             >
               <Icon name={theme === "dark" ? "night" : "sun"} size={20} className="icon-red" />
             </button>

@@ -13,7 +13,7 @@ function renderLayout(initialEntries = ['/dashboard']) {
           <Route path="dashboard" element={<div>Dashboard content</div>} />
         </Route>
       </Routes>
-    </MemoryRouter>
+    </MemoryRouter>,
   );
 }
 
@@ -54,4 +54,3 @@ describe('DashboardLayout', () => {
     expect(searchInput).toHaveValue('services');
   });
 });
-

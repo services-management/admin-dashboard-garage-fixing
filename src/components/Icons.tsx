@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 import {
   RiDashboardLine,
   RiToolsLine,
@@ -13,29 +13,29 @@ import {
   RiSunLine,
   RiTimeLine,
   RiQuestionLine, // fallback icon
-  RiShoppingBagLine,   // new
-  RiBox3Line,           // new
+  RiShoppingBagLine, // new
+  RiBox3Line, // new
   RiSuitcaseLine,
-} from "react-icons/ri";
+} from 'react-icons/ri';
 
 // Allowed icon names used across the app
 export type IconName =
-  | "dashboard"
-  | "services"
-  | "booking"
-  | "invoices"
-  | "notifications"
-  | "settings"
-  | "profile"
-  | "search"
-  | "home"
-  | "night"
-  | "sun"
-  | "clock"
-  | "calendar"
-  | "products"
-  | "box"
-  | "service_package";
+  | 'dashboard'
+  | 'services'
+  | 'booking'
+  | 'invoices'
+  | 'notifications'
+  | 'settings'
+  | 'profile'
+  | 'search'
+  | 'home'
+  | 'night'
+  | 'sun'
+  | 'clock'
+  | 'calendar'
+  | 'products'
+  | 'box'
+  | 'service_package';
 
 interface IconProps {
   name: IconName;
@@ -58,13 +58,13 @@ const iconMap: Record<IconName, React.ComponentType<{ className?: string; size?:
   sun: RiSunLine,
   clock: RiTimeLine,
   calendar: RiCalendarLine,
-  products: RiShoppingBagLine,   // new
-  box: RiBox3Line,                // optional new
-  service_package: RiSuitcaseLine
+  products: RiShoppingBagLine, // new
+  box: RiBox3Line, // optional new
+  service_package: RiSuitcaseLine,
 };
 
 // Render the requested icon, with a safe fallback
-export default function Icon({ name, className = "", size = 20 }: IconProps) {
+export default function Icon({ name, className = '', size = 20 }: IconProps) {
   const IconComp = iconMap[name];
   if (!IconComp) {
     console.error(`Icon "${name}" not found in iconMap — rendering fallback.`);

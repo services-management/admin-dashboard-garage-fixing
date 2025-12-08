@@ -16,42 +16,38 @@ export default function Services() {
       id: '0001',
       name: 'ការផ្លាស់ប្តូរប្រេងម៉ាស៊ីន',
       description: 'ផ្លាស់ប្តូរប្រេងម៉ាស៊ីនដោយប្រើប្រេងដែលមានគុណភាពខ្ពស់',
-      price: 25.00,
+      price: 25.0,
       status: 'active',
-      products: [
-        { name: 'Engine Oil', quantity: 1 }
-      ],
-      image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=400&h=250&fit=crop'
+      products: [{ name: 'Engine Oil', quantity: 1 }],
+      image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=400&h=250&fit=crop',
     },
     {
       id: '0002',
       name: 'សម្អាតខាងក្នុង',
       description: 'សម្អាតខាងក្នុងរថយន្តឱ្យស្អាតស្អំ',
-      price: 15.00,
+      price: 15.0,
       status: 'active',
       products: [],
-      image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=400&h=250&fit=crop'
+      image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=400&h=250&fit=crop',
     },
     {
       id: '0003',
       name: 'ពិនិត្យប្រេកង់',
       description: 'ពិនិត្យនិងជួសជុលប្រព័ន្ធប្រេកង់',
-      price: 30.00,
+      price: 30.0,
       status: 'active',
-      products: [
-        { name: 'Brake Fluid', quantity: 1 }
-      ],
-      image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=400&h=250&fit=crop'
+      products: [{ name: 'Brake Fluid', quantity: 1 }],
+      image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=400&h=250&fit=crop',
     },
     {
       id: '0004',
       name: 'ផ្លាស់ប្តូរកង់',
       description: 'ផ្លាស់ប្តូរកង់ទៅកង់ថ្មី',
-      price: 80.00,
+      price: 80.0,
       status: 'inactive',
       products: [],
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=250&fit=crop'
-    }
+      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=250&fit=crop',
+    },
   ]);
 
   const [showModal, setShowModal] = useState(false);
@@ -65,7 +61,7 @@ export default function Services() {
     description: '',
     price: '',
     status: 'active' as 'active' | 'inactive',
-    products: [] as { name: string; quantity: number }[]
+    products: [] as { name: string; quantity: number }[],
   });
 
   const openCreateModal = () => {
@@ -77,7 +73,7 @@ export default function Services() {
       description: '',
       price: '',
       status: 'active',
-      products: []
+      products: [],
     });
     setShowModal(true);
   };
@@ -91,7 +87,7 @@ export default function Services() {
       description: service.description,
       price: service.price.toString(),
       status: service.status,
-      products: [...service.products]
+      products: [...service.products],
     });
     setShowModal(true);
   };
@@ -114,34 +110,32 @@ export default function Services() {
   };
 
   const addProductToService = () => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      products: [...prev.products, { name: '', quantity: 1 }]
+      products: [...prev.products, { name: '', quantity: 1 }],
     }));
   };
 
   const removeProduct = (index: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      products: prev.products.filter((_, i) => i !== index)
+      products: prev.products.filter((_, i) => i !== index),
     }));
   };
 
   const updateProductName = (index: number, name: string) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      products: prev.products.map((p, i) =>
-        i === index ? { ...p, name } : p
-      )
+      products: prev.products.map((p, i) => (i === index ? { ...p, name } : p)),
     }));
   };
 
   const updateProductQuantity = (index: number, quantity: number) => {
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       products: prev.products.map((p, i) =>
-        i === index ? { ...p, quantity: Math.max(1, quantity) } : p
-      )
+        i === index ? { ...p, quantity: Math.max(1, quantity) } : p,
+      ),
     }));
   };
 
@@ -159,19 +153,21 @@ export default function Services() {
     const finalPrice = parseFloat(formData.price);
 
     if (isEditMode && currentService) {
-      setServices(prev => prev.map(srv =>
-        srv.id === currentService.id
-          ? {
-              ...srv,
-              name: formData.name,
-              description: formData.description,
-              price: finalPrice,
-              status: formData.status,
-              products: formData.products,
-              image: imagePreview || srv.image
-            }
-          : srv
-      ));
+      setServices((prev) =>
+        prev.map((srv) =>
+          srv.id === currentService.id
+            ? {
+                ...srv,
+                name: formData.name,
+                description: formData.description,
+                price: finalPrice,
+                status: formData.status,
+                products: formData.products,
+                image: imagePreview || srv.image,
+              }
+            : srv,
+        ),
+      );
       alert('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
     } else {
       const newService: Service = {
@@ -181,9 +177,9 @@ export default function Services() {
         price: finalPrice,
         status: formData.status,
         products: formData.products,
-        image: imagePreview
+        image: imagePreview,
       };
-      setServices(prev => [...prev, newService]);
+      setServices((prev) => [...prev, newService]);
       alert('សេវាកម្មត្រូវបានបង្កើតជោគជ័យ!');
     }
     closeModal();
@@ -191,7 +187,7 @@ export default function Services() {
 
   const handleDelete = (id: string) => {
     if (confirm('តើអ្នកពិតជាចង់លុបសេវាកម្មនេះមែនទេ?')) {
-      setServices(prev => prev.filter(srv => srv.id !== id));
+      setServices((prev) => prev.filter((srv) => srv.id !== id));
       alert(`សេវាកម្ម ${id} ត្រូវបានលុប!`);
     }
   };
@@ -211,7 +207,13 @@ export default function Services() {
         {services.map((service) => (
           <div key={service.id} className="service-card-enhanced">
             <div className="service-card-image">
-              <img src={service.image ?? 'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=250&fit=crop'} alt={service.name} />
+              <img
+                src={
+                  service.image ??
+                  'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=250&fit=crop'
+                }
+                alt={service.name}
+              />
               <span className={`status-badge-overlay ${service.status}`}>
                 {service.status === 'active' ? 'Active' : 'Inactive'}
               </span>
@@ -247,10 +249,20 @@ export default function Services() {
               <div className="service-card-footer">
                 <div className="service-price">${service.price.toFixed(2)}</div>
                 <div className="card-actions">
-                  <button className="btn-small btn-edit" onClick={() => { openEditModal(service); }}>
+                  <button
+                    className="btn-small btn-edit"
+                    onClick={() => {
+                      openEditModal(service);
+                    }}
+                  >
                     កែសម្រួល
                   </button>
-                  <button className="btn-small btn-delete" onClick={() => { handleDelete(service.id); }}>
+                  <button
+                    className="btn-small btn-delete"
+                    onClick={() => {
+                      handleDelete(service.id);
+                    }}
+                  >
                     លុប
                   </button>
                 </div>
@@ -266,7 +278,9 @@ export default function Services() {
           <div className="modal-content">
             <div className="modal-header">
               <h2>{isEditMode ? 'កែសម្រួលសេវាកម្ម' : 'បង្កើតសេវាកម្មថ្មី'}</h2>
-              <button className="close-btn" onClick={closeModal}>&times;</button>
+              <button className="close-btn" onClick={closeModal}>
+                &times;
+              </button>
             </div>
 
             <div className="modal-body">
@@ -279,10 +293,16 @@ export default function Services() {
                       <img src={imagePreview} alt="Preview" className="image-preview" />
                     ) : (
                       <div className="image-placeholder">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
-                          <circle cx="8.5" cy="8.5" r="1.5"/>
-                          <polyline points="21 15 16 10 5 21"/>
+                        <svg
+                          width="64"
+                          height="64"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                          <circle cx="8.5" cy="8.5" r="1.5" />
+                          <polyline points="21 15 16 10 5 21" />
                         </svg>
                         <span>គ្មានរូបភាព</span>
                       </div>
@@ -303,7 +323,9 @@ export default function Services() {
                       <button
                         type="button"
                         className="btn-remove-image"
-                        onClick={() => { setImagePreview(''); }}
+                        onClick={() => {
+                          setImagePreview('');
+                        }}
                       >
                         លុបរូបភាព
                       </button>
@@ -316,7 +338,9 @@ export default function Services() {
               <div className="form-section">
                 <h3 className="form-section-title">ព័ត៌មានមូលដ្ឋាន</h3>
                 <div className="form-group">
-                  <label htmlFor="serviceId" className="form-label">លេខសម្គាល់សេវាកម្ម</label>
+                  <label htmlFor="serviceId" className="form-label">
+                    លេខសម្គាល់សេវាកម្ម
+                  </label>
                   <input
                     id="serviceId"
                     type="text"
@@ -326,29 +350,39 @@ export default function Services() {
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="serviceName" className="form-label">ឈ្មោះសេវាកម្ម *</label>
+                  <label htmlFor="serviceName" className="form-label">
+                    ឈ្មោះសេវាកម្ម *
+                  </label>
                   <input
                     id="serviceName"
                     type="text"
                     className="form-input"
                     placeholder="បញ្ចូលឈ្មោះសេវាកម្ម"
                     value={formData.name}
-                    onChange={(e) => { setFormData(prev => ({ ...prev, name: e.target.value })); }}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, name: e.target.value }));
+                    }}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="serviceDescription" className="form-label">ពិពណ៌នាសេវាកម្ម</label>
+                  <label htmlFor="serviceDescription" className="form-label">
+                    ពិពណ៌នាសេវាកម្ម
+                  </label>
                   <textarea
                     id="serviceDescription"
                     className="form-textarea"
                     placeholder="បញ្ចូលការពិពណ៌នាសេវាកម្ម..."
                     value={formData.description}
-                    onChange={(e) => { setFormData(prev => ({ ...prev, description: e.target.value })); }}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, description: e.target.value }));
+                    }}
                   />
                 </div>
                 <div className="form-row">
                   <div className="form-group">
-                    <label htmlFor="servicePrice" className="form-label">តម្លៃ ($) *</label>
+                    <label htmlFor="servicePrice" className="form-label">
+                      តម្លៃ ($) *
+                    </label>
                     <input
                       id="servicePrice"
                       type="number"
@@ -356,16 +390,25 @@ export default function Services() {
                       placeholder="0.00"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => { setFormData(prev => ({ ...prev, price: e.target.value })); }}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, price: e.target.value }));
+                      }}
                     />
                   </div>
                   <div className="form-group">
-                    <label htmlFor="serviceStatus" className="form-label">ស្ថានភាព *</label>
+                    <label htmlFor="serviceStatus" className="form-label">
+                      ស្ថានភាព *
+                    </label>
                     <select
                       id="serviceStatus"
                       className="form-select"
                       value={formData.status}
-                      onChange={(e) => { setFormData(prev => ({ ...prev, status: e.target.value as 'active' | 'inactive' })); }}
+                      onChange={(e) => {
+                        setFormData((prev) => ({
+                          ...prev,
+                          status: e.target.value as 'active' | 'inactive',
+                        }));
+                      }}
                     >
                       <option value="active">សកម្ម</option>
                       <option value="inactive">អសកម្ម</option>
@@ -379,7 +422,9 @@ export default function Services() {
                 <h3 className="form-section-title">ផលិតផលប្រើប្រាស់</h3>
                 <div className="multi-select-container">
                   <div className="select-header">
-                    <span style={{ fontSize: '13px', color: '#666' }}>បន្ថែមផលិតផលដែលប្រើក្នុងសេវាកម្ម</span>
+                    <span style={{ fontSize: '13px', color: '#666' }}>
+                      បន្ថែមផលិតផលដែលប្រើក្នុងសេវាកម្ម
+                    </span>
                     <button type="button" className="btn-add" onClick={addProductToService}>
                       + បន្ថែមផលិតផល
                     </button>
@@ -398,24 +443,34 @@ export default function Services() {
                               className="item-name-input"
                               placeholder="ឈ្មោះផលិតផល"
                               value={product.name}
-                              onChange={(e) => { updateProductName(idx, e.target.value); }}
+                              onChange={(e) => {
+                                updateProductName(idx, e.target.value);
+                              }}
                               style={{
                                 border: '1px solid #d1d5db',
                                 borderRadius: '6px',
                                 padding: '6px 10px',
                                 fontSize: '14px',
-                                width: '200px'
+                                width: '200px',
                               }}
                             />
                             <input
                               type="number"
                               className="quantity-input"
                               value={product.quantity}
-                              onChange={(e) => { updateProductQuantity(idx, parseInt(e.target.value) || 1); }}
+                              onChange={(e) => {
+                                updateProductQuantity(idx, parseInt(e.target.value) || 1);
+                              }}
                               min="1"
                             />
                           </div>
-                          <button type="button" className="btn-remove" onClick={() => { removeProduct(idx); }}>
+                          <button
+                            type="button"
+                            className="btn-remove"
+                            onClick={() => {
+                              removeProduct(idx);
+                            }}
+                          >
                             លុបផលិតផល
                           </button>
                         </div>

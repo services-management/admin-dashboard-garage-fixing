@@ -1,10 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { useEffect, useMemo, useState } from 'react';
+import { Outlet, Link, useLocation } from 'react-router-dom';
 
-import companyLogo from "../assets/garage-logo.svg";
-import Icon, { type IconName } from "../components/Icons";
-import SidebarDropdown from "../components/SidebarDropdown";
-
+import companyLogo from '../assets/garage-logo.svg';
+import Icon, { type IconName } from '../components/Icons';
+import SidebarDropdown from '../components/SidebarDropdown';
 
 // Sidebar navigation item with active state and icon
 function NavItem({ to, label, iconName }: { to: string; label: string; iconName: IconName }) {
@@ -13,7 +12,7 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 
   return (
     <li>
-      <Link to={to} className={`sidebar-link ${isActive ? "active" : ""}`}>
+      <Link to={to} className={`sidebar-link ${isActive ? 'active' : ''}`}>
         <span className="sidebar-icon" aria-hidden="true">
           <Icon name={iconName} size={20} />
         </span>
@@ -24,17 +23,17 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 }
 
 export default function DashboardLayout() {
-  const [query, setQuery] = useState("");
-  const [theme, setTheme] = useState<"light" | "dark">(
-    () => (localStorage.getItem("theme") as "light" | "dark") || "light"
+  const [query, setQuery] = useState('');
+  const [theme, setTheme] = useState<'light' | 'dark'>(
+    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
   );
 
   useEffect(() => {
     document.documentElement.dataset.theme = theme;
-    localStorage.setItem("theme", theme);
+    localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const placeholder = useMemo(() => "ស្វែងរក...", [theme]);
+  const placeholder = useMemo(() => 'ស្វែងរក...', [theme]);
 
   return (
     <div className="app-shell">
@@ -43,7 +42,7 @@ export default function DashboardLayout() {
           <img
             src={companyLogo}
             alt="Mr-Lube Garage Logo"
-            style={{ width: "40px", height: "40px", objectFit: "contain" }}
+            style={{ width: '40px', height: '40px', objectFit: 'contain' }}
           />
           <div className="brand-text">
             <div className="brand-title">ម្ចាស់យានដ្ឋាន</div>
@@ -58,9 +57,13 @@ export default function DashboardLayout() {
               label="សេវាកម្ម"
               iconName="box"
               items={[
-                { to: "/dashboard/services", label: "សេវាកម្មទាំងអស់", iconName: "services" },
-                { to: "/dashboard/products", label: "ផលិតផល", iconName: "products" },
-                { to: "/dashboard/service_package", label: "កញ្ចប់សេវាកម្ម", iconName: "service_package" },
+                { to: '/dashboard/services', label: 'សេវាកម្មទាំងអស់', iconName: 'services' },
+                { to: '/dashboard/products', label: 'ផលិតផល', iconName: 'products' },
+                {
+                  to: '/dashboard/service_package',
+                  label: 'កញ្ចប់សេវាកម្ម',
+                  iconName: 'service_package',
+                },
               ]}
             />
             <NavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
@@ -88,7 +91,9 @@ export default function DashboardLayout() {
             </span>
             <input
               value={query}
-              onChange={(e) => { setQuery(e.target.value); }}
+              onChange={(e) => {
+                setQuery(e.target.value);
+              }}
               className="search-input"
               placeholder={placeholder}
             />
@@ -99,9 +104,11 @@ export default function DashboardLayout() {
               type="button"
               className="theme-btn"
               aria-label="Toggle dark mode"
-              onClick={() => { setTheme((t) => (t === "dark" ? "light" : "dark")); }}
+              onClick={() => {
+                setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+              }}
             >
-              <Icon name={theme === "dark" ? "night" : "sun"} size={20} className="icon-red" />
+              <Icon name={theme === 'dark' ? 'night' : 'sun'} size={20} className="icon-red" />
             </button>
           </div>
         </header>

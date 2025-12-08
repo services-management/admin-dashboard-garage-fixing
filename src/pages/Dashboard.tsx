@@ -46,7 +46,7 @@ export default function Dashboard() {
       <section className="recent">
         <div className="recent-title">ការកក់ថ្មីៗ</div>
         <div className="card-list">
-          {[1,2,3].map((i) => (
+          {[1, 2, 3].map((i) => (
             <article className="task-card" key={i}>
               <div className="task-main">
                 <div className="task-name">Sarah Wilson</div>

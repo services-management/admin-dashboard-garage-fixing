@@ -29,4 +29,3 @@ declare module '*.svg' {
   export default src;
   export const ReactComponent: FC<SVGProps<SVGSVGElement>>;
 }
-

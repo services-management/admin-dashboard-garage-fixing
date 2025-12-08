@@ -20,4 +20,3 @@ declare module '@jest/expect' {
 }
 
 export {};
-

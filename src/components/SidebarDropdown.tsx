@@ -1,7 +1,7 @@
-import { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 
-import Icon, { type IconName } from "../components/Icons";
+import Icon, { type IconName } from '../components/Icons';
 
 interface SidebarDropdownProps {
   label: string;
@@ -17,8 +17,10 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
     <li>
       {/* Parent item looks like a normal NavItem */}
       <div
-        className={`sidebar-link ${open ? "active" : ""}`}
-        onClick={() => { setOpen(!open); }}
+        className={`sidebar-link ${open ? 'active' : ''}`}
+        onClick={() => {
+          setOpen(!open);
+        }}
       >
         <span className="sidebar-icon" aria-hidden="true">
           <Icon name={iconName} size={20} />
@@ -33,13 +35,16 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
             const isActive = location.pathname === item.to;
             return (
               <li key={item.to}>
-                <Link to={item.to} className={`sidebar-link ${isActive ? "active" : ""} sidebar-subitem`}>
-                {item.iconName && (
+                <Link
+                  to={item.to}
+                  className={`sidebar-link ${isActive ? 'active' : ''} sidebar-subitem`}
+                >
+                  {item.iconName && (
                     <span className="sidebar-icon sidebar-subicon" aria-hidden="true">
-                    <Icon name={item.iconName} size={16} />
+                      <Icon name={item.iconName} size={16} />
                     </span>
-                )}
-                <span className="sidebar-label">{item.label}</span>
+                  )}
+                  <span className="sidebar-label">{item.label}</span>
                 </Link>
               </li>
             );

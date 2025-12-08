@@ -17,8 +17,8 @@ export default function Login() {
       return;
     }
     if (!password.trim()) {
-    setError('សូមបញ្ចូល ពាក្យសម្ងាត់');
-    return;
+      setError('សូមបញ្ចូល ពាក្យសម្ងាត់');
+      return;
     }
 
     navigate('/dashboard');
@@ -37,7 +37,9 @@ export default function Login() {
           <label className="field">
             <input
               value={identifier}
-              onChange={(e) => { setIdentifier(e.target.value); }}
+              onChange={(e) => {
+                setIdentifier(e.target.value);
+              }}
               placeholder="ឈ្មោះ "
               className="input"
               aria-label="name"
@@ -48,7 +50,9 @@ export default function Login() {
             <input
               type="password"
               value={password}
-              onChange={(e) => { setPassword(e.target.value); }}
+              onChange={(e) => {
+                setPassword(e.target.value);
+              }}
               placeholder="ពាក្យសម្ងាត់"
               className="input"
               aria-label="password"
@@ -57,9 +61,9 @@ export default function Login() {
 
           {error && <div className="error">{error}</div>}
 
-          <button type="submit" className="btn primary">ចូលគណនី</button>
-
-
+          <button type="submit" className="btn primary">
+            ចូលគណនី
+          </button>
         </form>
       </div>
     </div>

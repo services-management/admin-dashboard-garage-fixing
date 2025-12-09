@@ -41,7 +41,7 @@
     "eslint-plugin-react-dom": "^2.3.12",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.22",
-    "eslint-plugin-react-x": "^2.3.12",
+    "eslint-plugin-react-x": "^2.3.13",
     "globals": "^16.5.0",
     "jest": "^30.2.0",
     "jest-environment-jsdom": "^30.2.0",

@@ -201,7 +201,7 @@ export default [
     settings: {
       'import/resolver': {
         node: {
-          extensions: ['.js', '.jsx', '.ts', '.tsx', '.mts'],
+          extensions: ['.ts', '.tsx', '.mts'],
         },
       },
     },

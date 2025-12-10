@@ -44,7 +44,9 @@ interface IconProps {
 }
 
 // Centralized mapping of icon names to components
-const iconMap: Record<IconName, React.ComponentType<{ className?: string; size?: number }>> = {
+const iconMap: Partial<
+  Record<IconName, React.ComponentType<{ className?: string; size?: number }>>
+> = {
   dashboard: RiDashboardLine,
   services: RiToolsLine,
   booking: RiCalendarLine,
@@ -58,8 +60,8 @@ const iconMap: Record<IconName, React.ComponentType<{ className?: string; size?:
   sun: RiSunLine,
   clock: RiTimeLine,
   calendar: RiCalendarLine,
-  products: RiShoppingBagLine, // new
-  box: RiBox3Line, // optional new
+  products: RiShoppingBagLine,
+  box: RiBox3Line,
   service_package: RiSuitcaseLine,
 };
 

@@ -15,8 +15,9 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
 
   return (
     <li>
-      {/* Parent item looks like a normal NavItem */}
       <div
+        role="button"
+        tabIndex={0}
         className={`sidebar-link ${open ? 'active' : ''}`}
         onClick={() => {
           setOpen(!open);
@@ -27,8 +28,6 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
         </span>
         <span className="sidebar-label">{label}</span>
       </div>
-
-      {/* Children: smaller + indented */}
       {open && (
         <ul className="ml-6 mt-1 space-y-1">
           {items.map((item) => {

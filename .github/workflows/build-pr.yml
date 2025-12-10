@@ -7,8 +7,8 @@ on:
     branches: [master]
 
 jobs:
-  lint:
-    name: Lint
+  format:
+    name: Format and Lint
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v4
@@ -16,13 +16,12 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      # - run: npm run lint
-      - run: echo "Lint Passed"
+      - run: npm run format:check
 
   unit-test:
     name: Unit Tests
     runs-on: ubuntu-22.04
-    needs: lint
+    needs: format
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -35,7 +34,7 @@ jobs:
   integration-test:
     name: Integration Tests
     runs-on: ubuntu-22.04
-    needs: lint
+    needs: format
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -49,7 +48,7 @@ jobs:
     name: E2E Tests
     timeout-minutes: 60
     runs-on: ubuntu-22.04
-    needs: lint
+    needs: format
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -78,5 +77,4 @@ jobs:
         with:
           node-version: '20'
       - run: npm install
-      - run: echo "Run Build"
       - run: npm run build

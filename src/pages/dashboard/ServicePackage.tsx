@@ -366,11 +366,7 @@ export default function ServicePackage() {
                       if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
                     }}
                   />
-                  {errors.name && (
-                    <div className="error-message">
-                      {errors.name}
-                    </div>
-                  )}
+                  {errors.name && <div className="error-message">{errors.name}</div>}
                 </div>
                 <div className="form-group">
                   <label className="form-label">Combo Description</label>

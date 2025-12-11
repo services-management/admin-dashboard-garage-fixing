@@ -15,7 +15,11 @@ interface ServicePackageCardProps {
   onDelete: (id: string) => void;
 }
 
-export default function ServicePackageCard({ package: pkg, onEdit, onDelete }: ServicePackageCardProps) {
+export default function ServicePackageCard({
+  package: pkg,
+  onEdit,
+  onDelete,
+}: ServicePackageCardProps) {
   return (
     <div className="service-card-enhanced">
       <div className="service-card-image">
@@ -42,7 +46,7 @@ export default function ServicePackageCard({ package: pkg, onEdit, onDelete }: S
         <div className="service-card-description">{pkg.description}</div>
 
         <div className="service-card-content">
-          <div className="content-section">cls
+          <div className="content-section">
             <div className="content-label">Services Included</div>
             <div className="content-items">
               {pkg.services.map((service, idx) => (

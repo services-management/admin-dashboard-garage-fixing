@@ -7,7 +7,7 @@ import Booking from '../pages/dashboard/Booking';
 import Invoices from '../pages/dashboard/Invoices';
 import Notifications from '../pages/dashboard/Notifications';
 import Profile from '../pages/dashboard/Profile';
-import ServicePackage from '../pages/dashboard/service_package';
+import ServicePackage from '../pages/dashboard/ServicePackage';
 import Services from '../pages/dashboard/Services';
 import Settings from '../pages/dashboard/Settings';
 import Login from '../pages/Login';
@@ -36,7 +36,7 @@ export const router = createBrowserRouter([
         element: <Services />,
       },
       {
-        path: 'service_package',
+        path: 'ServicePackage',
         element: <ServicePackage />,
       },
       {

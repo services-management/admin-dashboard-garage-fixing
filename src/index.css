@@ -543,19 +543,12 @@ body {
 
 .btn-remove:hover {
   background: #c82333;
-  /* ==================== GRID LAYOUT ==================== */
-  .service-grid-two-col {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 16px;
-  }
+}
 
-  @media (min-width: 640px) {
-    .service-grid-two-col {
-      grid-template-columns: repeat(2, 1fr);
-      gap: 24px;
-    }
-  }
+.btn-upload {
+  background: #dc3545;
+  color: white;
+  border: none;
   padding: 10px 20px;
   border-radius: 8px;
   cursor: pointer;
@@ -587,8 +580,22 @@ body {
 /* ==================== GRID LAYOUT ==================== */
 .service-grid-two-col {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 24px;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 768px) {
+  .service-grid-two-col {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .service-grid-two-col {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
 }
 
 /* ==================== SERVICE CARDS ==================== */
@@ -718,6 +725,17 @@ body {
 .card-actions {
   display: flex;
   gap: 8px;
+}
+
+/* ==================== Error Validation style ==================== */
+.form-input.error {
+  border-color: #ef4444;
+}
+
+.error-message {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
 }
 
 /* ==================== MODAL STYLES ==================== */

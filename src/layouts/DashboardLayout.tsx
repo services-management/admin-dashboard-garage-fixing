@@ -60,7 +60,7 @@ export default function DashboardLayout() {
                 { to: '/dashboard/services', label: 'សេវាកម្មទាំងអស់', iconName: 'services' },
                 { to: '/dashboard/products', label: 'ផលិតផល', iconName: 'products' },
                 {
-                  to: '/dashboard/service_package',
+                  to: '/dashboard/ServicePackage',
                   label: 'កញ្ចប់សេវាកម្ម',
                   iconName: 'service_package',
                 },

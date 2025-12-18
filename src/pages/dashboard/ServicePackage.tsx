@@ -225,22 +225,22 @@ export default function ServicePackage() {
         prev.map((pkg) =>
           pkg.id === currentPackage.id
             ? {
-              ...pkg,
-              name: formData.name,
-              description: formData.description,
-              price: finalPrice,
-              status: formData.status,
-              services: formData.services,
-              products: formData.products,
-              image: imagePreview || pkg.image,
-            }
+                ...pkg,
+                name: formData.name,
+                description: formData.description,
+                price: finalPrice,
+                status: formData.status,
+                services: formData.services,
+                products: formData.products,
+                image: imagePreview || pkg.image,
+              }
             : pkg,
         ),
       );
       alert('កញ្ចប់សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
     } else {
       const newPackage: ServicePackage = {
-        id: Math.max(...packages.map(p => p.id), 0) + 1,
+        id: Math.max(...packages.map((p) => p.id), 0) + 1,
         name: formData.name,
         description: formData.description,
         price: finalPrice,
@@ -336,7 +336,9 @@ export default function ServicePackage() {
                       <button
                         type="button"
                         className="btn-remove-image"
-                        onClick={() => { setImagePreview(''); }}
+                        onClick={() => {
+                          setImagePreview('');
+                        }}
                       >
                         Remove Image
                       </button>
@@ -353,7 +355,11 @@ export default function ServicePackage() {
                   <input
                     type="text"
                     className="form-input"
-                    value={isEditMode ? `#${String(currentPackage?.id).padStart(4, '0')}` : '#AUTO-GENERATED'}
+                    value={
+                      isEditMode
+                        ? `#${String(currentPackage?.id).padStart(4, '0')}`
+                        : '#AUTO-GENERATED'
+                    }
                     readOnly
                   />
                 </div>
@@ -377,8 +383,9 @@ export default function ServicePackage() {
                     className="form-textarea"
                     placeholder="Short explanation about what the combo includes..."
                     value={formData.description}
-                    onChange={(e) => { setFormData((prev) => ({ ...prev, description: e.target.value })); }
-                    }
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, description: e.target.value }));
+                    }}
                   />
                 </div>
                 <div className="form-row">
@@ -390,7 +397,9 @@ export default function ServicePackage() {
                       placeholder="0.00"
                       step="0.01"
                       value={formData.price}
-                      onChange={(e) => { setFormData((prev) => ({ ...prev, price: e.target.value })); }}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, price: e.target.value }));
+                      }}
                     />
                     <div className="auto-price-note">
                       Leave empty for auto-calculation: ${autoCalculatePrice}
@@ -406,8 +415,7 @@ export default function ServicePackage() {
                           ...prev,
                           status: e.target.value as 'active' | 'inactive',
                         }));
-                      }
-                      }
+                      }}
                     >
                       <option value="active">Active</option>
                       <option value="inactive">Inactive</option>
@@ -427,7 +435,9 @@ export default function ServicePackage() {
                     <button
                       type="button"
                       className="btn-add"
-                      onClick={() => { setShowServiceDialog(true); }}
+                      onClick={() => {
+                        setShowServiceDialog(true);
+                      }}
                     >
                       + Add Service
                     </button>
@@ -446,7 +456,9 @@ export default function ServicePackage() {
                           <button
                             type="button"
                             className="btn-remove"
-                            onClick={() => { removeService(service); }}
+                            onClick={() => {
+                              removeService(service);
+                            }}
                           >
                             Remove
                           </button>
@@ -468,7 +480,9 @@ export default function ServicePackage() {
                     <button
                       type="button"
                       className="btn-add"
-                      onClick={() => { setShowProductDialog(true); }}
+                      onClick={() => {
+                        setShowProductDialog(true);
+                      }}
                     >
                       + Add Product
                     </button>
@@ -487,15 +501,18 @@ export default function ServicePackage() {
                               type="number"
                               className="quantity-input"
                               value={product.quantity}
-                              onChange={(e) => { updateProductQuantity(product.name, parseInt(e.target.value) || 1); }
-                              }
+                              onChange={(e) => {
+                                updateProductQuantity(product.name, parseInt(e.target.value) || 1);
+                              }}
                               min="1"
                             />
                           </div>
                           <button
                             type="button"
                             className="btn-remove"
-                            onClick={() => { removeProduct(product.name); }}
+                            onClick={() => {
+                              removeProduct(product.name);
+                            }}
                           >
                             Remove
                           </button>
@@ -558,8 +575,18 @@ export default function ServicePackage() {
 
       {/* Service Selection Dialog */}
       {showServiceDialog && (
-        <div className="dialog-overlay" onClick={() => { setShowServiceDialog(false); }}>
-          <div className="dialog-box" onClick={(e) => { e.stopPropagation(); }}>
+        <div
+          className="dialog-overlay"
+          onClick={() => {
+            setShowServiceDialog(false);
+          }}
+        >
+          <div
+            className="dialog-box"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <div className="dialog-header">
               <h3>Select a Service</h3>
             </div>
@@ -571,7 +598,9 @@ export default function ServicePackage() {
                     <div
                       key={service.id}
                       className="dialog-item"
-                      onClick={() => { addServiceToPackage(service.name); }}
+                      onClick={() => {
+                        addServiceToPackage(service.name);
+                      }}
                     >
                       <span className="dialog-item-name">{service.name}</span>
                       <span className="dialog-item-price">${service.price}</span>
@@ -579,14 +608,19 @@ export default function ServicePackage() {
                   ))}
                 {availableServices.filter((s) => !formData.services.includes(s.name)).length ===
                   0 && (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
-                      All services have been added
-                    </div>
-                  )}
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
+                    All services have been added
+                  </div>
+                )}
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="btn-secondary" onClick={() => { setShowServiceDialog(false); }}>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  setShowServiceDialog(false);
+                }}
+              >
                 Close
               </button>
             </div>
@@ -596,8 +630,18 @@ export default function ServicePackage() {
 
       {/* Product Selection Dialog */}
       {showProductDialog && (
-        <div className="dialog-overlay" onClick={() => { setShowProductDialog(false); }}>
-          <div className="dialog-box" onClick={(e) => { e.stopPropagation(); }}>
+        <div
+          className="dialog-overlay"
+          onClick={() => {
+            setShowProductDialog(false);
+          }}
+        >
+          <div
+            className="dialog-box"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <div className="dialog-header">
               <h3>Select a Product</h3>
             </div>
@@ -609,7 +653,9 @@ export default function ServicePackage() {
                     <div
                       key={product.id}
                       className="dialog-item"
-                      onClick={() => { addProductToPackage(product.name); }}
+                      onClick={() => {
+                        addProductToPackage(product.name);
+                      }}
                     >
                       <span className="dialog-item-name">{product.name}</span>
                       <span className="dialog-item-price">${product.price}</span>
@@ -618,14 +664,19 @@ export default function ServicePackage() {
                 {availableProducts.filter(
                   (p) => !formData.products.find((fp) => fp.name === p.name),
                 ).length === 0 && (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
-                      All products have been added
-                    </div>
-                  )}
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
+                    All products have been added
+                  </div>
+                )}
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="btn-secondary" onClick={() => { setShowProductDialog(false); }}>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  setShowProductDialog(false);
+                }}
+              >
                 Close
               </button>
             </div>

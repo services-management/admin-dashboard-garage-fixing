@@ -13,7 +13,6 @@ import Services from '../pages/dashboard/Services';
 import Settings from '../pages/dashboard/Settings';
 import Login from '../pages/Login';
 
-
 export const router = createBrowserRouter([
   {
     path: '/',

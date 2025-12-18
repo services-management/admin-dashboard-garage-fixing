@@ -157,21 +157,21 @@ export default function Services() {
         prev.map((srv) =>
           srv.id === currentService.id
             ? {
-              ...srv,
-              name: formData.name,
-              description: formData.description,
-              price: finalPrice,
-              status: formData.status,
-              products: formData.products,
-              image: imagePreview || srv.image,
-            }
+                ...srv,
+                name: formData.name,
+                description: formData.description,
+                price: finalPrice,
+                status: formData.status,
+                products: formData.products,
+                image: imagePreview || srv.image,
+              }
             : srv,
         ),
       );
       alert('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
     } else {
       const newService: Service = {
-        id: Math.max(...services.map(s => s.id), 0) + 1,
+        id: Math.max(...services.map((s) => s.id), 0) + 1,
         name: formData.name,
         description: formData.description,
         price: finalPrice,
@@ -345,7 +345,11 @@ export default function Services() {
                     id="serviceId"
                     type="text"
                     className="form-input"
-                    value={isEditMode ? `#${String(currentService?.id).padStart(4, '0')}` : '#AUTO-GENERATED'}
+                    value={
+                      isEditMode
+                        ? `#${String(currentService?.id).padStart(4, '0')}`
+                        : '#AUTO-GENERATED'
+                    }
                     readOnly
                   />
                 </div>

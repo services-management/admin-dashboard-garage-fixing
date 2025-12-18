@@ -72,10 +72,20 @@ export default function ServicePackageCard({
         <div className="service-card-footer">
           <div className="service-price">${pkg.price.toFixed(2)}</div>
           <div className="card-actions">
-            <button className="btn-small btn-edit" onClick={() => { onEdit(pkg); }}>
+            <button
+              className="btn-small btn-edit"
+              onClick={() => {
+                onEdit(pkg);
+              }}
+            >
               កែសម្រួល
             </button>
-            <button className="btn-small btn-delete" onClick={() => { onDelete(pkg.id); }}>
+            <button
+              className="btn-small btn-delete"
+              onClick={() => {
+                onDelete(pkg.id);
+              }}
+            >
               លុប
             </button>
           </div>

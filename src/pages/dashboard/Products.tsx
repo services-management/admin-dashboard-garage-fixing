@@ -164,22 +164,22 @@ export default function Product() {
         prev.map((prd) =>
           prd.id === currentProduct.id
             ? {
-              ...prd,
-              name: formData.name,
-              description: formData.description,
-              price: finalPrice,
-              status: formData.status,
-              stock: formData.stock,
-              categories: formData.categories,
-              image: imagePreview || prd.image,
-            }
+                ...prd,
+                name: formData.name,
+                description: formData.description,
+                price: finalPrice,
+                status: formData.status,
+                stock: formData.stock,
+                categories: formData.categories,
+                image: imagePreview || prd.image,
+              }
             : prd,
         ),
       );
       alert('ផលិតផលត្រូវបានកែប្រែជោគជ័យ!');
     } else {
       const newProduct: ProductItem = {
-        id: Math.max(...products.map(p => p.id), 0) + 1,
+        id: Math.max(...products.map((p) => p.id), 0) + 1,
         name: formData.name,
         description: formData.description,
         price: finalPrice,
@@ -360,7 +360,11 @@ export default function Product() {
                     id="productId"
                     type="text"
                     className="form-input"
-                    value={isEditMode ? `#${String(currentProduct?.id).padStart(4, '0')}` : '#AUTO-GENERATED'}
+                    value={
+                      isEditMode
+                        ? `#${String(currentProduct?.id).padStart(4, '0')}`
+                        : '#AUTO-GENERATED'
+                    }
                     readOnly
                   />
                 </div>
@@ -514,8 +518,18 @@ export default function Product() {
 
       {/* Category Selection Dialog */}
       {showCategoryDialog && (
-        <div className="dialog-overlay" onClick={() => { setShowCategoryDialog(false); }}>
-          <div className="dialog-box" onClick={(e) => { e.stopPropagation(); }}>
+        <div
+          className="dialog-overlay"
+          onClick={() => {
+            setShowCategoryDialog(false);
+          }}
+        >
+          <div
+            className="dialog-box"
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <div className="dialog-header">
               <h3>ជ្រើសរើសប្រភេទ</h3>
             </div>
@@ -536,14 +550,19 @@ export default function Product() {
                   ))}
                 {availableCategories.filter((cat) => !formData.categories.includes(cat.name))
                   .length === 0 && (
-                    <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
-                      ប្រភេទទាំងអស់ត្រូវបានបន្ថែមរួចហើយ
-                    </div>
-                  )}
+                  <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
+                    ប្រភេទទាំងអស់ត្រូវបានបន្ថែមរួចហើយ
+                  </div>
+                )}
               </div>
             </div>
             <div className="dialog-footer">
-              <button className="btn-secondary" onClick={() => { setShowCategoryDialog(false); }}>
+              <button
+                className="btn-secondary"
+                onClick={() => {
+                  setShowCategoryDialog(false);
+                }}
+              >
                 បិទ
               </button>
             </div>

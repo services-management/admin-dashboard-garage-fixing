@@ -1,5 +1,5 @@
 interface ServicePackage {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
@@ -12,7 +12,7 @@ interface ServicePackage {
 interface ServicePackageCardProps {
   package: ServicePackage;
   onEdit: (pkg: ServicePackage) => void;
-  onDelete: (id: string) => void;
+  onDelete: (id: number) => void;
 }
 
 export default function ServicePackageCard({
@@ -39,7 +39,7 @@ export default function ServicePackageCard({
         <div className="service-card-header-enhanced">
           <div>
             <div className="service-card-title">{pkg.name}</div>
-            <div className="service-card-id">#{pkg.id}</div>
+            <div className="service-card-id">#{String(pkg.id).padStart(4, '0')}</div>
           </div>
         </div>
 
@@ -72,10 +72,10 @@ export default function ServicePackageCard({
         <div className="service-card-footer">
           <div className="service-price">${pkg.price.toFixed(2)}</div>
           <div className="card-actions">
-            <button className="btn-small btn-edit" onClick={() => onEdit(pkg)}>
+            <button className="btn-small btn-edit" onClick={() => { onEdit(pkg); }}>
               កែសម្រួល
             </button>
-            <button className="btn-small btn-delete" onClick={() => onDelete(pkg.id)}>
+            <button className="btn-small btn-delete" onClick={() => { onDelete(pkg.id); }}>
               លុប
             </button>
           </div>

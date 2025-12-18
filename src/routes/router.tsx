@@ -6,11 +6,13 @@ import Dashboard from '../pages/Dashboard';
 import Booking from '../pages/dashboard/Booking';
 import Invoices from '../pages/dashboard/Invoices';
 import Notifications from '../pages/dashboard/Notifications';
+import Product from '../pages/dashboard/Products';
 import Profile from '../pages/dashboard/Profile';
 import ServicePackage from '../pages/dashboard/ServicePackage';
 import Services from '../pages/dashboard/Services';
 import Settings from '../pages/dashboard/Settings';
 import Login from '../pages/Login';
+
 
 export const router = createBrowserRouter([
   {
@@ -50,6 +52,10 @@ export const router = createBrowserRouter([
       {
         path: 'notifications',
         element: <Notifications />,
+      },
+      {
+        path: 'products',
+        element: <Product />,
       },
       {
         path: 'profile',

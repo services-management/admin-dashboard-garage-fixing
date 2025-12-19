@@ -57,10 +57,14 @@ export default function DashboardLayout() {
               label="សេវាកម្ម"
               iconName="box"
               items={[
-                { to: '/dashboard/services', label: 'សេវាកម្មទាំងអស់', iconName: 'services' },
-                { to: '/dashboard/products', label: 'ផលិតផល', iconName: 'products' },
                 {
-                  to: '/dashboard/ServicePackage',
+                  to: '/dashboard/service/services',
+                  label: 'សេវាកម្មទាំងអស់',
+                  iconName: 'services',
+                },
+                { to: '/dashboard/service/products', label: 'ផលិតផល', iconName: 'products' },
+                {
+                  to: '/dashboard/service/ServicePackage',
                   label: 'កញ្ចប់សេវាកម្ម',
                   iconName: 'service_package',
                 },

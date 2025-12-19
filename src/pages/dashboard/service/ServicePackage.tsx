@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-import ServicePackageCard from '../../components/ServicePackageCard';
+import ServicePackageCard from '../../../components/ServicePackageCard';
 
 interface ServicePackage {
   id: number;

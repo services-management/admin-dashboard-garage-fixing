@@ -7,8 +7,9 @@ import Booking from '../pages/dashboard/Booking';
 import Invoices from '../pages/dashboard/Invoices';
 import Notifications from '../pages/dashboard/Notifications';
 import Profile from '../pages/dashboard/Profile';
-import ServicePackage from '../pages/dashboard/ServicePackage';
-import Services from '../pages/dashboard/Services';
+import Product from '../pages/dashboard/service/Products';
+import ServicePackage from '../pages/dashboard/service/ServicePackage';
+import Services from '../pages/dashboard/service/Services';
 import Settings from '../pages/dashboard/Settings';
 import Login from '../pages/Login';
 
@@ -32,11 +33,11 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: 'services',
+        path: 'service/services',
         element: <Services />,
       },
       {
-        path: 'ServicePackage',
+        path: 'service/ServicePackage',
         element: <ServicePackage />,
       },
       {
@@ -50,6 +51,10 @@ export const router = createBrowserRouter([
       {
         path: 'notifications',
         element: <Notifications />,
+      },
+      {
+        path: 'service/products',
+        element: <Product />,
       },
       {
         path: 'profile',

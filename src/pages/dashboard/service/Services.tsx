@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 
 interface Service {
-  id: string;
+  id: number;
   name: string;
   description: string;
   price: number;
@@ -13,7 +13,7 @@ interface Service {
 export default function Services() {
   const [services, setServices] = useState<Service[]>([
     {
-      id: '0001',
+      id: 1,
       name: 'ការផ្លាស់ប្តូរប្រេងម៉ាស៊ីន',
       description: 'ផ្លាស់ប្តូរប្រេងម៉ាស៊ីនដោយប្រើប្រេងដែលមានគុណភាពខ្ពស់',
       price: 25.0,
@@ -22,7 +22,7 @@ export default function Services() {
       image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=400&h=250&fit=crop',
     },
     {
-      id: '0002',
+      id: 2,
       name: 'សម្អាតខាងក្នុង',
       description: 'សម្អាតខាងក្នុងរថយន្តឱ្យស្អាតស្អំ',
       price: 15.0,
@@ -31,7 +31,7 @@ export default function Services() {
       image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=400&h=250&fit=crop',
     },
     {
-      id: '0003',
+      id: 3,
       name: 'ពិនិត្យប្រេកង់',
       description: 'ពិនិត្យនិងជួសជុលប្រព័ន្ធប្រេកង់',
       price: 30.0,
@@ -40,7 +40,7 @@ export default function Services() {
       image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=400&h=250&fit=crop',
     },
     {
-      id: '0004',
+      id: 4,
       name: 'ផ្លាស់ប្តូរកង់',
       description: 'ផ្លាស់ប្តូរកង់ទៅកង់ថ្មី',
       price: 80.0,
@@ -171,7 +171,7 @@ export default function Services() {
       alert('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
     } else {
       const newService: Service = {
-        id: String(services.length + 1).padStart(4, '0'),
+        id: Math.max(...services.map((s) => s.id), 0) + 1,
         name: formData.name,
         description: formData.description,
         price: finalPrice,
@@ -185,7 +185,7 @@ export default function Services() {
     closeModal();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = (id: number) => {
     if (confirm('តើអ្នកពិតជាចង់លុបសេវាកម្មនេះមែនទេ?')) {
       setServices((prev) => prev.filter((srv) => srv.id !== id));
       alert(`សេវាកម្ម ${id} ត្រូវបានលុប!`);
@@ -223,7 +223,7 @@ export default function Services() {
               <div className="service-card-header-enhanced">
                 <div>
                   <div className="service-card-title">{service.name}</div>
-                  <div className="service-card-id">#{service.id}</div>
+                  <div className="service-card-id">#{String(service.id).padStart(4, '0')}</div>
                 </div>
               </div>
 
@@ -345,7 +345,11 @@ export default function Services() {
                     id="serviceId"
                     type="text"
                     className="form-input"
-                    value={isEditMode ? `#${currentService?.id}` : '#AUTO-GENERATED'}
+                    value={
+                      isEditMode
+                        ? `#${String(currentService?.id).padStart(4, '0')}`
+                        : '#AUTO-GENERATED'
+                    }
                     readOnly
                   />
                 </div>

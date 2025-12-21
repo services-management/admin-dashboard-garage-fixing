@@ -2,16 +2,16 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import AuthLayout from '../layouts/AuthLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
-import Dashboard from '../pages/Dashboard';
-import Booking from '../pages/dashboard/Booking';
-import Invoices from '../pages/dashboard/Invoices';
-import Notifications from '../pages/dashboard/Notifications';
-import Profile from '../pages/dashboard/Profile';
-import Product from '../pages/dashboard/service/Products';
-import ServicePackage from '../pages/dashboard/service/ServicePackage';
-import Services from '../pages/dashboard/service/Services';
-import Settings from '../pages/dashboard/Settings';
-import Login from '../pages/Login';
+import Dashboard from '../pages/dashboard/Dashboard';
+import Booking from '../pages/dashboard/bookings/Bookings';
+import Invoices from '../pages/dashboard/invoices/Invoices';
+import Notifications from '../pages/dashboard/notifications/Notifications';
+import Profile from '../pages/dashboard/profile/Profile';
+import Product from '../pages/dashboard/services/products/Products';
+import ServicePackage from '../pages/dashboard/services/service-package/ServicePackage';
+import Services from '../pages/dashboard/services/services/Services';
+import Settings from '../pages/dashboard/settings/Settings';
+import Login from '../pages/auth/Login';
 
 export const router = createBrowserRouter([
   {
@@ -33,11 +33,11 @@ export const router = createBrowserRouter([
         element: <Dashboard />,
       },
       {
-        path: 'service/services',
+        path: 'services',
         element: <Services />,
       },
       {
-        path: 'service/ServicePackage',
+        path: 'services/service-package',
         element: <ServicePackage />,
       },
       {
@@ -53,7 +53,7 @@ export const router = createBrowserRouter([
         element: <Notifications />,
       },
       {
-        path: 'service/products',
+        path: 'services/products',
         element: <Product />,
       },
       {

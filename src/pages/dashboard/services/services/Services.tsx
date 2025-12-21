@@ -55,7 +55,6 @@ export default function Services() {
   const [currentService, setCurrentService] = useState<Service | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
-  // Form state
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -192,6 +191,7 @@ export default function Services() {
     }
   };
 
+  // Modal UI for Services
   return (
     <div>
       {/* Header */}
@@ -272,225 +272,89 @@ export default function Services() {
         ))}
       </div>
 
-      {/* Main Modal */}
       {showModal && (
         <div className="modal active">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>{isEditMode ? 'កែសម្រួលសេវាកម្ម' : 'បង្កើតសេវាកម្មថ្មី'}</h2>
+              <h2>{isEditMode ? 'Edit Service' : 'Create Service'}</h2>
               <button className="close-btn" onClick={closeModal}>
                 &times;
               </button>
             </div>
-
             <div className="modal-body">
-              {/* Image Upload */}
-              <div className="form-section">
-                <h3 className="form-section-title">រូបភាពសេវាកម្ម</h3>
-                <div className="image-upload-container">
-                  <div className="image-preview-box">
-                    {imagePreview ? (
-                      <img src={imagePreview} alt="Preview" className="image-preview" />
-                    ) : (
-                      <div className="image-placeholder">
-                        <svg
-                          width="64"
-                          height="64"
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          stroke="currentColor"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
-                          <circle cx="8.5" cy="8.5" r="1.5" />
-                          <polyline points="21 15 16 10 5 21" />
-                        </svg>
-                        <span>គ្មានរូបភាព</span>
-                      </div>
-                    )}
-                  </div>
-                  <div className="image-upload-actions">
-                    <label htmlFor="imageUpload" className="btn-upload">
-                      ជ្រើសរើសរូបភាព
-                    </label>
-                    <input
-                      type="file"
-                      id="imageUpload"
-                      accept="image/*"
-                      onChange={handleImageUpload}
-                      style={{ display: 'none' }}
-                    />
-                    {imagePreview && (
-                      <button
-                        type="button"
-                        className="btn-remove-image"
-                        onClick={() => {
-                          setImagePreview('');
-                        }}
-                      >
-                        លុបរូបភាព
-                      </button>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* Basic Information */}
-              <div className="form-section">
-                <h3 className="form-section-title">ព័ត៌មានមូលដ្ឋាន</h3>
+              <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="serviceId" className="form-label">
-                    លេខសម្គាល់សេវាកម្ម
-                  </label>
+                  <label className="form-label">Name</label>
                   <input
-                    id="serviceId"
-                    type="text"
                     className="form-input"
-                    value={
-                      isEditMode
-                        ? `#${String(currentService?.id).padStart(4, '0')}`
-                        : '#AUTO-GENERATED'
-                    }
-                    readOnly
-                  />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="serviceName" className="form-label">
-                    ឈ្មោះសេវាកម្ម *
-                  </label>
-                  <input
-                    id="serviceName"
-                    type="text"
-                    className="form-input"
-                    placeholder="បញ្ចូលឈ្មោះសេវាកម្ម"
                     value={formData.name}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, name: e.target.value }));
-                    }}
+                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="serviceDescription" className="form-label">
-                    ពិពណ៌នាសេវាកម្ម
-                  </label>
-                  <textarea
-                    id="serviceDescription"
-                    className="form-textarea"
-                    placeholder="បញ្ចូលការពិពណ៌នាសេវាកម្ម..."
-                    value={formData.description}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, description: e.target.value }));
-                    }}
+                  <label className="form-label">Price</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={formData.price}
+                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
                   />
                 </div>
-                <div className="form-row">
-                  <div className="form-group">
-                    <label htmlFor="servicePrice" className="form-label">
-                      តម្លៃ ($) *
-                    </label>
-                    <input
-                      id="servicePrice"
-                      type="number"
-                      className="form-input"
-                      placeholder="0.00"
-                      step="0.01"
-                      value={formData.price}
-                      onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, price: e.target.value }));
-                      }}
-                    />
-                  </div>
-                  <div className="form-group">
-                    <label htmlFor="serviceStatus" className="form-label">
-                      ស្ថានភាព *
-                    </label>
-                    <select
-                      id="serviceStatus"
-                      className="form-select"
-                      value={formData.status}
-                      onChange={(e) => {
-                        setFormData((prev) => ({
-                          ...prev,
-                          status: e.target.value as 'active' | 'inactive',
-                        }));
-                      }}
-                    >
-                      <option value="active">សកម្ម</option>
-                      <option value="inactive">អសកម្ម</option>
-                    </select>
-                  </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-input"
+                    value={formData.description}
+                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                  />
                 </div>
               </div>
-
-              {/* Select Products */}
-              <div className="form-section">
-                <h3 className="form-section-title">ផលិតផលប្រើប្រាស់</h3>
-                <div className="multi-select-container">
-                  <div className="select-header">
-                    <span style={{ fontSize: '13px', color: '#666' }}>
-                      បន្ថែមផលិតផលដែលប្រើក្នុងសេវាកម្ម
-                    </span>
-                    <button type="button" className="btn-add" onClick={addProductToService}>
-                      + បន្ថែមផលិតផល
-                    </button>
-                  </div>
-                  <div className="selected-items">
-                    {formData.products.length === 0 ? (
-                      <div style={{ padding: '20px', textAlign: 'center', color: '#9ca3af' }}>
-                        មិនទាន់មានផលិតផល
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Image</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
+                  {imagePreview && <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />}
+                </div>
+              </div>
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Products</label>
+                  <div>
+                    {formData.products.map((p, i) => (
+                      <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                        <input
+                          value={p.name}
+                          className="form-input"
+                          onChange={(e) => updateProductName(i, e.target.value)}
+                          placeholder="Product name"
+                        />
+                        <input
+                          type="number"
+                          className="form-input"
+                          value={p.quantity}
+                          onChange={(e) => updateProductQuantity(i, parseInt(e.target.value) || 1)}
+                          style={{ width: 80 }}
+                        />
+                        <button className="btn-remove" onClick={() => removeProduct(i)}>
+                          Remove
+                        </button>
                       </div>
-                    ) : (
-                      formData.products.map((product, idx) => (
-                        <div key={`product-${idx}-${product.name}`} className="selected-item">
-                          <div className="item-info">
-                            <input
-                              type="text"
-                              className="item-name-input"
-                              placeholder="ឈ្មោះផលិតផល"
-                              value={product.name}
-                              onChange={(e) => {
-                                updateProductName(idx, e.target.value);
-                              }}
-                              style={{
-                                border: '1px solid #d1d5db',
-                                borderRadius: '6px',
-                                padding: '6px 10px',
-                                fontSize: '14px',
-                                width: '200px',
-                              }}
-                            />
-                            <input
-                              type="number"
-                              className="quantity-input"
-                              value={product.quantity}
-                              onChange={(e) => {
-                                updateProductQuantity(idx, parseInt(e.target.value) || 1);
-                              }}
-                              min="1"
-                            />
-                          </div>
-                          <button
-                            type="button"
-                            className="btn-remove"
-                            onClick={() => {
-                              removeProduct(idx);
-                            }}
-                          >
-                            លុបផលិតផល
-                          </button>
-                        </div>
-                      ))
-                    )}
+                    ))}
+                    <button className="btn-small" onClick={addProductToService}>
+                      + Add Product
+                    </button>
                   </div>
                 </div>
               </div>
             </div>
-
             <div className="modal-footer">
-              <button type="button" className="btn-secondary" onClick={closeModal}>
-                បោះបង់
+              <button className="btn-secondary" onClick={closeModal}>
+                Cancel
               </button>
-              <button type="button" className="btn-primary" onClick={handleSave}>
-                {isEditMode ? 'រក្សាទុក' : 'បង្កើត'}
+              <button className="btn-primary" onClick={handleSave}>
+                {isEditMode ? 'Update Service' : 'Save Service'}
               </button>
             </div>
           </div>

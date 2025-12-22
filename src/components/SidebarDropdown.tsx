@@ -18,9 +18,16 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
       <div
         role="button"
         tabIndex={0}
+        aria-expanded={open}
         className={`sidebar-link ${open ? 'active' : ''}`}
         onClick={() => {
           setOpen(!open);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setOpen((o) => !o);
+          }
         }}
       >
         <span className="sidebar-icon" aria-hidden="true">

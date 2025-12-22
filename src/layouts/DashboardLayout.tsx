@@ -24,8 +24,8 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 
 export default function DashboardLayout() {
   const [query, setQuery] = useState('');
-  const [theme, setTheme] = useState<'light' | 'dark'>(
-    () => (localStorage.getItem('theme') as 'light' | 'dark') || 'light',
+  const [theme, setTheme] = useState<'light' | 'dark'>(() =>
+    localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   );
 
   useEffect(() => {
@@ -33,7 +33,7 @@ export default function DashboardLayout() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const placeholder = useMemo(() => 'ស្វែងរក...', [theme]);
+  const placeholder = useMemo(() => 'ស្វែងរក...', []);
 
   return (
     <div className="app-shell">

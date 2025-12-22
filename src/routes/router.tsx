@@ -2,16 +2,16 @@ import { createBrowserRouter } from 'react-router-dom';
 
 import AuthLayout from '../layouts/AuthLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
-import Dashboard from '../pages/dashboard/Dashboard';
-import Booking from '../pages/dashboard/bookings/Bookings';
-import Invoices from '../pages/dashboard/invoices/Invoices';
-import Notifications from '../pages/dashboard/notifications/Notifications';
-import Profile from '../pages/dashboard/profile/Profile';
-import Product from '../pages/dashboard/services/products/Products';
-import ServicePackage from '../pages/dashboard/services/service-package/ServicePackage';
-import Services from '../pages/dashboard/services/services/Services';
-import Settings from '../pages/dashboard/settings/Settings';
 import Login from '../pages/auth/Login';
+import Booking from '../pages/bookings/Bookings';
+import Dashboard from '../pages/dashboard/Dashboard';
+import Invoices from '../pages/invoices/Invoices';
+import Notifications from '../pages/notifications/Notifications';
+import Profile from '../pages/profile/Profile';
+import Product from '../pages/services/products/Products';
+import ServicePackage from '../pages/services/service-package/ServicePackage';
+import Services from '../pages/services/services/Services';
+import Settings from '../pages/settings/Settings';
 
 export const router = createBrowserRouter([
   {

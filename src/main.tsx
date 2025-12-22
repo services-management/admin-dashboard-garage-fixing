@@ -6,7 +6,10 @@ import { RouterProvider } from 'react-router-dom';
 
 import { router } from './routes/router';
 
-createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Root element not found');
+
+createRoot(rootEl).render(
   <StrictMode>
     <RouterProvider router={router} />
   </StrictMode>,

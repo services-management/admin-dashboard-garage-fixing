@@ -109,7 +109,7 @@ export default function ServicePackage() {
   const openEditModal = (pkg: ServicePackage) => {
     setIsEditMode(true);
     setCurrentPackage(pkg);
-    setImagePreview(pkg.image || '');
+    setImagePreview(pkg.image ?? '');
     setFormData({
       name: pkg.name,
       description: pkg.description,
@@ -260,10 +260,8 @@ export default function ServicePackage() {
 
   const autoCalculatePrice = parseFloat(calculateTotalPrice());
 
-  // Modal UI for creating/editing packages
   return (
     <div>
-      {/* Header */}
       <div className="service-package-header">
         <h1>កញ្ចប់សេវាកម្មទាំងអស់</h1>
         <button className="btn-primary" onClick={openCreateModal}>
@@ -271,7 +269,6 @@ export default function ServicePackage() {
         </button>
       </div>
 
-      {/* Service Cards Grid */}
       <div className="service-grid-two-col">
         {packages.map((pkg) => (
           <ServicePackageCard
@@ -282,7 +279,6 @@ export default function ServicePackage() {
           />
         ))}
       </div>
-      {/* Modal and dialogs */}
       {showModal && (
         <div className="modal active">
           <div className="modal-content">
@@ -295,44 +291,66 @@ export default function ServicePackage() {
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Name</label>
+                  <label className="form-label" htmlFor="sp-name">
+                    Name
+                  </label>
                   <input
+                    id="sp-name"
                     className="form-input"
                     value={formData.name}
-                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, name: e.target.value }));
+                    }}
                   />
                   {errors.name && <div className="form-error">{errors.name}</div>}
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Price</label>
+                  <label className="form-label" htmlFor="sp-price">
+                    Price
+                  </label>
                   <input
+                    id="sp-price"
                     type="number"
                     className="form-input"
                     value={formData.price}
-                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, price: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Description</label>
+                  <label className="form-label" htmlFor="sp-description">
+                    Description
+                  </label>
                   <textarea
+                    id="sp-description"
                     className="form-input"
                     value={formData.description}
-                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, description: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Services</label>
+                  <label className="form-label" htmlFor="sp-service-input">
+                    Services
+                  </label>
                   <div className="selected-items">
-                    {formData.services.map((s, i) => (
-                      <span key={i} className="item-tag">
+                    {formData.services.map((s) => (
+                      <span key={s} className="item-tag">
                         {s}
-                        <button className="btn-remove" onClick={() => removeService(s)}>
+                        <button
+                          className="btn-remove"
+                          onClick={() => {
+                            removeService(s);
+                          }}
+                        >
                           ×
                         </button>
                       </span>
@@ -340,6 +358,7 @@ export default function ServicePackage() {
                   </div>
                   <div style={{ marginTop: 8, display: 'flex', gap: 8 }}>
                     <input
+                      id="sp-service-input"
                       placeholder="Add service"
                       className="form-input"
                       onKeyDown={(e) => {
@@ -352,14 +371,27 @@ export default function ServicePackage() {
                         }
                       }}
                     />
-                    <button className="btn-small" type="button" onClick={() => setShowServiceDialog((s) => !s)}>
+                    <button
+                      className="btn-small"
+                      type="button"
+                      onClick={() => {
+                        setShowServiceDialog((s) => !s);
+                      }}
+                    >
                       Suggestions
                     </button>
                   </div>
                   {showServiceDialog && (
                     <div className="suggestions" style={{ marginTop: 8 }}>
                       {availableServices.map((srv) => (
-                        <button key={srv.id} className="btn-small" type="button" onClick={() => addServiceToPackage(srv.name)}>
+                        <button
+                          key={srv.id}
+                          className="btn-small"
+                          type="button"
+                          onClick={() => {
+                            addServiceToPackage(srv.name);
+                          }}
+                        >
                           {srv.name}
                         </button>
                       ))}
@@ -370,18 +402,30 @@ export default function ServicePackage() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Products</label>
+                  <label className="form-label" htmlFor="sp-product-input">
+                    Products
+                  </label>
                   <div className="selected-items">
-                    {formData.products.map((p, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}>
+                    {formData.products.map((p) => (
+                      <div
+                        key={p.name}
+                        style={{ display: 'flex', gap: 8, alignItems: 'center', marginBottom: 6 }}
+                      >
                         <span style={{ minWidth: 160 }}>{p.name}</span>
                         <input
                           type="number"
                           value={p.quantity}
-                          onChange={(e) => updateProductQuantity(p.name, parseInt(e.target.value) || 1)}
+                          onChange={(e) => {
+                            updateProductQuantity(p.name, parseInt(e.target.value) || 1);
+                          }}
                           style={{ width: 80 }}
                         />
-                        <button className="btn-remove" onClick={() => removeProduct(p.name)}>
+                        <button
+                          className="btn-remove"
+                          onClick={() => {
+                            removeProduct(p.name);
+                          }}
+                        >
                           Remove
                         </button>
                       </div>
@@ -389,6 +433,7 @@ export default function ServicePackage() {
                   </div>
                   <div style={{ marginTop: 8 }}>
                     <input
+                      id="sp-product-input"
                       className="form-input"
                       placeholder="Add product name"
                       onKeyDown={(e) => {
@@ -401,13 +446,26 @@ export default function ServicePackage() {
                         }
                       }}
                     />
-                    <button className="btn-small" type="button" onClick={() => setShowProductDialog((s) => !s)}>
+                    <button
+                      className="btn-small"
+                      type="button"
+                      onClick={() => {
+                        setShowProductDialog((s) => !s);
+                      }}
+                    >
                       Suggestions
                     </button>
                     {showProductDialog && (
                       <div className="suggestions" style={{ marginTop: 8 }}>
                         {availableProducts.map((prd) => (
-                          <button key={prd.id} className="btn-small" type="button" onClick={() => addProductToPackage(prd.name)}>
+                          <button
+                            key={prd.id}
+                            className="btn-small"
+                            type="button"
+                            onClick={() => {
+                              addProductToPackage(prd.name);
+                            }}
+                          >
                             {prd.name}
                           </button>
                         ))}
@@ -419,15 +477,19 @@ export default function ServicePackage() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Image</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} />
-                  {imagePreview && <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />}
+                  <label className="form-label" htmlFor="sp-image">
+                    Image
+                  </label>
+                  <input id="sp-image" type="file" accept="image/*" onChange={handleImageUpload} />
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />
+                  )}
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Auto Calculated Price</label>
+                  <div className="form-label">Auto Calculated Price</div>
                   <div className="form-input">${autoCalculatePrice.toFixed(2)}</div>
                 </div>
               </div>
@@ -444,6 +506,5 @@ export default function ServicePackage() {
         </div>
       )}
     </div>
-    );
+  );
 }
-

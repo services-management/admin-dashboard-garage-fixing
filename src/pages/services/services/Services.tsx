@@ -187,14 +187,12 @@ export default function Services() {
   const handleDelete = (id: number) => {
     if (confirm('តើអ្នកពិតជាចង់លុបសេវាកម្មនេះមែនទេ?')) {
       setServices((prev) => prev.filter((srv) => srv.id !== id));
-      alert(`សេវាកម្ម ${id} ត្រូវបានលុប!`);
+      alert(`សេវាកម្ម ${String(id)} ត្រូវបានលុប!`);
     }
   };
 
-  // Modal UI for Services
   return (
     <div>
-      {/* Header */}
       <div className="service-package-header">
         <h1>សេវាកម្មទាំងអស់</h1>
         <button className="btn-primary" onClick={openCreateModal}>
@@ -202,7 +200,6 @@ export default function Services() {
         </button>
       </div>
 
-      {/* Service Cards Grid */}
       <div className="service-grid-two-col">
         {services.map((service) => (
           <div key={service.id} className="service-card-enhanced">
@@ -236,8 +233,8 @@ export default function Services() {
                     {service.products.length === 0 ? (
                       <span className="item-tag">មិនមានផលិតផលបញ្ជាក់</span>
                     ) : (
-                      service.products.map((product) => (
-                        <span key={product.name} className="item-tag">
+                      service.products.map((product, idx) => (
+                        <span key={`${product.name}-${String(idx)}`} className="item-tag">
                           {product.name} × {product.quantity}
                         </span>
                       ))
@@ -284,60 +281,96 @@ export default function Services() {
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Name</label>
+                  <label className="form-label" htmlFor="service-name">
+                    Name
+                  </label>
                   <input
+                    id="service-name"
                     className="form-input"
                     value={formData.name}
-                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, name: e.target.value }));
+                    }}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Price</label>
+                  <label className="form-label" htmlFor="service-price">
+                    Price
+                  </label>
                   <input
+                    id="service-price"
                     type="number"
                     className="form-input"
                     value={formData.price}
-                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, price: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Description</label>
+                  <label className="form-label" htmlFor="service-description">
+                    Description
+                  </label>
                   <textarea
+                    id="service-description"
                     className="form-input"
                     value={formData.description}
-                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, description: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Image</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} />
-                  {imagePreview && <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />}
+                  <label className="form-label" htmlFor="service-image">
+                    Image
+                  </label>
+                  <input
+                    id="service-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />
+                  )}
                 </div>
               </div>
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Products</label>
+                  <div className="form-label">Products</div>
                   <div>
                     {formData.products.map((p, i) => (
-                      <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 6 }}>
+                      <div
+                        key={`${p.name}-${String(i)}`}
+                        style={{ display: 'flex', gap: 8, marginBottom: 6 }}
+                      >
                         <input
                           value={p.name}
                           className="form-input"
-                          onChange={(e) => updateProductName(i, e.target.value)}
+                          onChange={(e) => {
+                            updateProductName(i, e.target.value);
+                          }}
                           placeholder="Product name"
                         />
                         <input
                           type="number"
                           className="form-input"
                           value={p.quantity}
-                          onChange={(e) => updateProductQuantity(i, parseInt(e.target.value) || 1)}
+                          onChange={(e) => {
+                            updateProductQuantity(i, parseInt(e.target.value) || 1);
+                          }}
                           style={{ width: 80 }}
                         />
-                        <button className="btn-remove" onClick={() => removeProduct(i)}>
+                        <button
+                          className="btn-remove"
+                          onClick={() => {
+                            removeProduct(i);
+                          }}
+                        >
                           Remove
                         </button>
                       </div>

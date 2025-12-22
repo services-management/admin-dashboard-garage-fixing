@@ -21,7 +21,7 @@ export default function Login() {
       return;
     }
 
-    navigate('/dashboard');
+    void navigate('/dashboard');
   }
 
   return (

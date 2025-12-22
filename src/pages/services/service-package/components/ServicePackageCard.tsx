@@ -25,7 +25,7 @@ export default function ServicePackageCard({
       <div className="service-card-image">
         <img
           src={
-            pkg.image ||
+            pkg.image ??
             'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=250&fit=crop'
           }
           alt={pkg.name}
@@ -49,8 +49,8 @@ export default function ServicePackageCard({
           <div className="content-section">
             <div className="content-label">Services Included</div>
             <div className="content-items">
-              {pkg.services.map((service, idx) => (
-                <span key={idx} className="item-tag">
+              {pkg.services.map((service) => (
+                <span key={service} className="item-tag">
                   {service}
                 </span>
               ))}
@@ -60,8 +60,8 @@ export default function ServicePackageCard({
           <div className="content-section">
             <div className="content-label">Products Included</div>
             <div className="content-items">
-              {pkg.products.map((product, idx) => (
-                <span key={idx} className="item-tag">
+              {pkg.products.map((product) => (
+                <span key={product.name} className="item-tag">
                   {product.name} × {product.quantity}
                 </span>
               ))}

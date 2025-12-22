@@ -86,7 +86,7 @@ export default function Product() {
   const openEditModal = (p: ProductItem) => {
     setIsEditMode(true);
     setCurrentProduct(p);
-    setImagePreview(p.image || '');
+    setImagePreview(p.image ?? '');
     setFormData({
       name: p.name,
       description: p.description,
@@ -198,10 +198,8 @@ export default function Product() {
     }
   };
 
-  // Modal UI
   return (
     <div>
-      {/* Header */}
       <div className="service-package-header">
         <h1>ផលិតផលទាំងអស់</h1>
         <button className="btn-primary" onClick={openCreateModal}>
@@ -209,14 +207,13 @@ export default function Product() {
         </button>
       </div>
 
-      {/* Product Cards Grid */}
       <div className="product-grid-ecommerce">
         {products.map((prd) => (
           <div key={prd.id} className="service-card-enhanced">
             <div className="service-card-image">
               <img
                 src={
-                  prd.image ||
+                  prd.image ??
                   'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=250&fit=crop'
                 }
                 alt={prd.name}
@@ -243,8 +240,8 @@ export default function Product() {
                     {prd.categories.length === 0 ? (
                       <span className="item-tag">មិនមានប្រភេទបញ្ជាក់</span>
                     ) : (
-                      prd.categories.map((c, idx) => (
-                        <span key={idx} className="item-tag">
+                      prd.categories.map((c) => (
+                        <span key={c} className="item-tag">
                           {c}
                         </span>
                       ))
@@ -286,7 +283,6 @@ export default function Product() {
         ))}
       </div>
 
-      {/* Main Modal */}
       {showModal && (
         <div className="modal active">
           <div className="modal-content">
@@ -299,51 +295,79 @@ export default function Product() {
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Name</label>
+                  <label className="form-label" htmlFor="product-name">
+                    Name
+                  </label>
                   <input
+                    id="product-name"
                     className="form-input"
                     value={formData.name}
-                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, name: e.target.value }));
+                    }}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Price</label>
+                  <label className="form-label" htmlFor="product-price">
+                    Price
+                  </label>
                   <input
+                    id="product-price"
                     type="number"
                     className="form-input"
                     value={formData.price}
-                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, price: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Description</label>
+                  <label className="form-label" htmlFor="product-description">
+                    Description
+                  </label>
                   <textarea
+                    id="product-description"
                     className="form-input"
                     value={formData.description}
-                    onChange={(e) => setFormData((p) => ({ ...p, description: e.target.value }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, description: e.target.value }));
+                    }}
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Stock</label>
+                  <label className="form-label" htmlFor="product-stock">
+                    Stock
+                  </label>
                   <input
+                    id="product-stock"
                     type="number"
                     className="form-input"
                     value={formData.stock}
-                    onChange={(e) => setFormData((p) => ({ ...p, stock: parseInt(e.target.value) || 0 }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, stock: parseInt(e.target.value) || 0 }));
+                    }}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Status</label>
+                  <label className="form-label" htmlFor="product-status">
+                    Status
+                  </label>
                   <select
+                    id="product-status"
                     className="form-select"
                     value={formData.status}
-                    onChange={(e) => setFormData((p) => ({ ...p, status: e.target.value as any }))}
+                    onChange={(e) => {
+                      setFormData((p) => ({
+                        ...p,
+                        status: e.target.value as 'active' | 'inactive',
+                      }));
+                    }}
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
@@ -353,10 +377,13 @@ export default function Product() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Categories</label>
+                  <label className="form-label" htmlFor="product-category-input">
+                    Categories
+                  </label>
                   <div className="categories-input">
                     <div style={{ display: 'flex', gap: 8 }}>
                       <input
+                        id="product-category-input"
                         className="form-input"
                         placeholder="Add category"
                         onKeyDown={(e) => {
@@ -371,17 +398,24 @@ export default function Product() {
                       />
                       <button
                         className="btn-small"
-                        onClick={() => setShowCategoryDialog((s) => !s)}
+                        onClick={() => {
+                          setShowCategoryDialog((s) => !s);
+                        }}
                         type="button"
                       >
                         Suggestions
                       </button>
                     </div>
                     <div className="selected-items">
-                      {formData.categories.map((c, i) => (
-                        <span key={i} className="item-tag">
+                      {formData.categories.map((c) => (
+                        <span key={c} className="item-tag">
                           {c}
-                          <button className="btn-remove" onClick={() => removeCategory(c)}>
+                          <button
+                            className="btn-remove"
+                            onClick={() => {
+                              removeCategory(c);
+                            }}
+                          >
                             ×
                           </button>
                         </span>
@@ -394,7 +428,9 @@ export default function Product() {
                           <button
                             key={cat.id}
                             className="btn-small"
-                            onClick={() => addCategoryToProduct(cat.name)}
+                            onClick={() => {
+                              addCategoryToProduct(cat.name);
+                            }}
                             type="button"
                           >
                             {cat.name}
@@ -409,9 +445,18 @@ export default function Product() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Image</label>
-                  <input type="file" accept="image/*" onChange={handleImageUpload} />
-                  {imagePreview && <img src={imagePreview} alt="preview" style={{ maxWidth: 200 }} />}
+                  <label className="form-label" htmlFor="product-image">
+                    Image
+                  </label>
+                  <input
+                    id="product-image"
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" style={{ maxWidth: 200 }} />
+                  )}
                 </div>
               </div>
             </div>
@@ -429,4 +474,3 @@ export default function Product() {
     </div>
   );
 }
-

@@ -1,4 +1,4 @@
-import Icon from '../components/Icons';
+import Icon from '../../components/Icons';
 
 export default function Dashboard() {
   return (

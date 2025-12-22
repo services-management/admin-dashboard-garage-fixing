@@ -9,7 +9,7 @@ jest.mock('react-router-dom', () => ({
   useNavigate: () => mockNavigate,
 }));
 
-import Login from '../Login';
+import Login from '../auth/Login';
 
 describe('Login page', () => {
   beforeEach(() => {

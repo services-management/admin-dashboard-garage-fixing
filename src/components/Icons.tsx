@@ -16,6 +16,7 @@ import {
   RiShoppingBagLine, // new
   RiBox3Line, // new
   RiSuitcaseLine,
+  RiCloseLine,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -35,7 +36,8 @@ export type IconName =
   | 'calendar'
   | 'products'
   | 'box'
-  | 'service_package';
+  | 'service_package'
+  | 'close';
 
 interface IconProps {
   name: IconName;
@@ -63,6 +65,7 @@ const iconMap: Partial<
   products: RiShoppingBagLine,
   box: RiBox3Line,
   service_package: RiSuitcaseLine,
+  close: RiCloseLine,
 };
 
 // Render the requested icon, with a safe fallback

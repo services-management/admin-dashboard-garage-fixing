@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
 
 import companyLogo from '../assets/garage-logo.svg';
@@ -23,6 +23,8 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 }
 
 export default function DashboardLayout() {
+  const location = useLocation();
+  const isStaffPage = location.pathname.startsWith('/dashboard/staff');
   const [query, setQuery] = useState('');
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
@@ -33,7 +35,7 @@ export default function DashboardLayout() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const placeholder = useMemo(() => 'ស្វែងរក...', []);
+  const placeholder = 'ស្វែងរក...';
 
   return (
     <div className="app-shell">
@@ -72,6 +74,7 @@ export default function DashboardLayout() {
             />
             <NavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
             <NavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />
+            <NavItem to="/dashboard/staff" label="បុគ្គលិក" iconName="staff" />
             <NavItem to="/dashboard/notifications" label="ការជូនដំណឹង" iconName="notifications" />
             <NavItem to="/dashboard/profile" label="ប្រវត្តិរូប" iconName="profile" />
             <NavItem to="/dashboard/settings" label="ការកំណត់" iconName="settings" />
@@ -89,32 +92,36 @@ export default function DashboardLayout() {
 
       <main className="content">
         <header className="topbar">
-          <div className="search">
-            <span className="search-icon" aria-hidden="true">
-              <Icon name="search" size={18} />
-            </span>
-            <input
-              value={query}
-              onChange={(e) => {
-                setQuery(e.target.value);
-              }}
-              className="search-input"
-              placeholder={placeholder}
-            />
-          </div>
+          {!isStaffPage && (
+            <div className="search">
+              <span className="search-icon" aria-hidden="true">
+                <Icon name="search" size={18} />
+              </span>
+              <input
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                }}
+                className="search-input"
+                placeholder={placeholder}
+              />
+            </div>
+          )}
 
-          <div className="topbar-actions">
-            <button
-              type="button"
-              className="theme-btn"
-              aria-label="Toggle dark mode"
-              onClick={() => {
-                setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
-              }}
-            >
-              <Icon name={theme === 'dark' ? 'night' : 'sun'} size={20} className="icon-red" />
-            </button>
-          </div>
+          {!isStaffPage && (
+            <div className="topbar-actions">
+              <button
+                type="button"
+                className="theme-btn"
+                aria-label="Toggle dark mode"
+                onClick={() => {
+                  setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+                }}
+              >
+                <Icon name={theme === 'dark' ? 'night' : 'sun'} size={20} className="icon-red" />
+              </button>
+            </div>
+          )}
         </header>
 
         <Outlet />

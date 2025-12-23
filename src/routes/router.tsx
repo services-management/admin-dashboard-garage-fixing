@@ -12,6 +12,7 @@ import Product from '../pages/services/products/Products';
 import ServicePackage from '../pages/services/service-package/ServicePackage';
 import Services from '../pages/services/services/Services';
 import Settings from '../pages/settings/Settings';
+import Staff from '../pages/staff/Staff';
 
 export const router = createBrowserRouter([
   {
@@ -63,6 +64,10 @@ export const router = createBrowserRouter([
       {
         path: 'settings',
         element: <Settings />,
+      },
+      {
+        path: 'staff',
+        element: <Staff />,
       },
     ],
   },

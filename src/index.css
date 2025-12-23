@@ -219,7 +219,7 @@ body {
   top: 0;
   z-index: 10;
   background: var(--surface);
-  border-bottom: 1px solid var(--border);
+  border-bottom: none;
   margin: -20px -20px 16px;
   padding: 12px 20px;
   display: flex;
@@ -257,6 +257,10 @@ body {
   background: transparent;
   color: var(--text);
   width: 100%;
+}
+
+.search-input::placeholder {
+  color: var(--muted);
 }
 .topbar-actions {
   display: flex;
@@ -444,14 +448,14 @@ body {
 /* ==================== BUTTONS ==================== */
 .btn-primary {
   font-family: 'Battambang';
-  background: #dc3545;
+  background: var(--brand-red);
   margin: 0;
 }
 
 /* ==================== BUTTONS ==================== */
 .btn-primary {
   font-family: 'Battambang';
-  background: #dc3545;
+  background: var(--brand-red);
   color: white;
   border: none;
   padding: 12px 24px;
@@ -460,13 +464,12 @@ body {
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-primary:hover {
-  background: #c82333;
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
 }
 
 .btn-secondary {
@@ -855,7 +858,7 @@ body {
   align-items: center;
   padding: 20px 24px;
   border-bottom: 1px solid #e5e7eb;
-  background: #dc3545;
+  background: var(--brand-red);
   color: white;
   border-radius: 12px 12px 0 0;
 }
@@ -918,6 +921,183 @@ body {
 
 .form-group {
   margin-bottom: 16px;
+}
+
+/* ==================== STAFF PAGE STYLES ==================== */
+.page-staff {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.page-header {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+@media (min-width: 768px) {
+  .page-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.header-actions {
+  display: flex;
+  gap: 20px; /* equal spacing between controls */
+  align-items: center;
+}
+
+/* Search input grows while buttons keep intrinsic size; gap keeps spacing equal */
+.header-actions .search-input {
+  flex: 1 1 460px;
+  min-width: 320px;
+  max-width: 70vw;
+  width: auto;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  height: 44px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+}
+
+.header-actions .btn-primary,
+.header-actions .theme-btn {
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 14px;
+  padding-right: 14px;
+  padding-top: 0;
+  padding-bottom: 0;
+  white-space: nowrap; /* prevent button text from wrapping */
+  gap: 8px;
+  border-radius: 8px;
+}
+
+.table-card {
+  background: transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+}
+
+.staff-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #f3f4f6;
+}
+
+.staff-table thead tr {
+  background: var(--brand-red);
+  color: white;
+}
+
+.staff-table th,
+.staff-table td {
+  padding: 14px 16px;
+  text-align: left;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  font-family:
+    'Battambang',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial;
+}
+
+.staff-table tbody tr {
+  background: white;
+}
+
+.staff-table tbody tr + tr {
+  border-top: 1px solid #e5e7eb;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.status-badge.active {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.inactive {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.icon-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  padding: 6px 8px;
+  font-size: 16px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.icon-btn:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.icon-btn.btn-edit {
+  color: #0d6efd; /* blue */
+}
+
+.icon-btn.btn-delete {
+  color: #dc3545; /* red */
+}
+
+/* make search input wider on large screens */
+.header-actions .search-input {
+  flex: 1 1 460px;
+  min-width: 320px;
+  max-width: 70vw;
+  width: auto;
+  background: var(--surface-2);
+  color: var(--text);
+  padding: 10px 14px;
+  border-radius: 8px;
+  height: 44px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid var(--border);
+}
+
+.page-header h1 {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+}
+
+/* refine table look to match screenshot: subtle container and red header bar */
+.table-card {
+  background: #efefef;
+  padding: 12px;
+  border-radius: 6px;
+}
+
+.staff-table thead tr th {
+  padding: 14px 18px;
+  font-size: 16px;
+  text-align: left;
+}
+
+.staff-table tbody td {
+  padding: 12px 18px;
 }
 
 .form-label {
@@ -1205,6 +1385,39 @@ body.dark-mode,
 [data-theme='dark'] {
   background: #0f0f0f;
   color: #e4e4e4;
+}
+
+/* Dark Mode Staff Table */
+body.dark-mode .staff-table,
+[data-theme='dark'] .staff-table {
+  background: var(--surface-2);
+  border-color: var(--border);
+  color: var(--text);
+}
+
+body.dark-mode .staff-table tbody tr,
+[data-theme='dark'] .staff-table tbody tr {
+  background: var(--surface);
+  color: var(--text);
+}
+
+body.dark-mode .staff-table tbody td,
+[data-theme='dark'] .staff-table tbody td {
+  color: var(--text);
+}
+
+/* Keep the surrounding card dark (not white) in dark mode */
+body.dark-mode .table-card,
+[data-theme='dark'] .table-card {
+  background: var(--surface-2);
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
+
+/* subtle divider color for rows in dark mode */
+body.dark-mode .staff-table tbody tr + tr,
+[data-theme='dark'] .staff-table tbody tr + tr {
+  border-top: 1px solid var(--border);
 }
 
 /* Dark Mode Header */

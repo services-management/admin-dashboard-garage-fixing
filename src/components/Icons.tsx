@@ -16,6 +16,7 @@ import {
   RiShoppingBagLine,
   RiBox3Line,
   RiSuitcaseLine,
+  RiCloseLine,
   RiDeleteBinLine,
   RiTeamLine,
 } from 'react-icons/ri';
@@ -38,6 +39,7 @@ export type IconName =
   | 'products'
   | 'box'
   | 'service_package'
+  | 'close'
   | 'staff'
   | 'trash';
 
@@ -67,6 +69,7 @@ const iconMap: Partial<
   products: RiShoppingBagLine,
   box: RiBox3Line,
   service_package: RiSuitcaseLine,
+  close: RiCloseLine,
   trash: RiDeleteBinLine,
   staff: RiTeamLine,
 };

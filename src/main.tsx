@@ -4,10 +4,14 @@ import './index.css';
 import 'tailwindcss';
 import { RouterProvider } from 'react-router-dom';
 
+import { Provider } from 'react-redux';
+import { store } from './store';
 import { router } from './routes/router';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      <RouterProvider router={router} />
+    </Provider>
   </StrictMode>,
 );

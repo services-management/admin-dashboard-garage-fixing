@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router-dom';
+import AdminRoute from './adminRoute';
 
 import AuthLayout from '../layouts/AuthLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
@@ -24,40 +25,45 @@ export const router = createBrowserRouter([
     ],
   },
   {
-    path: '/dashboard',
-    element: <DashboardLayout />,
+    element: <AdminRoute />,
     children: [
       {
-        index: true,
-        element: <Dashboard />,
-      },
-      {
-        path: 'services',
-        element: <Services />,
-      },
-      {
-        path: 'ServicePackage',
-        element: <ServicePackage />,
-      },
-      {
-        path: 'booking',
-        element: <Booking />,
-      },
-      {
-        path: 'invoices',
-        element: <Invoices />,
-      },
-      {
-        path: 'notifications',
-        element: <Notifications />,
-      },
-      {
-        path: 'profile',
-        element: <Profile />,
-      },
-      {
-        path: 'settings',
-        element: <Settings />,
+        path: '/dashboard',
+        element: <DashboardLayout />,
+        children: [
+          {
+            index: true,
+            element: <Dashboard />,
+          },
+          {
+            path: 'services',
+            element: <Services />,
+          },
+          {
+            path: 'ServicePackage',
+            element: <ServicePackage />,
+          },
+          {
+            path: 'booking',
+            element: <Booking />,
+          },
+          {
+            path: 'invoices',
+            element: <Invoices />,
+          },
+          {
+            path: 'notifications',
+            element: <Notifications />,
+          },
+          {
+            path: 'profile',
+            element: <Profile />,
+          },
+          {
+            path: 'settings',
+            element: <Settings />,
+          },
+        ],
       },
     ],
   },

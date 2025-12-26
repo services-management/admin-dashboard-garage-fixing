@@ -1,0 +1,137 @@
+/* Moved from src/pages/user/User.css */
+.page-user .page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+}
+.page-user .page-header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+/* Header actions: keep everything inline and same height */
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: nowrap;
+}
+
+/* Make most controls the same height and align their content */
+.header-actions > * {
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.search-input {
+  height: 40px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  min-width: 220px;
+  max-width: 420px;
+  box-sizing: border-box;
+  background: #fff;
+  color: #222;
+}
+
+/* Unified button appearance */
+
+/* Filters (Admin / Technical): neutral by default, highlight when active */
+.btn-filter {
+  background: transparent;
+  border: 1px solid #d8d8d8;
+  color: #222;
+  padding: 0 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  min-width: 110px;
+}
+.btn-filter.active {
+  background: #c83b33;
+  color: #fff;
+  border-color: #c83b33;
+  box-shadow: 0 2px 6px rgba(200, 59, 51, 0.12);
+}
+
+/* Primary action stays highlighted */
+.btn-primary {
+  background: #c83b33;
+  color: #fff;
+  border: none;
+  padding: 0 12px;
+  border-radius: 8px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+}
+
+/* Theme toggle: neutral, no strong color to indicate mode change */
+.theme-btn {
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: inherit;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+/* Responsive: allow wrapping on very small screens */
+@media (max-width: 520px) {
+  .page-user .page-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .header-actions {
+    justify-content: flex-start;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .search-input {
+    width: 100%;
+    max-width: none;
+  }
+  .theme-btn {
+    width: 40px;
+  }
+}
+
+/* Visual for disabled/archived accounts */
+.user-disabled {
+  opacity: 0.5;
+  text-decoration: line-through;
+}
+
+/* Small square icon-style button used for disabling accounts */
+.btn-disable {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 8px;
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--brand-red);
+  cursor: pointer;
+}
+.btn-disable:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+.btn-disable svg {
+  display: block;
+}

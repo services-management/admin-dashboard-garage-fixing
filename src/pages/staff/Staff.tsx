@@ -15,7 +15,6 @@ export default function Staff() {
   const [staff, setStaff] = useState<StaffItem[]>([
     { id: 1, name: 'ជា​​ មាលា ', phone: '098 765 432', role: 'អ្នកជួសជុល', status: 'active' },
     { id: 2, name: 'ត​ កុសល ', phone: '098 765 432', role: 'អ្នកបង់ប្រាក់', status: 'active' },
-    { id: 3, name: 'ប៉ា ចាន់ណា', phone: '077 888 999', role: 'អ្នកគ្រប់គ្រង', status: 'inactive' },
   ]);
 
   const filtered = useMemo(() => {
@@ -28,14 +27,6 @@ export default function Staff() {
         s.role.toLowerCase().includes(q),
     );
   }, [query, staff]);
-
-  const handleDelete = (id: number) => {
-    if (confirm('តើអ្នកចង់លុបបុគ្គលិកនេះមែន?')) {
-      setStaff((prev) => {
-        return prev.filter((p) => p.id !== id);
-      });
-    }
-  };
 
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -67,13 +58,18 @@ export default function Staff() {
     setShowModal(true);
   };
 
-  const openEdit = (id: number) => {
-    const s = staff.find((x) => x.id === id);
-    if (!s) return;
+  const handleEdit = (s: StaffItem) => {
     setIsEditMode(true);
     setCurrent(s);
     setForm({ name: s.name, phone: s.phone, role: s.role, status: s.status });
     setShowModal(true);
+  };
+
+  const handleDelete = (id: number) => {
+    if (confirm('តើអ្នកចង់លុបបុគ្គលិកនេះ?')) {
+      setStaff((prev) => prev.filter((p) => p.id !== id));
+      alert('បុគ្គលិកត្រូវបានលុប');
+    }
   };
 
   const closeModal = () => {
@@ -162,23 +158,24 @@ export default function Staff() {
                 </td>
                 <td>
                   <button
+                    type="button"
                     className="icon-btn btn-edit"
+                    aria-label="កែប្រែ"
                     onClick={() => {
-                      openEdit(s.id);
+                      handleEdit(s);
                     }}
-                    title="Edit"
                   >
-                    ✎
+                    <Icon name="services" size={16} />
                   </button>
                   <button
+                    type="button"
                     className="icon-btn btn-delete"
+                    aria-label="លុប"
                     onClick={() => {
                       handleDelete(s.id);
                     }}
-                    title="Delete"
-                    aria-label="Delete"
                   >
-                    <Icon name="trash" size={18} className="icon-svg trash-icon" />
+                    <Icon name="trash" size={16} />
                   </button>
                 </td>
               </tr>

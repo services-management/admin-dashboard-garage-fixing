@@ -42,6 +42,7 @@ export type IconName =
   | 'service_package'
   | 'close'
   | 'staff'
+  | 'user'
   | 'trash'
   | 'edit';
 
@@ -74,6 +75,7 @@ const iconMap: Partial<
   close: RiCloseLine,
   trash: RiDeleteBinLine,
   staff: RiTeamLine,
+  user: RiUserLine,
   edit: RiEdit2Line,
 };
 

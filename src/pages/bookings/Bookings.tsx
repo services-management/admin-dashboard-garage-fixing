@@ -2,8 +2,49 @@ import { useState } from 'react';
 
 import Icon from '../../components/Icons';
 
-const GarageBookingAdmin = () => {
-  const [bookings, setBookings] = useState([
+// Interfaces matching API structure
+interface Product {
+  product_id: number;
+  name: string;
+  selling_price: number;
+  unit_cost?: number;
+  category_id?: number;
+  quantity?: number;
+}
+
+interface Technical {
+  technical_id: string;
+  username: string;
+  name: string;
+  phone_number: string;
+  role: string;
+  status: 'free' | 'busy' | 'off_duty';
+}
+
+interface Booking {
+  id: number;
+  customerName: string;
+  vehicle: string;
+  service: string;
+  serviceCode: string;
+  date: string;
+  time: string;
+  status: 'pending' | 'approved' | 'rejected';
+  type: 'service' | 'package' | 'product';
+  servicePrice: string;
+  items: string[];
+  servicesIncluded?: string[];
+  description?: string;
+  // API-aligned fields
+  products?: Product[];
+  assigned_technical?: Technical;
+}
+
+type StatusFilter = 'all' | 'pending' | 'approved' | 'rejected';
+type TypeFilter = 'all' | 'service' | 'package' | 'product';
+
+export default function Booking() {
+  const [bookings, setBookings] = useState<Booking[]>([
     {
       id: 1,
       customerName: 'Tom Brown',
@@ -103,12 +144,13 @@ const GarageBookingAdmin = () => {
     },
   ]);
 
-  const [filterStatus, setFilterStatus] = useState('all');
-  const [filterType, setFilterType] = useState('all');
+  const [filterStatus, setFilterStatus] = useState<StatusFilter>('all');
+  const [filterType, setFilterType] = useState<TypeFilter>('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [showModal, setShowModal] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 6;
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
     customerName: '',
     vehicle: '',
@@ -123,21 +165,82 @@ const GarageBookingAdmin = () => {
     description: '',
   });
 
-  const handleApprove = (id: number) => {
-    setBookings(bookings.map((b) => (b.id === id ? { ...b, status: 'approved' } : b)));
+  const itemsPerPage = 6;
+
+  // Calculate stats
+  const stats = {
+    total: bookings.length,
+    pending: bookings.filter((b) => b.status === 'pending').length,
+    approved: bookings.filter((b) => b.status === 'approved').length,
+    rejected: bookings.filter((b) => b.status === 'rejected').length,
   };
 
-  const handleReject = (id: number) => {
-    setBookings(bookings.map((b) => (b.id === id ? { ...b, status: 'rejected' } : b)));
+  // Filter bookings
+  const filteredBookings = bookings.filter((booking) => {
+    const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
+    const matchesType = filterType === 'all' || booking.type === filterType;
+    const matchesSearch =
+      searchTerm === '' ||
+      booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      booking.service.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesStatus && matchesType && matchesSearch;
+  });
+
+  // Pagination
+  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedBookings = filteredBookings.slice(startIndex, startIndex + itemsPerPage);
+
+  const handleStatusChange = (bookingId: number, newStatus: 'approved' | 'rejected') => {
+    setBookings((prevBookings) =>
+      prevBookings.map((booking) =>
+        booking.id === bookingId ? { ...booking, status: newStatus } : booking,
+      ),
+    );
+    setShowDetailModal(false);
+    setSelectedBooking(null);
   };
 
-  const handleResetStatus = (id: number) => {
-    setBookings(bookings.map((b) => (b.id === id ? { ...b, status: 'pending' } : b)));
+  const openDetailModal = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setShowDetailModal(true);
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setSelectedBooking(null);
+  };
+
+  const getStatusBadgeClass = (status: Booking['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'status-badge-pending';
+      case 'approved':
+        return 'status-badge-approved';
+      case 'rejected':
+        return 'status-badge-rejected';
+      default:
+        return '';
+    }
+  };
+
+  const getStatusText = (status: Booking['status']) => {
+    switch (status) {
+      case 'pending':
+        return 'កំពុងរង់ចាំ';
+      case 'approved':
+        return 'បានអនុម័ត';
+      case 'rejected':
+        return 'បានបដិសេធ';
+      default:
+        return status;
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newBooking: any = {
+    const newBooking: Booking = {
       id: bookings.length + 1,
       customerName: formData.customerName,
       vehicle: formData.vehicle,
@@ -145,7 +248,7 @@ const GarageBookingAdmin = () => {
       serviceCode: formData.serviceCode || `#${String(bookings.length + 1).padStart(4, '0')}`,
       date: formData.date,
       time: formData.time,
-      status: 'pending' as const,
+      status: 'pending',
       type: formData.type as 'service' | 'package' | 'product',
       servicePrice: formData.servicePrice,
       items: formData.items
@@ -154,11 +257,11 @@ const GarageBookingAdmin = () => {
         .filter((item) => item),
       ...(formData.type === 'package' &&
         formData.servicesIncluded && {
-          servicesIncluded: formData.servicesIncluded
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s),
-        }),
+        servicesIncluded: formData.servicesIncluded
+          .split(',')
+          .map((s) => s.trim())
+          .filter((s) => s),
+      }),
       ...(formData.description && { description: formData.description }),
     };
     setBookings([...bookings, newBooking]);
@@ -178,49 +281,6 @@ const GarageBookingAdmin = () => {
     });
   };
 
-  const filteredBookings = bookings.filter((booking) => {
-    const matchesStatus = filterStatus === 'all' || booking.status === filterStatus;
-    const matchesType = filterType === 'all' || booking.type === filterType;
-    const matchesSearch =
-      searchTerm === '' ||
-      booking.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.vehicle.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      booking.service.toLowerCase().includes(searchTerm.toLowerCase());
-    return matchesStatus && matchesType && matchesSearch;
-  });
-
-  // Pagination
-  const totalPages = Math.ceil(filteredBookings.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedBookings = filteredBookings.slice(startIndex, endIndex);
-
-  const getTypeBadge = (type: string) => {
-    switch (type) {
-      case 'service':
-        return <span className="booking-badge booking-badge-service">សេវាកម្ម</span>;
-      case 'package':
-        return <span className="booking-badge booking-badge-package">កញ្ចប់សេវា</span>;
-      case 'product':
-        return <span className="booking-badge booking-badge-product">ផលិតផល</span>;
-      default:
-        return null;
-    }
-  };
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case 'pending':
-        return <span className="booking-badge booking-badge-pending">រង់ចាំ</span>;
-      case 'approved':
-        return <span className="booking-badge booking-badge-approved">អនុម័ត</span>;
-      case 'rejected':
-        return <span className="booking-badge booking-badge-rejected">បដិសេធ</span>;
-      default:
-        return null;
-    }
-  };
-
   const countByType = (type: string) => bookings.filter((b) => b.type === type).length;
   const countByStatus = (status: string) => bookings.filter((b) => b.status === status).length;
 
@@ -236,12 +296,12 @@ const GarageBookingAdmin = () => {
             </p>
           </div>
           <div className="booking-header-stats">
-            <span className="booking-stat-badge booking-stat-total">សរុប: {bookings.length}</span>
+            <span className="booking-stat-badge booking-stat-total">សរុប: {stats.total}</span>
             <span className="booking-stat-badge booking-stat-pending">
-              រង់ចាំ: {countByStatus('pending')}
+              កំពុងរង់ចាំ: {stats.pending}
             </span>
             <span className="booking-stat-badge booking-stat-approved">
-              អនុម័ត: {countByStatus('approved')}
+              បានអនុម័ត: {stats.approved}
             </span>
           </div>
         </div>
@@ -303,7 +363,7 @@ const GarageBookingAdmin = () => {
             <select
               value={filterType}
               onChange={(e) => {
-                setFilterType(e.target.value);
+                setFilterType(e.target.value as TypeFilter);
                 setCurrentPage(1);
               }}
               className="booking-filter-select"
@@ -317,7 +377,7 @@ const GarageBookingAdmin = () => {
             <select
               value={filterStatus}
               onChange={(e) => {
-                setFilterStatus(e.target.value);
+                setFilterStatus(e.target.value as StatusFilter);
                 setCurrentPage(1);
               }}
               className="booking-filter-select"
@@ -356,142 +416,73 @@ const GarageBookingAdmin = () => {
         </button>
       </div>
 
-      {/* Bookings List */}
-      <div className="bookings-list">
-        {filteredBookings.length === 0 ? (
+      {/* Booking Table */}
+      <div className="booking-table-container">
+        {paginatedBookings.length === 0 ? (
           <div className="booking-empty">
-            <div className="booking-empty-icon" style={{ fontSize: '64px' }}>
-              🔍
-            </div>
-            <p className="booking-empty-text">មិនមានការកក់ដែលត្រូវគ្នានឹងការច្រោះរបស់អ្នកទេ</p>
+            <Icon name="booking" size={48} />
+            <p>មិនមានការកក់ទេ</p>
           </div>
         ) : (
-          paginatedBookings.map((booking) => (
-            <div key={booking.id} className={`booking-card status-${booking.status}`}>
-              {/* Header */}
-              <div className="booking-card-header">
-                <div className="booking-card-info">
-                  <div className="booking-card-badges">
-                    {getTypeBadge(booking.type)}
-                    {getStatusBadge(booking.status)}
-                  </div>
-                  <h3 className="booking-card-title">
-                    {booking.customerName} - {booking.vehicle}
-                  </h3>
-                  <p className="booking-card-service">{booking.service}</p>
-                  <p className="booking-card-code">{booking.serviceCode}</p>
-                  {booking.description && (
-                    <p className="booking-card-desc">{booking.description}</p>
-                  )}
-                </div>
-                <div>
-                  <p className="booking-card-price">{booking.servicePrice}</p>
-                </div>
-              </div>
-
-              {/* Details */}
-              <div className="booking-details">
-                <div className="booking-detail-item">
-                  <Icon name="calendar" className="booking-detail-icon" size={16} />
-                  <span>
-                    {booking.date} ម៉ោង {booking.time}
-                  </span>
-                </div>
-              </div>
-
-              {/* Services Included (for packages) */}
-              {booking.servicesIncluded && (
-                <div className="booking-services-box">
-                  <div className="booking-box-header">
-                    <Icon name="box" className="booking-box-icon" size={16} />
-                    <span className="booking-box-label">សេវាកម្មក្នុងកញ្ចប់:</span>
-                  </div>
-                  <div className="booking-box-tags">
-                    {booking.servicesIncluded.map((service) => (
-                      <span key={service} className="booking-box-tag">
-                        ✓ {service}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {/* Items/Products */}
-              <div className="booking-items-box">
-                <div className="booking-box-header">
-                  <span className="booking-box-icon" style={{ fontSize: '16px' }}>
-                    📦
-                  </span>
-                  <span className="booking-box-label">
-                    {booking.type === 'product' ? 'ផលិតផល:' : 'សម្ភារៈប្រើប្រាស់:'}
-                  </span>
-                </div>
-                <div className="booking-box-tags">
-                  {booking.items.map((item) => (
-                    <span key={item} className="booking-box-tag">
-                      {item}
+          <table className="booking-table">
+            <thead>
+              <tr>
+                <th>លេខកូដ</th>
+                <th>អតិថិជន</th>
+                <th>សេវាកម្ម</th>
+                <th>កាលបរិច្ឆេទ</th>
+                <th>ម៉ោង</th>
+                <th>ស្ថានភាព</th>
+                <th>សកម្មភាព</th>
+              </tr>
+            </thead>
+            <tbody>
+              {paginatedBookings.map((booking) => (
+                <tr key={booking.id}>
+                  <td>
+                    <span className="booking-code">{booking.serviceCode}</span>
+                  </td>
+                  <td>
+                    <div className="customer-cell">
+                      <div className="customer-name">{booking.customerName}</div>
+                      <div className="customer-vehicle">{booking.vehicle}</div>
+                    </div>
+                  </td>
+                  <td>{booking.service}</td>
+                  <td>{booking.date}</td>
+                  <td>{booking.time}</td>
+                  <td>
+                    <span className={`status-badge-table ${getStatusBadgeClass(booking.status)}`}>
+                      {getStatusText(booking.status)}
                     </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              {booking.status === 'pending' && (
-                <div className="booking-actions">
-                  <button
-                    onClick={() => {
-                      handleApprove(booking.id);
-                    }}
-                    className="booking-btn booking-btn-approve"
-                  >
-                    <span style={{ fontSize: '16px' }}>✓</span>
-                    អនុម័ត
-                  </button>
-                  <button
-                    onClick={() => {
-                      handleReject(booking.id);
-                    }}
-                    className="booking-btn booking-btn-reject"
-                  >
-                    <span style={{ fontSize: '16px' }}>✕</span>
-                    បដិសេធ
-                  </button>
-                </div>
-              )}
-              {(booking.status === 'approved' || booking.status === 'rejected') && (
-                <div className="booking-actions-vertical">
-                  <div
-                    className={`booking-status-msg ${booking.status === 'approved' ? 'approved' : 'rejected'}`}
-                  >
-                    {booking.status === 'approved'
-                      ? '✓ ការកក់នេះត្រូវបានអនុម័ត'
-                      : '✕ ការកក់នេះត្រូវបានបដិសេធ'}
-                  </div>
-                  <button
-                    onClick={() => {
-                      handleResetStatus(booking.id);
-                    }}
-                    className="booking-btn booking-btn-reset"
-                  >
-                    <span style={{ fontSize: '16px' }}>↻</span>
-                    ត្រលប់មកវិញដើម្បីសម្រេចចិត្តឡើងវិញ
-                  </button>
-                </div>
-              )}
-            </div>
-          ))
+                  </td>
+                  <td>
+                    <button
+                      className="btn-detail"
+                      onClick={() => {
+                        openDetailModal(booking);
+                      }}
+                      aria-label="View booking details"
+                    >
+                      លម្អិត
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         )}
       </div>
 
       {/* Pagination */}
-      {filteredBookings.length > 0 && totalPages > 1 && (
+      {totalPages > 1 && (
         <div className="booking-pagination">
           <button
             className="booking-pagination-btn"
-            onClick={() => {
-              setCurrentPage((prev) => Math.max(prev - 1, 1));
-            }}
             disabled={currentPage === 1}
+            onClick={() => {
+              setCurrentPage((prev) => Math.max(1, prev - 1));
+            }}
           >
             ‹ មុន
           </button>
@@ -512,21 +503,161 @@ const GarageBookingAdmin = () => {
 
           <button
             className="booking-pagination-btn"
-            onClick={() => {
-              setCurrentPage((prev) => Math.min(prev + 1, totalPages));
-            }}
             disabled={currentPage === totalPages}
+            onClick={() => {
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1));
+            }}
           >
             បន្ទាប់ ›
           </button>
         </div>
       )}
 
-      {/* Showing results info */}
       {filteredBookings.length > 0 && (
         <div className="booking-pagination-info">
-          កំពុងបង្ហាញ {startIndex + 1}-{Math.min(endIndex, filteredBookings.length)} ពី{' '}
-          {filteredBookings.length} ការកក់
+          កំពុងបង្ហាញពី {startIndex + 1}-
+          {Math.min(startIndex + itemsPerPage, filteredBookings.length)} ក្នុងចំណោម{' '}
+          {filteredBookings.length} ធាតុ
+        </div>
+      )}
+
+      {/* Detail Modal */}
+      {showDetailModal && selectedBooking && (
+        <div
+          className="modal-overlay"
+          onClick={closeDetailModal}
+          onKeyDown={(e) => {
+            if (e.key === 'Escape') closeDetailModal();
+          }}
+          role="button"
+          tabIndex={0}
+          aria-label="Close detail modal"
+        >
+          <div className="modal-content-booking" role="dialog" aria-modal="true">
+            <div className="modal-header-booking">
+              <h2>ព័ត៌មានលម្អិតការកក់</h2>
+              <button
+                className="modal-close-btn"
+                onClick={closeDetailModal}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="modal-body-booking">
+              <div className="booking-detail-section">
+                <div className="detail-row">
+                  <span className="detail-label">លេខកូដ:</span>
+                  <span className="detail-value booking-code">{selectedBooking.serviceCode}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">ស្ថានភាព:</span>
+                  <span
+                    className={`status-badge-modal ${getStatusBadgeClass(selectedBooking.status)}`}
+                  >
+                    {getStatusText(selectedBooking.status)}
+                  </span>
+                </div>
+              </div>
+
+              <div className="booking-detail-section">
+                <h3 className="section-title">ព័ត៌មានអតិថិជន</h3>
+                <div className="detail-row">
+                  <span className="detail-label">ឈ្មោះ:</span>
+                  <span className="detail-value">{selectedBooking.customerName}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">យានយន្ត:</span>
+                  <span className="detail-value">{selectedBooking.vehicle}</span>
+                </div>
+              </div>
+
+              <div className="booking-detail-section">
+                <h3 className="section-title">ព័ត៌មានសេវាកម្ម</h3>
+                <div className="detail-row">
+                  <span className="detail-label">សេវាកម្ម:</span>
+                  <span className="detail-value">{selectedBooking.service}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">ប្រភេទ:</span>
+                  <span className="detail-value">{selectedBooking.type}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">តម្លៃ:</span>
+                  <span className="detail-value">{selectedBooking.servicePrice}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">កាលបរិច្ឆេទ:</span>
+                  <span className="detail-value">{selectedBooking.date}</span>
+                </div>
+                <div className="detail-row">
+                  <span className="detail-label">ម៉ោង:</span>
+                  <span className="detail-value">{selectedBooking.time}</span>
+                </div>
+              </div>
+
+              {selectedBooking.items.length > 0 && (
+                <div className="booking-detail-section">
+                  <h3 className="section-title">សម្ភារៈ/ផលិតផល</h3>
+                  <ul className="detail-list">
+                    {selectedBooking.items.map((item) => (
+                      <li key={`item-${item}`}>{item}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {selectedBooking.servicesIncluded && selectedBooking.servicesIncluded.length > 0 && (
+                <div className="booking-detail-section">
+                  <h3 className="section-title">សេវាកម្មរួមបញ្ចូល</h3>
+                  <ul className="detail-list">
+                    {selectedBooking.servicesIncluded.map((service) => (
+                      <li key={`service-${service}`}>{service}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {selectedBooking.description && (
+                <div className="booking-detail-section">
+                  <h3 className="section-title">ការពិពណ៌នា</h3>
+                  <p className="detail-description">{selectedBooking.description}</p>
+                </div>
+              )}
+
+              {selectedBooking.status === 'pending' && (
+                <div className="modal-actions">
+                  <button
+                    className="btn-modal-approve"
+                    onClick={() => {
+                      handleStatusChange(selectedBooking.id, 'approved');
+                    }}
+                  >
+                    <Icon name="services" size={18} />
+                    អនុម័ត
+                  </button>
+                  <button
+                    className="btn-modal-reject"
+                    onClick={() => {
+                      handleStatusChange(selectedBooking.id, 'rejected');
+                    }}
+                  >
+                    <Icon name="trash" size={18} />
+                    បដិសេធ
+                  </button>
+                </div>
+              )}
+
+              {selectedBooking.status === 'approved' && (
+                <div className="modal-status-message success">✓ ការកក់នេះត្រូវបានអនុម័ត</div>
+              )}
+
+              {selectedBooking.status === 'rejected' && (
+                <div className="modal-status-message error">✕ ការកក់នេះត្រូវបានបដិសេធ</div>
+              )}
+            </div>
+          </div>
         </div>
       )}
 
@@ -723,6 +854,4 @@ const GarageBookingAdmin = () => {
       )}
     </div>
   );
-};
-
-export default GarageBookingAdmin;
+}

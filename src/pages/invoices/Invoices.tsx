@@ -381,22 +381,22 @@ export default function Invoices() {
         invoices.map((inv) =>
           inv.id === selectedInvoice.id
             ? {
-              ...inv,
-              customerName: formData.customerName,
-              customerEmail: formData.customerEmail,
-              customerPhone: formData.customerPhone,
-              plateNumber: formData.plateNumber,
-              vehicle: formData.vehicle,
-              issueDate: formData.issueDate,
-              status: finalStatus,
-              items: formData.items,
-              subtotal,
-              taxRate: formData.taxRate,
-              taxAmount,
-              discount: formData.discount,
-              total,
-              notes: formData.notes,
-            }
+                ...inv,
+                customerName: formData.customerName,
+                customerEmail: formData.customerEmail,
+                customerPhone: formData.customerPhone,
+                plateNumber: formData.plateNumber,
+                vehicle: formData.vehicle,
+                issueDate: formData.issueDate,
+                status: finalStatus,
+                items: formData.items,
+                subtotal,
+                taxRate: formData.taxRate,
+                taxAmount,
+                discount: formData.discount,
+                total,
+                notes: formData.notes,
+              }
             : inv,
         ),
       );
@@ -601,12 +601,13 @@ export default function Invoices() {
                   </td>
                   <td>
                     <span
-                      className={`status-badge-table ${invoice.status === 'paid'
-                        ? 'status-badge-approved'
-                        : invoice.status === 'draft'
-                          ? 'status-badge-pending'
-                          : 'status-badge-cancelled'
-                        }`}
+                      className={`status-badge-table ${
+                        invoice.status === 'paid'
+                          ? 'status-badge-approved'
+                          : invoice.status === 'draft'
+                            ? 'status-badge-pending'
+                            : 'status-badge-cancelled'
+                      }`}
                     >
                       {invoice.status === 'paid'
                         ? 'បានបង់'

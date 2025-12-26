@@ -257,11 +257,11 @@ export default function Booking() {
         .filter((item) => item),
       ...(formData.type === 'package' &&
         formData.servicesIncluded && {
-        servicesIncluded: formData.servicesIncluded
-          .split(',')
-          .map((s) => s.trim())
-          .filter((s) => s),
-      }),
+          servicesIncluded: formData.servicesIncluded
+            .split(',')
+            .map((s) => s.trim())
+            .filter((s) => s),
+        }),
       ...(formData.description && { description: formData.description }),
     };
     setBookings([...bookings, newBooking]);

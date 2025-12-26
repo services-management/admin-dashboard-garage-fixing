@@ -41,6 +41,7 @@ export type IconName =
   | 'service_package'
   | 'close'
   | 'staff'
+  | 'user'
   | 'trash';
 
 interface IconProps {
@@ -72,6 +73,7 @@ const iconMap: Partial<
   close: RiCloseLine,
   trash: RiDeleteBinLine,
   staff: RiTeamLine,
+  user: RiUserLine,
 };
 
 // Render the requested icon, with a safe fallback

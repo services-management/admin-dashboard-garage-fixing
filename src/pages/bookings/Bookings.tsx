@@ -2,8 +2,24 @@ import { useState } from 'react';
 
 import Icon from '../../components/Icons';
 
+interface Booking {
+  id: number;
+  customerName: string;
+  vehicle: string;
+  service: string;
+  serviceCode: string;
+  date: string;
+  time: string;
+  status: 'pending' | 'approved' | 'rejected';
+  type: 'service' | 'package' | 'product';
+  servicePrice: string;
+  items: string[];
+  servicesIncluded?: string[];
+  description?: string;
+}
+
 const GarageBookingAdmin = () => {
-  const [bookings, setBookings] = useState([
+  const [bookings, setBookings] = useState<Booking[]>([
     {
       id: 1,
       customerName: 'Tom Brown',
@@ -137,7 +153,7 @@ const GarageBookingAdmin = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const newBooking: any = {
+    const newBooking: Booking = {
       id: bookings.length + 1,
       customerName: formData.customerName,
       vehicle: formData.vehicle,
@@ -145,7 +161,7 @@ const GarageBookingAdmin = () => {
       serviceCode: formData.serviceCode || `#${String(bookings.length + 1).padStart(4, '0')}`,
       date: formData.date,
       time: formData.time,
-      status: 'pending' as const,
+      status: 'pending',
       type: formData.type as 'service' | 'package' | 'product',
       servicePrice: formData.servicePrice,
       items: formData.items

@@ -5,7 +5,9 @@ import companyLogo from '../assets/garage-logo.svg';
 import Icon, { type IconName } from '../components/Icons';
 import SidebarDropdown from '../components/SidebarDropdown';
 
-// Sidebar navigation item with active state and icon
+/* =======================
+   Sidebar Nav Item
+======================= */
 function NavItem({ to, label, iconName }: { to: string; label: string; iconName: IconName }) {
   const location = useLocation();
   const isActive = location.pathname === to;
@@ -22,10 +24,19 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
   );
 }
 
+/* =======================
+   Layout
+======================= */
 export default function DashboardLayout() {
   const location = useLocation();
-  const isStaffPage = location.pathname.startsWith('/dashboard/staff');
+
+  // Hide topbar for pages that have their own header
+  const hideTopbar =
+    location.pathname.startsWith('/dashboard/staff') ||
+    location.pathname.startsWith('/dashboard/user');
+
   const [query, setQuery] = useState('');
+
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     localStorage.getItem('theme') === 'dark' ? 'dark' : 'light',
   );
@@ -35,10 +46,9 @@ export default function DashboardLayout() {
     localStorage.setItem('theme', theme);
   }, [theme]);
 
-  const placeholder = 'ស្វែងរក...';
-
   return (
     <div className="app-shell">
+      {/* ================= Sidebar ================= */}
       <aside className="sidebar">
         <div className="sidebar-header">
           <img
@@ -55,6 +65,7 @@ export default function DashboardLayout() {
         <nav className="sidebar-nav">
           <ul>
             <NavItem to="/dashboard" label="ផ្ទាំងទូទៅ" iconName="dashboard" />
+
             <SidebarDropdown
               label="សេវាកម្ម"
               iconName="box"
@@ -64,7 +75,11 @@ export default function DashboardLayout() {
                   label: 'សេវាកម្មទាំងអស់',
                   iconName: 'services',
                 },
-                { to: '/dashboard/services/products', label: 'ផលិតផល', iconName: 'products' },
+                {
+                  to: '/dashboard/services/products',
+                  label: 'ផលិតផល',
+                  iconName: 'products',
+                },
                 {
                   to: '/dashboard/services/service-package',
                   label: 'កញ្ចប់សេវាកម្ម',
@@ -72,9 +87,11 @@ export default function DashboardLayout() {
                 },
               ]}
             />
+
             <NavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
             <NavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />
             <NavItem to="/dashboard/staff" label="បុគ្គលិក" iconName="staff" />
+            <NavItem to="/dashboard/user" label="អ្នកប្រើប្រាស់" iconName="user" />
             <NavItem to="/dashboard/notifications" label="ការជូនដំណឹង" iconName="notifications" />
             <NavItem to="/dashboard/profile" label="ប្រវត្តិរូប" iconName="profile" />
             <NavItem to="/dashboard/settings" label="ការកំណត់" iconName="settings" />
@@ -90,9 +107,11 @@ export default function DashboardLayout() {
         </div>
       </aside>
 
+      {/* ================= Main Content ================= */}
       <main className="content">
+        {/* ===== Topbar (hidden for Staff & User pages) ===== */}
         <header className="topbar">
-          {!isStaffPage && (
+          {!hideTopbar && (
             <div className="search">
               <span className="search-icon" aria-hidden="true">
                 <Icon name="search" size={18} />
@@ -103,12 +122,12 @@ export default function DashboardLayout() {
                   setQuery(e.target.value);
                 }}
                 className="search-input"
-                placeholder={placeholder}
+                placeholder="ស្វែងរក..."
               />
             </div>
           )}
 
-          {!isStaffPage && (
+          {!hideTopbar && (
             <div className="topbar-actions">
               <button
                 type="button"
@@ -118,12 +137,13 @@ export default function DashboardLayout() {
                   setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
                 }}
               >
-                <Icon name={theme === 'dark' ? 'night' : 'sun'} size={20} className="icon-red" />
+                <Icon name={theme === 'dark' ? 'night' : 'sun'} size={20} />
               </button>
             </div>
           )}
         </header>
 
+        {/* ===== Page Content ===== */}
         <Outlet />
       </main>
     </div>

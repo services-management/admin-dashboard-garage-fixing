@@ -13,6 +13,7 @@ import ServicePackage from '../pages/services/service-package/ServicePackage';
 import Services from '../pages/services/services/Services';
 import Settings from '../pages/settings/Settings';
 import Staff from '../pages/staff/Staff';
+import User from '../pages/user/User';
 
 export const router = createBrowserRouter([
   {
@@ -68,6 +69,10 @@ export const router = createBrowserRouter([
       {
         path: 'staff',
         element: <Staff />,
+      },
+      {
+        path: 'user',
+        element: <User />,
       },
     ],
   },

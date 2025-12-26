@@ -74,11 +74,11 @@ export const router = createBrowserRouter([
             path: 'staff',
             element: <Staff />,
           },
+          {
+            path: 'user',
+            element: <User />,
+          },
         ],
-      },
-      {
-        path: 'user',
-        element: <User />,
       },
     ],
   },

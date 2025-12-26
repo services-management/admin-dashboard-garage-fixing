@@ -1,69 +1,64 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { adminLogin } from '../../store/auth/authThunk';
 import '../../styles/login.css';
 
 export default function Login() {
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { loading, error } = useAppSelector((s) => s.auth);
+
   const [identifier, setIdentifier] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [localError, setLocalError] = useState('');
 
-  function handleSubmit(e: FormEvent) {
+  async function handleSubmit(e: FormEvent) {
     e.preventDefault();
-    setError('');
+    setLocalError('');
+
     if (!identifier.trim()) {
-      setError('សូមបញ្ចូល ឈ្មោះ ');
+      setLocalError('សូមបញ្ចូល ឈ្មោះ');
       return;
     }
     if (!password.trim()) {
-      setError('សូមបញ្ចូល ពាក្យសម្ងាត់');
+      setLocalError('សូមបញ្ចូល ពាក្យសម្ងាត់');
       return;
     }
 
-    void navigate('/dashboard');
+    const result = await dispatch(adminLogin({ identifier, password }));
+
+    if (adminLogin.fulfilled.match(result)) {
+      void navigate('/dashboard');
+    }
   }
 
   return (
     <div className="login-wrapper">
-      <div className="login-card" role="main">
-        <div className="logo-wrap">
-          <img src="/MR-LUBE.png" alt="MR-LUBE Logo" className="logo-image" />
-        </div>
-        <h1 className="login-title">សូមចូលគណនី</h1>
-        <p className="login-sub">បញ្ចូលឈ្មោះនិងពាក្យសម្ងាត់ដើម្បីចូល</p>
+      <div className="login-card">
+        <img src="/MR-LUBE.png" className="logo-image" />
+        <h1>ចូលគណនីរបស់អ្នក</h1>
+        <p>បញ្ចូលឈ្មោះ និងពាក្យសម្ងាត់របស់អ្នក។</p>
 
-        <form onSubmit={handleSubmit} className="login-form">
-          <label className="field">
-            <input
-              value={identifier}
-              onChange={(e) => {
-                setIdentifier(e.target.value);
-              }}
-              placeholder="ឈ្មោះ "
-              className="input"
-              aria-label="name"
-            />
-          </label>
+        <form onSubmit={handleSubmit}>
+          <input
+            type="text"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
+            placeholder="ឈ្មោះ"
+          />
 
-          <label className="field">
-            <input
-              type="password"
-              value={password}
-              onChange={(e) => {
-                setPassword(e.target.value);
-              }}
-              placeholder="ពាក្យសម្ងាត់"
-              className="input"
-              aria-label="password"
-            />
-          </label>
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="ពាក្យសម្ងាត់"
+          />
 
-          {error && <div className="error">{error}</div>}
+          {(localError || error) && <div className="error">{localError || error}</div>}
 
-          <button type="submit" className="btn primary">
-            ចូលគណនី
-          </button>
+          <button disabled={loading}>{loading ? 'កំពុងចូល...' : 'ចូលគណនី'}</button>
         </form>
       </div>
     </div>

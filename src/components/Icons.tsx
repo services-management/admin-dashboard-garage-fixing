@@ -19,6 +19,7 @@ import {
   RiCloseLine,
   RiDeleteBinLine,
   RiTeamLine,
+  RiEdit2Line,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -42,7 +43,8 @@ export type IconName =
   | 'close'
   | 'staff'
   | 'user'
-  | 'trash';
+  | 'trash'
+  | 'edit';
 
 interface IconProps {
   name: IconName;
@@ -74,6 +76,7 @@ const iconMap: Partial<
   trash: RiDeleteBinLine,
   staff: RiTeamLine,
   user: RiUserLine,
+  edit: RiEdit2Line,
 };
 
 // Render the requested icon, with a safe fallback

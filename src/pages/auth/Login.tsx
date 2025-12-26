@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { adminLogin } from '../store/auth/authThunk';
-import '../styles/login.css';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { adminLogin } from '../../store/auth/authThunk';
+import '../../styles/login.css';
 
 export default function Login() {
   const dispatch = useAppDispatch();
@@ -30,7 +30,7 @@ export default function Login() {
     const result = await dispatch(adminLogin({ identifier, password }));
 
     if (adminLogin.fulfilled.match(result)) {
-      navigate('/dashboard');
+      void navigate('/dashboard');
     }
   }
 

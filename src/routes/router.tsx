@@ -3,15 +3,17 @@ import AdminRoute from './adminRoute';
 
 import AuthLayout from '../layouts/AuthLayout';
 import DashboardLayout from '../layouts/DashboardLayout';
-import Dashboard from '../pages/Dashboard';
-import Booking from '../pages/dashboard/Booking';
-import Invoices from '../pages/dashboard/Invoices';
-import Notifications from '../pages/dashboard/Notifications';
-import Profile from '../pages/dashboard/Profile';
-import ServicePackage from '../pages/dashboard/ServicePackage';
-import Services from '../pages/dashboard/Services';
-import Settings from '../pages/dashboard/Settings';
-import Login from '../pages/Login';
+import Login from '../pages/auth/Login';
+import Booking from '../pages/bookings/Bookings';
+import Dashboard from '../pages/dashboard/Dashboard';
+import Invoices from '../pages/invoices/Invoices';
+import Notifications from '../pages/notifications/Notifications';
+import Profile from '../pages/profile/Profile';
+import Product from '../pages/services/products/Products';
+import ServicePackage from '../pages/services/service-package/ServicePackage';
+import Services from '../pages/services/services/Services';
+import Settings from '../pages/settings/Settings';
+import Staff from '../pages/staff/Staff';
 
 export const router = createBrowserRouter([
   {
@@ -40,7 +42,7 @@ export const router = createBrowserRouter([
             element: <Services />,
           },
           {
-            path: 'ServicePackage',
+            path: 'services/service-package',
             element: <ServicePackage />,
           },
           {
@@ -56,12 +58,20 @@ export const router = createBrowserRouter([
             element: <Notifications />,
           },
           {
+            path: 'services/products',
+            element: <Product />,
+          },
+          {
             path: 'profile',
             element: <Profile />,
           },
           {
             path: 'settings',
             element: <Settings />,
+          },
+          {
+            path: 'staff',
+            element: <Staff />,
           },
         ],
       },

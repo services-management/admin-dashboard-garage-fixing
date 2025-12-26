@@ -12,10 +12,14 @@ import {
   RiMoonLine,
   RiSunLine,
   RiTimeLine,
-  RiQuestionLine, // fallback icon
-  RiShoppingBagLine, // new
-  RiBox3Line, // new
+  RiQuestionLine,
+  RiShoppingBagLine,
+  RiBox3Line,
   RiSuitcaseLine,
+  RiCloseLine,
+  RiDeleteBinLine,
+  RiTeamLine,
+  RiEdit2Line,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -35,7 +39,11 @@ export type IconName =
   | 'calendar'
   | 'products'
   | 'box'
-  | 'service_package';
+  | 'service_package'
+  | 'close'
+  | 'staff'
+  | 'trash'
+  | 'edit';
 
 interface IconProps {
   name: IconName;
@@ -63,6 +71,10 @@ const iconMap: Partial<
   products: RiShoppingBagLine,
   box: RiBox3Line,
   service_package: RiSuitcaseLine,
+  close: RiCloseLine,
+  trash: RiDeleteBinLine,
+  staff: RiTeamLine,
+  edit: RiEdit2Line,
 };
 
 // Render the requested icon, with a safe fallback

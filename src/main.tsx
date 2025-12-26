@@ -8,7 +8,10 @@ import { Provider } from 'react-redux';
 import { store } from './store';
 import { router } from './routes/router';
 
-createRoot(document.getElementById('root')!).render(
+const rootEl = document.getElementById('root');
+if (!rootEl) throw new Error('Root element not found');
+
+createRoot(rootEl).render(
   <StrictMode>
     <Provider store={store}>
       <RouterProvider router={router} />

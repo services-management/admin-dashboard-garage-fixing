@@ -33,7 +33,8 @@ export default function DashboardLayout() {
   // Hide topbar for pages that have their own header
   const hideTopbar =
     location.pathname.startsWith('/dashboard/staff') ||
-    location.pathname.startsWith('/dashboard/user');
+    location.pathname.startsWith('/dashboard/user') ||
+    location.pathname.startsWith('/dashboard/settings');
 
   const [query, setQuery] = useState('');
 

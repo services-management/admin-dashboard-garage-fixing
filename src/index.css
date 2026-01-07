@@ -155,6 +155,7 @@ body {
 .sidebar-link {
   display: flex;
   align-items: center;
+  cursor: pointer;
   gap: 10px;
   padding: 10px 12px;
   border-radius: 8px;
@@ -5786,6 +5787,528 @@ body.dark-mode .dialog-footer,
   .btn-primary,
   .btn-danger,
   .btn-secondary {
+    width: 100%;
+  }
+}
+
+/* ============================================
+   SETTINGS PAGE STYLES
+   ============================================ */
+
+/* Settings Page - Clean & Scannable Design */
+
+.settings-page {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+/* Header - Simple with title and theme toggle only */
+.settings-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+[data-theme='dark'] .settings-header {
+  border-bottom-color: #404040;
+}
+
+.settings-header h1 {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 700;
+  color: #121212;
+  letter-spacing: -0.02em;
+}
+
+[data-theme='dark'] .settings-header h1 {
+  color: #e8eaed;
+}
+
+.settings-theme-toggle {
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  color: #121212;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.settings-theme-toggle:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: #d0d0d0;
+}
+
+[data-theme='dark'] .settings-theme-toggle {
+  color: #9aa0a6;
+  border-color: #404040;
+}
+
+[data-theme='dark'] .settings-theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: #505050;
+}
+
+/* Success Toast */
+.settings-toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 14px 24px;
+  background: #2e7d32;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  box-shadow: 0 4px 16px rgba(46, 125, 50, 0.25);
+  animation: slideUp 0.3s ease-out;
+  z-index: 1000;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* Content - Vertical list with clear separation */
+.settings-content {
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Settings Group - Enhanced with shadow and gradient */
+.settings-group {
+  background: #ffffff;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e8e8e8;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.02);
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+
+.settings-group:hover {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.06),
+    0 1px 4px rgba(0, 0, 0, 0.03);
+  border-color: #c23127;
+}
+
+[data-theme='dark'] .settings-group {
+  background: #1e1e1e;
+  border-color: #353535;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.2),
+    0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+[data-theme='dark'] .settings-group:hover {
+  box-shadow:
+    0 2px 8px rgba(0, 0, 0, 0.3),
+    0 1px 4px rgba(0, 0, 0, 0.15);
+  border-color: #c23127;
+}
+
+/* Group Header - Clean and clickable */
+.settings-group-header {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.01), rgba(0, 0, 0, 0));
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  color: inherit;
+}
+
+.settings-group-header:hover {
+  background: #a82920;
+}
+
+[data-theme='dark'] .settings-group-header {
+  background: linear-gradient(to bottom, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0));
+}
+
+[data-theme='dark'] .settings-group-header:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.settings-group-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.9875rem;
+  font-weight: 700;
+  color: #1a1a1a;
+}
+
+[data-theme='dark'] .settings-group-title {
+  color: #e8eaed;
+}
+
+.settings-group-icon {
+  color: #666;
+  transition: transform 0.25s;
+}
+
+.settings-group.is-expanded .settings-group-icon {
+  transform: rotate(180deg);
+}
+
+[data-theme='dark'] .settings-group-icon {
+  color: #9aa0a6;
+}
+
+/* Group Content - Padded and organized */
+.settings-group-content {
+  padding: 0 20px 20px 20px;
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Settings Row - Clean horizontal layout */
+.settings-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
+  padding: 14px 0;
+  min-height: 52px;
+}
+
+.settings-row:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .settings-row:not(:last-child) {
+  border-bottom-color: #2d2d2d;
+}
+
+/* Label - Left side with description */
+.settings-label {
+  flex: 1;
+  min-width: 0;
+  padding-top: 2px;
+}
+
+.settings-label-text {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 3px;
+  line-height: 1.3;
+}
+
+[data-theme='dark'] .settings-label-text {
+  color: #e8eaed;
+}
+
+.settings-label-desc {
+  font-size: 0.8125rem;
+  color: #666;
+  line-height: 1.4;
+}
+
+[data-theme='dark'] .settings-label-desc {
+  color: #9aa0a6;
+}
+
+/* Control - Right side inputs/toggles */
+.settings-control {
+  flex-shrink: 0;
+  min-width: 280px;
+  display: flex;
+  align-items: center;
+}
+
+.settings-input,
+.settings-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #d8d8d8;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  background: #fff;
+  color: #1a1a1a;
+  transition: all 0.2s;
+}
+
+.settings-input:hover,
+.settings-select:hover {
+  border-color: #b8b8b8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.settings-input:focus,
+.settings-select:focus {
+  outline: none;
+  border-color: #c23127;
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
+}
+
+[data-theme='dark'] .settings-input,
+[data-theme='dark'] .settings-select {
+  background: #2a2a2a;
+  color: #e8eaed;
+  border-color: #505050;
+}
+
+[data-theme='dark'] .settings-input:hover,
+[data-theme='dark'] .settings-select:hover {
+  border-color: #606060;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+[data-theme='dark'] .settings-input:focus,
+[data-theme='dark'] .settings-select:focus {
+  border-color: #c23127;
+  box-shadow: 0 0 0 3px rgba(66, 133, 244, 0.15);
+}
+
+.settings-input::placeholder {
+  color: #9aa0a6;
+}
+
+[data-theme='dark'] .settings-input::placeholder {
+  color: #666;
+}
+
+/* Toggle Switch - red when active */
+.settings-toggle {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 24px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.settings-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.settings-toggle-slider {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #d8d8d8;
+  border-radius: 24px;
+  transition: background-color 0.25s;
+}
+
+[data-theme='dark'] .settings-toggle-slider {
+  background-color: #5f6368;
+}
+
+.settings-toggle-slider::before {
+  position: absolute;
+  content: '';
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: transform 0.25s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+.settings-toggle input:checked + .settings-toggle-slider {
+  background-color: #c23127;
+}
+
+[data-theme='dark'] .settings-toggle input:checked + .settings-toggle-slider {
+  background-color: #c23127;
+}
+
+.settings-toggle input:checked + .settings-toggle-slider::before {
+  transform: translateX(20px);
+}
+
+.settings-toggle input:focus + .settings-toggle-slider {
+  box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.15);
+}
+
+/* Subsection Title */
+.settings-subsection {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+[data-theme='dark'] .settings-subsection {
+  border-top-color: #2d2d2d;
+}
+
+.settings-subsection-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #666;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+[data-theme='dark'] .settings-subsection-title {
+  color: #9aa0a6;
+}
+
+/* Footer with Save Button - Bottom right, subtle */
+.settings-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 32px 0 16px 0;
+}
+
+.settings-save-btn {
+  padding: 10px 28px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  background: #c23127;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(26, 115, 232, 0.2);
+}
+
+.settings-save-btn:hover {
+  background: #1557b0;
+  box-shadow: 0 2px 6px rgba(26, 115, 232, 0.3);
+  transform: translateY(-1px);
+}
+
+.settings-save-btn:active {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px rgba(26, 115, 232, 0.2);
+}
+
+[data-theme='dark'] .settings-save-btn {
+  background: #c23127;
+}
+
+[data-theme='dark'] .settings-save-btn:hover {
+  background: #c23127;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-page {
+    max-width: 100%;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .settings-control {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .settings-group-header {
+    padding: 16px;
+  }
+
+  .settings-group-content {
+    padding: 0 16px 16px 16px;
+  }
+
+  .settings-footer {
+    padding: 24px 0;
+  }
+
+  .settings-save-btn {
+    width: 100%;
+  }
+}
+
+[data-theme='dark'] .settings-save-btn {
+  background: #c23127;
+  color: #202124;
+}
+
+[data-theme='dark'] .settings-save-btn:hover {
+  background: #c23127;
+}
+
+[data-theme='dark'] .settings-save-btn:active {
+  background: #c2d7fc;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-page {
+    max-width: 100%;
+    padding: 0 16px;
+  }
+
+  .settings-row {
+    flex-direction: column;
+    gap: 8px;
+    align-items: stretch;
+  }
+
+  .settings-control {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .settings-header {
+    padding: 16px 0 12px 0;
+  }
+
+  .settings-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .settings-group-header {
+    padding: 14px 0;
+  }
+
+  .settings-footer {
+    padding: 24px 0;
+  }
+
+  .settings-save-btn {
     width: 100%;
   }
 }

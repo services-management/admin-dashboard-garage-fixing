@@ -1,12 +1,21 @@
 import React, { useState } from 'react';
 
+// TODO: For API integration, products should reference productId instead of name
+// Current: { name: string; quantity: number }
+// Future: { productId: number; quantity: number } + lookup table for display
+interface ServiceProduct {
+  name: string; // For mock data - will be replaced by productId
+  quantity: number;
+  productId?: number; // Prepare for API: actual product reference
+}
+
 interface Service {
   id: number;
   name: string;
   description: string;
   price: number;
   status: 'active' | 'inactive';
-  products: { name: string; quantity: number }[];
+  products: ServiceProduct[];
   image?: string;
 }
 
@@ -60,7 +69,7 @@ export default function Services() {
     description: '',
     price: '',
     status: 'active' as 'active' | 'inactive',
-    products: [] as { name: string; quantity: number }[],
+    products: [] as ServiceProduct[],
   });
 
   const openCreateModal = () => {
@@ -325,6 +334,25 @@ export default function Services() {
               </div>
               <div className="form-row">
                 <div className="form-group">
+                  <label className="form-label" htmlFor="service-status">
+                    Status
+                  </label>
+                  <select
+                    id="service-status"
+                    className="form-input"
+                    value={formData.status}
+                    onChange={(e) => {
+                      setFormData((p) => ({
+                        ...p,
+                        status: e.target.value as 'active' | 'inactive',
+                      }));
+                    }}
+                  >
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                </div>
+                <div className="form-group">
                   <label className="form-label" htmlFor="service-image">
                     Image
                   </label>
@@ -342,6 +370,14 @@ export default function Services() {
               <div className="form-row">
                 <div className="form-group">
                   <div className="form-label">Products</div>
+                  {/* TODO: For API integration:
+                      - Replace text input with dropdown/autocomplete of available products
+                      - Store productId instead of name
+                      - Display product name from lookup table/API response
+                      Example: <select onChange={e => updateProductId(i, parseInt(e.target.value))}>
+                               {availableProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
+                             </select>
+                  */}
                   <div>
                     {formData.products.map((p, i) => (
                       <div

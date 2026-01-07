@@ -34,7 +34,8 @@ export default function DashboardLayout() {
   // Hide search also for profile page, but keep topbar actions (theme) visible on profile
   const hideTopbar =
     location.pathname.startsWith('/dashboard/staff') ||
-    location.pathname.startsWith('/dashboard/user');
+    location.pathname.startsWith('/dashboard/user') ||
+    location.pathname.startsWith('/dashboard/settings');
 
   const hideSearch = hideTopbar || location.pathname.startsWith('/dashboard/profile');
 

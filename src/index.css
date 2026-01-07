@@ -1559,6 +1559,23 @@ body.dark-mode .multi-select-container,
   border-color: #3a3a3a;
 }
 
+/* Ensure generic cards and headers are readable in dark mode */
+[data-theme='dark'] .card {
+  background: var(--surface-2);
+  border-color: var(--border);
+}
+
+[data-theme='dark'] .card-header {
+  color: var(--text);
+  border-bottom-color: var(--border);
+  background: transparent;
+}
+
+[data-theme='dark'] .form-group label,
+[data-theme='dark'] .card-body .form-group label {
+  color: #bfc3c6;
+}
+
 body.dark-mode .select-header span,
 [data-theme='dark'] .select-header span {
   color: #999;

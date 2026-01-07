@@ -165,14 +165,14 @@ export default function Services() {
         prev.map((srv) =>
           srv.id === currentService.id
             ? {
-              ...srv,
-              name: formData.name,
-              description: formData.description,
-              price: finalPrice,
-              status: formData.status,
-              products: formData.products,
-              image: imagePreview || srv.image,
-            }
+                ...srv,
+                name: formData.name,
+                description: formData.description,
+                price: finalPrice,
+                status: formData.status,
+                products: formData.products,
+                image: imagePreview || srv.image,
+              }
             : srv,
         ),
       );
@@ -342,7 +342,10 @@ export default function Services() {
                     className="form-input"
                     value={formData.status}
                     onChange={(e) => {
-                      setFormData((p) => ({ ...p, status: e.target.value as 'active' | 'inactive' }));
+                      setFormData((p) => ({
+                        ...p,
+                        status: e.target.value as 'active' | 'inactive',
+                      }));
                     }}
                   >
                     <option value="active">Active</option>

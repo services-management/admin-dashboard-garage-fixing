@@ -82,7 +82,9 @@ export default function Settings() {
 
     console.log('Saving settings...');
     setShowSuccess(true);
-    setTimeout(() => { setShowSuccess(false); }, 3000);
+    setTimeout(() => {
+      setShowSuccess(false);
+    }, 3000);
     setCurrentPassword('');
     setNewPassword('');
     setConfirmPassword('');
@@ -97,7 +99,9 @@ export default function Settings() {
           type="button"
           className="settings-theme-toggle"
           aria-label="Toggle theme"
-          onClick={() => { setTheme((t) => (t === 'dark' ? 'light' : 'dark')); }}
+          onClick={() => {
+            setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
+          }}
         >
           <Icon name={theme === 'dark' ? 'night' : 'sun'} size={18} />
         </button>
@@ -111,7 +115,9 @@ export default function Settings() {
         <section className={`settings-group ${expandedSections.garage ? 'is-expanded' : ''}`}>
           <button
             className="settings-group-header"
-            onClick={() => { toggleSection('garage'); }}
+            onClick={() => {
+              toggleSection('garage');
+            }}
             type="button"
           >
             <span className="settings-group-title">
@@ -136,7 +142,9 @@ export default function Settings() {
                     type="text"
                     className="settings-input"
                     value={garageName}
-                    onChange={(e) => { setGarageName(e.target.value); }}
+                    onChange={(e) => {
+                      setGarageName(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -150,7 +158,9 @@ export default function Settings() {
                     type="text"
                     className="settings-input"
                     value={garageAddress}
-                    onChange={(e) => { setGarageAddress(e.target.value); }}
+                    onChange={(e) => {
+                      setGarageAddress(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -164,7 +174,9 @@ export default function Settings() {
                     type="text"
                     className="settings-input"
                     value={garagePhone}
-                    onChange={(e) => { setGaragePhone(e.target.value); }}
+                    onChange={(e) => {
+                      setGaragePhone(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -178,7 +190,9 @@ export default function Settings() {
                     type="email"
                     className="settings-input"
                     value={garageEmail}
-                    onChange={(e) => { setGarageEmail(e.target.value); }}
+                    onChange={(e) => {
+                      setGarageEmail(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -190,7 +204,9 @@ export default function Settings() {
         <section className={`settings-group ${expandedSections.admin ? 'is-expanded' : ''}`}>
           <button
             className="settings-group-header"
-            onClick={() => { toggleSection('admin'); }}
+            onClick={() => {
+              toggleSection('admin');
+            }}
             type="button"
           >
             <span className="settings-group-title">
@@ -215,7 +231,9 @@ export default function Settings() {
                     type="text"
                     className="settings-input"
                     value={adminUsername}
-                    onChange={(e) => { setAdminUsername(e.target.value); }}
+                    onChange={(e) => {
+                      setAdminUsername(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -229,7 +247,9 @@ export default function Settings() {
                     type="email"
                     className="settings-input"
                     value={adminEmail}
-                    onChange={(e) => { setAdminEmail(e.target.value); }}
+                    onChange={(e) => {
+                      setAdminEmail(e.target.value);
+                    }}
                   />
                 </div>
               </div>
@@ -244,7 +264,9 @@ export default function Settings() {
                     type="password"
                     className="settings-input"
                     value={currentPassword}
-                    onChange={(e) => { setCurrentPassword(e.target.value); }}
+                    onChange={(e) => {
+                      setCurrentPassword(e.target.value);
+                    }}
                     placeholder="••••••••"
                   />
                 </div>
@@ -259,7 +281,9 @@ export default function Settings() {
                     type="password"
                     className="settings-input"
                     value={newPassword}
-                    onChange={(e) => { setNewPassword(e.target.value); }}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value);
+                    }}
                     placeholder="••••••••"
                   />
                 </div>
@@ -274,7 +298,9 @@ export default function Settings() {
                     type="password"
                     className="settings-input"
                     value={confirmPassword}
-                    onChange={(e) => { setConfirmPassword(e.target.value); }}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value);
+                    }}
                     placeholder="••••••••"
                   />
                 </div>
@@ -287,7 +313,9 @@ export default function Settings() {
         <section className={`settings-group ${expandedSections.invoice ? 'is-expanded' : ''}`}>
           <button
             className="settings-group-header"
-            onClick={() => { toggleSection('invoice'); }}
+            onClick={() => {
+              toggleSection('invoice');
+            }}
             type="button"
           >
             <span className="settings-group-title">
@@ -312,7 +340,9 @@ export default function Settings() {
                     type="text"
                     className="settings-input"
                     value={invoicePrefix}
-                    onChange={(e) => { setInvoicePrefix(e.target.value); }}
+                    onChange={(e) => {
+                      setInvoicePrefix(e.target.value);
+                    }}
                     placeholder="INV"
                   />
                 </div>
@@ -327,7 +357,9 @@ export default function Settings() {
                     type="number"
                     className="settings-input"
                     value={invoiceStartNumber}
-                    onChange={(e) => { setInvoiceStartNumber(e.target.value); }}
+                    onChange={(e) => {
+                      setInvoiceStartNumber(e.target.value);
+                    }}
                     min="1"
                   />
                 </div>
@@ -342,7 +374,9 @@ export default function Settings() {
                     type="number"
                     className="settings-input"
                     value={taxRate}
-                    onChange={(e) => { setTaxRate(e.target.value); }}
+                    onChange={(e) => {
+                      setTaxRate(e.target.value);
+                    }}
                     min="0"
                     max="100"
                   />
@@ -357,7 +391,9 @@ export default function Settings() {
                   <select
                     className="settings-select"
                     value={currency}
-                    onChange={(e) => { setCurrency(e.target.value); }}
+                    onChange={(e) => {
+                      setCurrency(e.target.value);
+                    }}
                   >
                     <option value="USD">USD - ដុល្លារអាមេរិក</option>
                     <option value="KHR">KHR - រៀល</option>
@@ -375,7 +411,9 @@ export default function Settings() {
                     type="number"
                     className="settings-input"
                     value={paymentTerms}
-                    onChange={(e) => { setPaymentTerms(e.target.value); }}
+                    onChange={(e) => {
+                      setPaymentTerms(e.target.value);
+                    }}
                     min="0"
                   />
                 </div>
@@ -385,10 +423,14 @@ export default function Settings() {
         </section>
 
         {/* Notifications */}
-        <section className={`settings-group ${expandedSections.notifications ? 'is-expanded' : ''}`}>
+        <section
+          className={`settings-group ${expandedSections.notifications ? 'is-expanded' : ''}`}
+        >
           <button
             className="settings-group-header"
-            onClick={() => { toggleSection('notifications'); }}
+            onClick={() => {
+              toggleSection('notifications');
+            }}
             type="button"
           >
             <span className="settings-group-title">
@@ -413,7 +455,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={emailNotifications}
-                      onChange={(e) => { setEmailNotifications(e.target.checked); }}
+                      onChange={(e) => {
+                        setEmailNotifications(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -429,7 +473,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={smsNotifications}
-                      onChange={(e) => { setSmsNotifications(e.target.checked); }}
+                      onChange={(e) => {
+                        setSmsNotifications(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -445,7 +491,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={bookingAlerts}
-                      onChange={(e) => { setBookingAlerts(e.target.checked); }}
+                      onChange={(e) => {
+                        setBookingAlerts(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -461,7 +509,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={invoiceAlerts}
-                      onChange={(e) => { setInvoiceAlerts(e.target.checked); }}
+                      onChange={(e) => {
+                        setInvoiceAlerts(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -475,7 +525,9 @@ export default function Settings() {
         <section className={`settings-group ${expandedSections.advanced ? 'is-expanded' : ''}`}>
           <button
             className="settings-group-header"
-            onClick={() => { toggleSection('advanced'); }}
+            onClick={() => {
+              toggleSection('advanced');
+            }}
             type="button"
           >
             <span className="settings-group-title">
@@ -500,7 +552,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={autoApproveBookings}
-                      onChange={(e) => { setAutoApproveBookings(e.target.checked); }}
+                      onChange={(e) => {
+                        setAutoApproveBookings(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -516,7 +570,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={allowGuestBookings}
-                      onChange={(e) => { setAllowGuestBookings(e.target.checked); }}
+                      onChange={(e) => {
+                        setAllowGuestBookings(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -532,7 +588,9 @@ export default function Settings() {
                     <input
                       type="checkbox"
                       checked={maintenanceMode}
-                      onChange={(e) => { setMaintenanceMode(e.target.checked); }}
+                      onChange={(e) => {
+                        setMaintenanceMode(e.target.checked);
+                      }}
                     />
                     <span className="settings-toggle-slider" />
                   </label>
@@ -547,7 +605,9 @@ export default function Settings() {
                   <select
                     className="settings-select"
                     value={language}
-                    onChange={(e) => { setLanguage(e.target.value); }}
+                    onChange={(e) => {
+                      setLanguage(e.target.value);
+                    }}
                   >
                     <option value="km">ខ្មែរ</option>
                     <option value="en">English</option>

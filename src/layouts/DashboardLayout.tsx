@@ -30,10 +30,13 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 export default function DashboardLayout() {
   const location = useLocation();
 
-  // Hide topbar for pages that have their own header
+  // Hide topbar for pages that have their own header (staff & user)
+  // Hide search also for profile page, but keep topbar actions (theme) visible on profile
   const hideTopbar =
     location.pathname.startsWith('/dashboard/staff') ||
     location.pathname.startsWith('/dashboard/user');
+
+  const hideSearch = hideTopbar || location.pathname.startsWith('/dashboard/profile');
 
   const [query, setQuery] = useState('');
 
@@ -109,9 +112,9 @@ export default function DashboardLayout() {
 
       {/* ================= Main Content ================= */}
       <main className="content">
-        {/* ===== Topbar (hidden for Staff & User pages) ===== */}
+        {/* ===== Topbar ===== */}
         <header className="topbar">
-          {!hideTopbar && (
+          {!hideSearch && (
             <div className="search">
               <span className="search-icon" aria-hidden="true">
                 <Icon name="search" size={18} />

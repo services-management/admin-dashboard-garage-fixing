@@ -1,5 +1,8 @@
 name: Build Release
 
+permissions:
+  contents: write
+
 on:
   push:
     tags:
@@ -14,22 +17,13 @@ jobs:
   build:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: npm run build
-
-      - name: Archive production artifacts
-        uses: actions/upload-artifact@v4
+      - run: npm install
+      - run: npm run build
+      - uses: actions/upload-artifact@v4
         with:
           name: dist-artifacts
           path: dist
@@ -37,26 +31,18 @@ jobs:
   test:
     runs-on: ubuntu-22.04
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v3
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v3
         with:
           node-version: '20'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Run tests
-        run: npm run test:unit
+      - run: npm install
+      - run: npm run test:unit
 
   release:
     runs-on: ubuntu-22.04
     needs: [build, test]
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Determine tag
         id: tag
@@ -67,8 +53,7 @@ jobs:
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: dist-artifacts
           path: dist

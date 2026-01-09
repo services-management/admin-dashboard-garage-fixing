@@ -10,39 +10,36 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Optional tag to run release for (overrides push trigger)'
+        description: 'Optional tag to run release for'
         required: false
 
 jobs:
-  build:
+  build-test:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
-        with:
-          node-version: '20'
-      - run: npm install
-      - run: npm run build
-      - uses: actions/upload-artifact@v4
-        with:
-          name: dist-artifacts
-          path: dist
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
-  test:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v3
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
         with:
           node-version: '20'
-      - run: npm install
-      - run: npm run test:unit
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+
+      - name: Run tests
+        run: npm run test:unit
 
   release:
     runs-on: ubuntu-22.04
-    needs: [build, test]
+    needs: build-test
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Determine tag
         id: tag
@@ -53,17 +50,12 @@ jobs:
             echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
           fi
 
-      - uses: actions/download-artifact@v4
-        with:
-          name: dist-artifacts
-          path: dist
-
-      - name: Create GitHub Release
+      - name: Create GitHub Release (no assets)
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.tag }}
           name: Release ${{ steps.tag.outputs.tag }}
-          body: Automated release for ${{ steps.tag.outputs.tag }}
-          files: dist/*
+          body: |
+            Automated release for ${{ steps.tag.outputs.tag }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

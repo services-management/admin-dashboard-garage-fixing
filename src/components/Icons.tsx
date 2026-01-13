@@ -20,6 +20,7 @@ import {
   RiDeleteBinLine,
   RiTeamLine,
   RiEdit2Line,
+  RiExpandUpDownLine,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -44,7 +45,8 @@ export type IconName =
   | 'staff'
   | 'user'
   | 'trash'
-  | 'edit';
+  | 'edit'
+  | 'expand_up_down';
 
 interface IconProps {
   name: IconName;
@@ -77,6 +79,7 @@ const iconMap: Partial<
   staff: RiTeamLine,
   user: RiUserLine,
   edit: RiEdit2Line,
+  expand_up_down: RiExpandUpDownLine,
 };
 
 // Render the requested icon, with a safe fallback

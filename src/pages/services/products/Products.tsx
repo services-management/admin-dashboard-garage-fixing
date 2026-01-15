@@ -1,225 +1,171 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { fetchProducts } from '../../../store/product/productThunk';
+import { fetchCategories } from '../../../store/category/categoryThunk';
+import { ProductService } from '../../../store/product/productService';
+import type { Product } from '../../../store/product/productTypes';
 
-interface ProductItem {
-  id: number;
-  name: string;
-  description: string;
-  price: number;
-  status: 'active' | 'inactive';
-  stock: number;
-  categories: string[];
-  image?: string;
-}
-
-interface AvailableCategory {
-  id: string;
-  name: string;
-}
-
-export default function Product() {
-  const [products, setProducts] = useState<ProductItem[]>([
-    {
-      id: 1,
-      name: 'Engine Oil 5W-30',
-      description: 'High performance engine oil suitable for most gasoline engines.',
-      price: 15.0,
-      status: 'active',
-      stock: 50,
-      categories: ['Oil', 'Engine'],
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=400&fit=crop',
-    },
-    {
-      id: 2,
-      name: 'Brake Fluid DOT4',
-      description: 'High boiling point brake fluid for modern braking systems.',
-      price: 8.0,
-      status: 'active',
-      stock: 120,
-      categories: ['Brake'],
-      image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=400&h=400&fit=crop',
-    },
-  ]);
+export default function ProductPage() {
+  const dispatch = useAppDispatch();
+  const { products, loading } = useAppSelector((s) => s.product);
+  const { list: categories } = useAppSelector((s) => s.category);
 
   const [showModal, setShowModal] = useState(false);
-  const [showCategoryDialog, setShowCategoryDialog] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [currentProduct, setCurrentProduct] = useState<ProductItem | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
+
+  // IMAGE UPLOAD
+  // const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
+
+  // DELETE MODAL
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteProductId, setDeleteProductId] = useState<number | null>(null);
 
   const [formData, setFormData] = useState({
     name: '',
+    selling_price: '',
+    unit_cost: '',
     description: '',
-    price: '',
-    status: 'active' as 'active' | 'inactive',
-    stock: 1,
-    categories: [] as string[],
+    status: 'Active',
+    category_name: '',
+    initial_stock: 0,
+    min_stock_level: 0,
   });
 
-  const [errors, setErrors] = useState({
-    name: '',
-  });
+  useEffect(() => {
+    dispatch(fetchProducts());
+    dispatch(fetchCategories());
+  }, [dispatch]);
 
-  const availableCategories: AvailableCategory[] = [
-    { id: 'CAT001', name: 'Oil' },
-    { id: 'CAT002', name: 'Brake' },
-    { id: 'CAT003', name: 'Filter' },
-    { id: 'CAT004', name: 'Accessory' },
-    { id: 'CAT005', name: 'Cleaning' },
-  ];
-
+  // ================= CREATE / EDIT =================
   const openCreateModal = () => {
     setIsEditMode(false);
     setCurrentProduct(null);
+    // setImageFile(null);
     setImagePreview('');
     setFormData({
       name: '',
+      selling_price: '',
+      unit_cost: '',
       description: '',
-      price: '',
-      status: 'active',
-      stock: 1,
-      categories: [],
+      status: 'Active',
+      category_name: '',
+      initial_stock: 0,
+      min_stock_level: 0,
     });
-    setErrors({ name: '' });
     setShowModal(true);
   };
 
-  const openEditModal = (p: ProductItem) => {
+  const openEditModal = (p: Product) => {
     setIsEditMode(true);
     setCurrentProduct(p);
-    setImagePreview(p.image ?? '');
+    // setImageFile(null);
+    setImagePreview(p.image_url || '');
     setFormData({
       name: p.name,
+      selling_price: p.selling_price,
+      unit_cost: p.unit_cost,
       description: p.description,
-      price: p.price.toString(),
       status: p.status,
-      stock: p.stock,
-      categories: [...p.categories],
+      category_name: p.category?.name ?? '',
+      initial_stock: Number(p.inventory?.current_stock ?? 0),
+      min_stock_level: Number(p.inventory?.min_stock_level ?? 0),
     });
-    setErrors({ name: '' });
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
     setCurrentProduct(null);
+    // setImageFile(null);
     setImagePreview('');
-    setErrors({ name: '' });
   };
 
+  // ================= IMAGE UPLOAD =================
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    // setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => setImagePreview(reader.result as string); // Base64 string
+    reader.readAsDataURL(file);
+  };
+
+  // ================= SAVE =================
+  const handleSave = async () => {
+    const payload = {
+      name: formData.name,
+      selling_price: Number(formData.selling_price),
+      unit_cost: Number(formData.unit_cost),
+      description: formData.description,
+      status: formData.status,
+      category_name: formData.category_name,
+      image_url: imagePreview, // Base64 string
+      initial_stock: Number(formData.initial_stock),
+      min_stock_level: Number(formData.min_stock_level),
+    };
+
+    try {
+      if (isEditMode && currentProduct) {
+        await ProductService.updateProduct(currentProduct.product_id, payload);
+        alert('Product updated successfully');
+      } else {
+        await ProductService.createProduct(payload);
+        alert('Product created successfully');
+      }
+
+      closeModal();
+      dispatch(fetchProducts());
+    } catch (err: any) {
+      alert(err.response?.data || 'Save failed');
     }
   };
 
-  const removeCategory = (categoryName: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      categories: prev.categories.filter((c) => c !== categoryName),
-    }));
-  };
+  // ================= DELETE =================
+  const handleDeleteConfirm = async () => {
+    if (!deleteProductId) return;
 
-  const addCategoryToProduct = (categoryName: string) => {
-    if (!formData.categories.includes(categoryName)) {
-      setFormData((prev) => ({
-        ...prev,
-        categories: [...prev.categories, categoryName],
-      }));
-    }
-    setShowCategoryDialog(false);
-  };
-
-  const handleSave = () => {
-    setErrors({ name: '' });
-
-    let hasError = false;
-    const newErrors = { name: '' };
-
-    if (!formData.name.trim()) {
-      newErrors.name = 'សូមបញ្ចូលឈ្មោះផលិតផល';
-      hasError = true;
-    }
-
-    if (hasError) {
-      setErrors(newErrors);
-      return;
-    }
-
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      alert('សូមបញ្ចូលតម្លៃត្រឹមត្រូវ');
-      return;
-    }
-
-    const finalPrice = parseFloat(formData.price);
-
-    if (isEditMode && currentProduct) {
-      setProducts((prev) =>
-        prev.map((prd) =>
-          prd.id === currentProduct.id
-            ? {
-                ...prd,
-                name: formData.name,
-                description: formData.description,
-                price: finalPrice,
-                status: formData.status,
-                stock: formData.stock,
-                categories: formData.categories,
-                image: imagePreview || prd.image,
-              }
-            : prd,
-        ),
-      );
-      alert('ផលិតផលត្រូវបានកែប្រែជោគជ័យ!');
-    } else {
-      const newProduct: ProductItem = {
-        id: Math.max(...products.map((p) => p.id), 0) + 1,
-        name: formData.name,
-        description: formData.description,
-        price: finalPrice,
-        status: formData.status,
-        stock: formData.stock,
-        categories: formData.categories,
-        image: imagePreview,
-      };
-      setProducts((prev) => [...prev, newProduct]);
-      alert('ផលិតផលត្រូវបានបង្កើតជោគជ័យ!');
-    }
-    closeModal();
-  };
-
-  const handleDelete = (id: number) => {
-    if (confirm('តើអ្នកពិតជាចង់លុបផលិតផលនេះមែនទេ?')) {
-      setProducts((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await ProductService.deleteProduct(deleteProductId);
+      setShowDeleteModal(false);
+      setDeleteProductId(null);
+      dispatch(fetchProducts());
+    } catch {
+      alert('Delete failed');
     }
   };
 
+  // ================= UI =================
   return (
     <div>
       <div className="service-package-header">
-        <h1>ផលិតផលទាំងអស់</h1>
+        <h1>Products</h1>
         <button className="btn-primary" onClick={openCreateModal}>
-          + បន្ថែមផលិតផលថ្មី
+          + បង្កើតផលិតផលថ្មី
         </button>
       </div>
 
+      {loading && <p>Loading...</p>}
+
+      {/* ================= PRODUCT CARDS ================= */}
       <div className="product-grid-ecommerce">
         {products.map((prd) => (
-          <div key={prd.id} className="service-card-enhanced">
+          <div key={prd.product_id} className="service-card-enhanced">
             <div className="service-card-image">
               <img
                 src={
-                  prd.image ??
-                  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400&h=250&fit=crop'
+                  prd.image_url ||
+                  'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400'
                 }
                 alt={prd.name}
               />
-              <span className={`status-badge-overlay ${prd.status}`}>
-                {prd.status === 'active' ? 'Active' : 'Inactive'}
+              <span
+                className={`status-badge-overlay ${prd.status === 'Active' ? 'active' : 'inactive'}`}
+              >
+                {prd.status}
               </span>
             </div>
 
@@ -227,7 +173,7 @@ export default function Product() {
               <div className="service-card-header-enhanced">
                 <div>
                   <div className="service-card-title">{prd.name}</div>
-                  <div className="service-card-id">#{String(prd.id).padStart(4, '0')}</div>
+                  <div className="service-card-id">#{String(prd.product_id).padStart(4, '0')}</div>
                 </div>
               </div>
 
@@ -235,43 +181,32 @@ export default function Product() {
 
               <div className="service-card-content">
                 <div className="content-section">
-                  <div className="content-label">ប្រភេទផលិតផល</div>
-                  <div className="content-items">
-                    {prd.categories.length === 0 ? (
-                      <span className="item-tag">មិនមានប្រភេទបញ្ជាក់</span>
-                    ) : (
-                      prd.categories.map((c) => (
-                        <span key={c} className="item-tag">
-                          {c}
-                        </span>
-                      ))
-                    )}
-                  </div>
+                  <div className="content-label">Category</div>
+                  <span className="item-tag">{prd.category?.name || 'N/A'}</span>
                 </div>
 
                 <div className="content-section">
-                  <div className="content-label">ស្តុកនៅសល់</div>
-                  <div className="content-items">
-                    <span className="item-tag">{prd.stock} ឯកតា</span>
-                  </div>
+                  <div className="content-label">Stock</div>
+                  <span className="item-tag">
+                    {' '}
+                    {Math.trunc(Number(prd.inventory?.min_stock_level ?? 0))} units
+                  </span>
                 </div>
               </div>
 
               <div className="service-card-footer">
-                <div className="service-price">${prd.price.toFixed(2)}</div>
+                <div className="service-price">${Number(prd.selling_price).toFixed(2)}</div>
+
                 <div className="card-actions">
-                  <button
-                    className="btn-small btn-edit"
-                    onClick={() => {
-                      openEditModal(prd);
-                    }}
-                  >
+                  <button className="btn-small btn-edit" onClick={() => openEditModal(prd)}>
                     កែសម្រួល
                   </button>
+
                   <button
                     className="btn-small btn-delete"
                     onClick={() => {
-                      handleDelete(prd.id);
+                      setDeleteProductId(prd.product_id);
+                      setShowDeleteModal(true);
                     }}
                   >
                     លុប
@@ -283,6 +218,7 @@ export default function Product() {
         ))}
       </div>
 
+      {/* ================= CREATE / UPDATE MODAL ================= */}
       {showModal && (
         <div className="modal active">
           <div className="modal-content">
@@ -292,180 +228,150 @@ export default function Product() {
                 &times;
               </button>
             </div>
+
             <div className="modal-body">
+              {/* Form Fields (unchanged) */}
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-name">
-                    Name
-                  </label>
+                  <label className="form-label">Name</label>
                   <input
-                    id="product-name"
                     className="form-input"
                     value={formData.name}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, name: e.target.value }));
-                    }}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-price">
-                    Price
-                  </label>
+                  <label className="form-label">Selling Price</label>
                   <input
-                    id="product-price"
                     type="number"
                     className="form-input"
-                    value={formData.price}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, price: e.target.value }));
-                    }}
+                    value={formData.selling_price}
+                    onChange={(e) => setFormData({ ...formData, selling_price: e.target.value })}
                   />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-description">
-                    Description
-                  </label>
-                  <textarea
-                    id="product-description"
-                    className="form-input"
-                    value={formData.description}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, description: e.target.value }));
-                    }}
-                  />
-                </div>
-              </div>
-
-              <div className="form-row">
-                <div className="form-group">
-                  <label className="form-label" htmlFor="product-stock">
-                    Stock
-                  </label>
+                  <label className="form-label">Unit Cost</label>
                   <input
-                    id="product-stock"
                     type="number"
                     className="form-input"
-                    value={formData.stock}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, stock: parseInt(e.target.value) || 0 }));
-                    }}
+                    value={formData.unit_cost}
+                    onChange={(e) => setFormData({ ...formData, unit_cost: e.target.value })}
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-status">
-                    Status
-                  </label>
+                  <label className="form-label">Status</label>
                   <select
-                    id="product-status"
                     className="form-select"
                     value={formData.status}
-                    onChange={(e) => {
-                      setFormData((p) => ({
-                        ...p,
-                        status: e.target.value as 'active' | 'inactive',
-                      }));
-                    }}
+                    onChange={(e) => setFormData({ ...formData, status: e.target.value })}
                   >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
+                    <option value="Active">Active</option>
+                    <option value="Inactive">Inactive</option>
                   </select>
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-category-input">
-                    Categories
-                  </label>
-                  <div className="categories-input">
-                    <div style={{ display: 'flex', gap: 8 }}>
-                      <input
-                        id="product-category-input"
-                        className="form-input"
-                        placeholder="Add category"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = (e.target as HTMLInputElement).value.trim();
-                            if (v) {
-                              addCategoryToProduct(v);
-                              (e.target as HTMLInputElement).value = '';
-                            }
-                          }
-                        }}
-                      />
-                      <button
-                        className="btn-small"
-                        onClick={() => {
-                          setShowCategoryDialog((s) => !s);
-                        }}
-                        type="button"
-                      >
-                        Suggestions
-                      </button>
-                    </div>
-                    <div className="selected-items">
-                      {formData.categories.map((c) => (
-                        <span key={c} className="item-tag">
-                          {c}
-                          <button
-                            className="btn-remove"
-                            onClick={() => {
-                              removeCategory(c);
-                            }}
-                          >
-                            ×
-                          </button>
-                        </span>
-                      ))}
-                    </div>
-
-                    {showCategoryDialog && (
-                      <div className="suggestions">
-                        {availableCategories.map((cat) => (
-                          <button
-                            key={cat.id}
-                            className="btn-small"
-                            onClick={() => {
-                              addCategoryToProduct(cat.name);
-                            }}
-                            type="button"
-                          >
-                            {cat.name}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                  {errors.name && <div className="form-error">{errors.name}</div>}
+                  <label className="form-label">Category</label>
+                  <select
+                    className="form-select"
+                    value={formData.category_name}
+                    onChange={(e) => setFormData({ ...formData, category_name: e.target.value })}
+                  >
+                    <option value="">Select category</option>
+                    {categories.map((c) => (
+                      <option key={c.categoryID} value={c.name}>
+                        {c.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Initial Stock</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={formData.initial_stock}
+                    onChange={(e) =>
+                      setFormData({ ...formData, initial_stock: Number(e.target.value) })
+                    }
+                  />
                 </div>
               </div>
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="product-image">
-                    Image
-                  </label>
+                  <label className="form-label">Min Stock Level</label>
                   <input
-                    id="product-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
+                    type="number"
+                    className="form-input"
+                    value={formData.min_stock_level}
+                    onChange={(e) =>
+                      setFormData({ ...formData, min_stock_level: Number(e.target.value) })
+                    }
                   />
-                  {imagePreview && (
-                    <img src={imagePreview} alt="preview" style={{ maxWidth: 200 }} />
-                  )}
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-input"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Image</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
+                  {imagePreview && <img src={imagePreview} style={{ maxWidth: 200 }} />}
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
               <button className="btn-secondary" onClick={closeModal}>
                 Cancel
               </button>
               <button className="btn-primary" onClick={handleSave}>
                 {isEditMode ? 'Update Product' : 'Save Product'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= DELETE MODAL ================= */}
+      {showDeleteModal && (
+        <div className="modal active">
+          <div className="modal-content" style={{ maxWidth: 420 }}>
+            <div className="modal-header">
+              <h2>Confirm Delete</h2>
+              <button className="close-btn" onClick={() => setShowDeleteModal(false)}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <p>
+                តើអ្នកពិតជាចង់លុបផលិតផលនេះមែនទេ?
+                <br />
+                <strong>សកម្មភាពនេះមិនអាចត្រឡប់វិញបានទេ។</strong>
+              </p>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowDeleteModal(false)}>
+                Cancel
+              </button>
+              <button className="btn-danger" onClick={handleDeleteConfirm}>
+                Delete
               </button>
             </div>
           </div>

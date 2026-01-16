@@ -1,77 +1,65 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import type { RootState, AppDispatch } from '../../../store';
+import {
+  fetchServices,
+  createService,
+  updateService,
+  deleteService,
+} from '../../../store/service/serviceThunk';
+import type { Service } from '../../../store/service/serviceTypes';
+import { ProductService } from '../../../store/product/productService';
 
-// TODO: For API integration, products should reference productId instead of name
-// Current: { name: string; quantity: number }
-// Future: { productId: number; quantity: number } + lookup table for display
-interface ServiceProduct {
-  name: string; // For mock data - will be replaced by productId
-  quantity: number;
-  productId?: number; // Prepare for API: actual product reference
-}
-
-interface Service {
+type Product = {
   id: number;
   name: string;
-  description: string;
-  price: number;
-  status: 'active' | 'inactive';
-  products: ServiceProduct[];
-  image?: string;
-}
+};
 
 export default function Services() {
-  const [services, setServices] = useState<Service[]>([
-    {
-      id: 1,
-      name: 'ការផ្លាស់ប្តូរប្រេងម៉ាស៊ីន',
-      description: 'ផ្លាស់ប្តូរប្រេងម៉ាស៊ីនដោយប្រើប្រេងដែលមានគុណភាពខ្ពស់',
-      price: 25.0,
-      status: 'active',
-      products: [{ name: 'Engine Oil', quantity: 1 }],
-      image: 'https://images.unsplash.com/photo-1487754180451-c456f719a1fc?w=400&h=250&fit=crop',
-    },
-    {
-      id: 2,
-      name: 'សម្អាតខាងក្នុង',
-      description: 'សម្អាតខាងក្នុងរថយន្តឱ្យស្អាតស្អំ',
-      price: 15.0,
-      status: 'active',
-      products: [],
-      image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?w=400&h=250&fit=crop',
-    },
-    {
-      id: 3,
-      name: 'ពិនិត្យប្រេកង់',
-      description: 'ពិនិត្យនិងជួសជុលប្រព័ន្ធប្រេកង់',
-      price: 30.0,
-      status: 'active',
-      products: [{ name: 'Brake Fluid', quantity: 1 }],
-      image: 'https://images.unsplash.com/photo-1625047509168-a7026f36de04?w=400&h=250&fit=crop',
-    },
-    {
-      id: 4,
-      name: 'ផ្លាស់ប្តូរកង់',
-      description: 'ផ្លាស់ប្តូរកង់ទៅកង់ថ្មី',
-      price: 80.0,
-      status: 'inactive',
-      products: [],
-      image: 'https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=400&h=250&fit=crop',
-    },
-  ]);
+  const dispatch = useDispatch<AppDispatch>();
+  const services = useSelector((state: RootState) => state.service.list);
 
+  /* ================= LOCAL UI STATE ================= */
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [currentService, setCurrentService] = useState<Service | null>(null);
   const [imagePreview, setImagePreview] = useState<string>('');
 
+  const [products, setProducts] = useState<Product[]>([]);
+
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
+    duration_minutes: 60,
     status: 'active' as 'active' | 'inactive',
-    products: [] as ServiceProduct[],
+    products: [] as {
+      name: string;
+      quantity: number;
+      is_optional: boolean;
+    }[],
   });
 
+  /* ================= LOAD SERVICES ================= */
+  useEffect(() => {
+    dispatch(fetchServices());
+  }, [dispatch]);
+
+  /* ================= LOAD PRODUCTS ================= */
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        const data = await ProductService.getProducts();
+        setProducts(data.items ?? data);
+      } catch (err) {
+        console.error('Failed to load products', err);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
+  /* ================= MODAL ================= */
   const openCreateModal = () => {
     setIsEditMode(false);
     setCurrentService(null);
@@ -80,6 +68,7 @@ export default function Services() {
       name: '',
       description: '',
       price: '',
+      duration_minutes: 60,
       status: 'active',
       products: [],
     });
@@ -89,14 +78,21 @@ export default function Services() {
   const openEditModal = (service: Service) => {
     setIsEditMode(true);
     setCurrentService(service);
-    setImagePreview(service.image ?? '');
+    setImagePreview(service.image_url || '');
+
     setFormData({
       name: service.name,
       description: service.description,
-      price: service.price.toString(),
-      status: service.status,
-      products: [...service.products],
+      price: String(service.price),
+      duration_minutes: service.duration_minutes,
+      status: service.is_available ? 'active' : 'inactive',
+      products: service.associations.map((a) => ({
+        name: a.product_name,
+        quantity: a.quantity_required,
+        is_optional: a.is_optional,
+      })),
     });
+
     setShowModal(true);
   };
 
@@ -106,97 +102,80 @@ export default function Services() {
     setImagePreview('');
   };
 
+  /* ================= IMAGE ================= */
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
   };
 
+  /* ================= PRODUCTS ================= */
   const addProductToService = () => {
-    setFormData((prev) => ({
-      ...prev,
-      products: [...prev.products, { name: '', quantity: 1 }],
+    setFormData((p) => ({
+      ...p,
+      products: [...p.products, { name: '', quantity: 1, is_optional: false }],
     }));
   };
 
   const removeProduct = (index: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      products: prev.products.filter((_, i) => i !== index),
+    setFormData((p) => ({
+      ...p,
+      products: p.products.filter((_, i) => i !== index),
     }));
   };
 
-  const updateProductName = (index: number, name: string) => {
-    setFormData((prev) => ({
-      ...prev,
-      products: prev.products.map((p, i) => (i === index ? { ...p, name } : p)),
+  const updateProduct = (index: number, key: 'name' | 'quantity' | 'is_optional', value: any) => {
+    setFormData((p) => ({
+      ...p,
+      products: p.products.map((v, i) => (i === index ? { ...v, [key]: value } : v)),
     }));
   };
 
-  const updateProductQuantity = (index: number, quantity: number) => {
-    setFormData((prev) => ({
-      ...prev,
-      products: prev.products.map((p, i) =>
-        i === index ? { ...p, quantity: Math.max(1, quantity) } : p,
-      ),
-    }));
-  };
+  /* ================= SAVE ================= */
+  const handleSave = async () => {
+    if (!formData.name.trim()) return alert('សូមបញ្ចូលឈ្មោះសេវាកម្ម');
+    if (!formData.price || Number(formData.price) <= 0) return alert('សូមបញ្ចូលតម្លៃត្រឹមត្រូវ');
 
-  const handleSave = () => {
-    if (!formData.name.trim()) {
-      alert('សូមបញ្ចូលឈ្មោះសេវាកម្ម');
-      return;
-    }
-
-    if (!formData.price || parseFloat(formData.price) <= 0) {
-      alert('សូមបញ្ចូលតម្លៃត្រឹមត្រូវ');
-      return;
-    }
-
-    const finalPrice = parseFloat(formData.price);
+    const payload = {
+      name: formData.name,
+      description: formData.description,
+      image_url: imagePreview,
+      price: Number(formData.price),
+      duration_minutes: formData.duration_minutes,
+      is_available: formData.status === 'active',
+      associations: formData.products.map((p) => ({
+        product_name: p.name,
+        quantity_required: p.quantity,
+        is_optional: p.is_optional,
+      })),
+    };
 
     if (isEditMode && currentService) {
-      setServices((prev) =>
-        prev.map((srv) =>
-          srv.id === currentService.id
-            ? {
-                ...srv,
-                name: formData.name,
-                description: formData.description,
-                price: finalPrice,
-                status: formData.status,
-                products: formData.products,
-                image: imagePreview || srv.image,
-              }
-            : srv,
-        ),
+      await dispatch(
+        updateService({
+          service_id: currentService.service_id,
+          payload,
+        }),
       );
       alert('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
     } else {
-      const newService: Service = {
-        id: Math.max(...services.map((s) => s.id), 0) + 1,
-        name: formData.name,
-        description: formData.description,
-        price: finalPrice,
-        status: formData.status,
-        products: formData.products,
-        image: imagePreview,
-      };
-      setServices((prev) => [...prev, newService]);
+      await dispatch(createService(payload));
       alert('សេវាកម្មត្រូវបានបង្កើតជោគជ័យ!');
     }
+
     closeModal();
   };
 
-  const handleDelete = (id: number) => {
+  /* ================= DELETE ================= */
+  const handleDelete = async (id: number) => {
     if (confirm('តើអ្នកពិតជាចង់លុបសេវាកម្មនេះមែនទេ?')) {
-      setServices((prev) => prev.filter((srv) => srv.id !== id));
-      alert(`សេវាកម្ម ${String(id)} ត្រូវបានលុប!`);
+      await dispatch(deleteService(id));
+      alert('សេវាកម្មត្រូវបានលុប!');
     }
   };
 
@@ -211,40 +190,44 @@ export default function Services() {
 
       <div className="service-grid-two-col">
         {services.map((service) => (
-          <div key={service.id} className="service-card-enhanced">
+          <div key={service.service_id} className="service-card-enhanced">
             <div className="service-card-image">
               <img
                 src={
-                  service.image ??
-                  'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=250&fit=crop'
+                  service.image_url ??
+                  'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400'
                 }
                 alt={service.name}
               />
-              <span className={`status-badge-overlay ${service.status}`}>
-                {service.status === 'active' ? 'Active' : 'Inactive'}
+              <span
+                className={`status-badge-overlay ${service.is_available ? 'active' : 'inactive'}`}
+              >
+                {service.is_available ? 'Active' : 'Inactive'}
               </span>
             </div>
 
             <div className="service-card-body">
-              <div className="service-card-header-enhanced">
-                <div>
-                  <div className="service-card-title">{service.name}</div>
-                  <div className="service-card-id">#{String(service.id).padStart(4, '0')}</div>
-                </div>
-              </div>
+              <div className="service-card-title">{service.name}</div>
+              <div className="service-card-id">#{String(service.service_id).padStart(4, '0')}</div>
 
               <div className="service-card-description">{service.description}</div>
 
               <div className="service-card-content">
                 <div className="content-section">
-                  <div className="content-label">ផលិតផលប្រើប្រាស់</div>
+                  <div className="content-label">រយៈពេល</div>
+                  <span className="item-tag">{service.duration_minutes} នាទី</span>
+                </div>
+
+                <div className="content-section">
+                  <div className="content-label">ផលិតផល ({service.associations.length})</div>
                   <div className="content-items">
-                    {service.products.length === 0 ? (
-                      <span className="item-tag">មិនមានផលិតផលបញ្ជាក់</span>
+                    {service.associations.length === 0 ? (
+                      <span className="item-tag">មិនមានផលិតផល</span>
                     ) : (
-                      service.products.map((product, idx) => (
-                        <span key={`${product.name}-${String(idx)}`} className="item-tag">
-                          {product.name} × {product.quantity}
+                      service.associations.map((p, i) => (
+                        <span key={i} className="item-tag">
+                          {p.product_name} × {p.quantity_required}
+                          {p.is_optional && ' (Optional)'}
                         </span>
                       ))
                     )}
@@ -255,19 +238,12 @@ export default function Services() {
               <div className="service-card-footer">
                 <div className="service-price">${service.price.toFixed(2)}</div>
                 <div className="card-actions">
-                  <button
-                    className="btn-small btn-edit"
-                    onClick={() => {
-                      openEditModal(service);
-                    }}
-                  >
+                  <button className="btn-small btn-edit" onClick={() => openEditModal(service)}>
                     កែសម្រួល
                   </button>
                   <button
                     className="btn-small btn-delete"
-                    onClick={() => {
-                      handleDelete(service.id);
-                    }}
+                    onClick={() => handleDelete(service.service_id)}
                   >
                     លុប
                   </button>
@@ -278,146 +254,154 @@ export default function Services() {
         ))}
       </div>
 
+      {/* ================= MODAL ================= */}
       {showModal && (
         <div className="modal active">
           <div className="modal-content">
             <div className="modal-header">
               <h2>{isEditMode ? 'Edit Service' : 'Create Service'}</h2>
               <button className="close-btn" onClick={closeModal}>
-                &times;
+                ×
               </button>
             </div>
+
             <div className="modal-body">
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="service-name">
-                    Name
-                  </label>
+                  <label className="form-label">Name</label>
                   <input
-                    id="service-name"
                     className="form-input"
                     value={formData.name}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, name: e.target.value }));
-                    }}
+                    onChange={(e) => setFormData((p) => ({ ...p, name: e.target.value }))}
                   />
                 </div>
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="service-price">
-                    Price
-                  </label>
+                  <label className="form-label">Price</label>
                   <input
-                    id="service-price"
                     type="number"
                     className="form-input"
                     value={formData.price}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, price: e.target.value }));
-                    }}
+                    onChange={(e) => setFormData((p) => ({ ...p, price: e.target.value }))}
                   />
                 </div>
-              </div>
-              <div className="form-row">
+
                 <div className="form-group">
-                  <label className="form-label" htmlFor="service-description">
-                    Description
-                  </label>
-                  <textarea
-                    id="service-description"
+                  <label className="form-label">Duration (minutes)</label>
+                  <input
+                    type="number"
                     className="form-input"
-                    value={formData.description}
-                    onChange={(e) => {
-                      setFormData((p) => ({ ...p, description: e.target.value }));
-                    }}
+                    value={formData.duration_minutes}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        duration_minutes: Number(e.target.value) || 0,
+                      }))
+                    }
                   />
                 </div>
               </div>
+
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="service-status">
-                    Status
-                  </label>
+                  <label className="form-label">Status</label>
                   <select
-                    id="service-status"
                     className="form-input"
                     value={formData.status}
-                    onChange={(e) => {
+                    onChange={(e) =>
                       setFormData((p) => ({
                         ...p,
                         status: e.target.value as 'active' | 'inactive',
-                      }));
-                    }}
+                      }))
+                    }
                   >
                     <option value="active">Active</option>
                     <option value="inactive">Inactive</option>
                   </select>
                 </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label" htmlFor="service-image">
-                    Image
-                  </label>
-                  <input
-                    id="service-image"
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
+                  <label className="form-label">Description</label>
+                  <textarea
+                    className="form-input"
+                    value={formData.description}
+                    onChange={(e) =>
+                      setFormData((p) => ({
+                        ...p,
+                        description: e.target.value,
+                      }))
+                    }
                   />
+                </div>
+              </div>
+
+              <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">Image</label>
+                  <input type="file" accept="image/*" onChange={handleImageUpload} />
                   {imagePreview && (
                     <img src={imagePreview} alt="preview" style={{ maxWidth: 200, marginTop: 8 }} />
                   )}
                 </div>
               </div>
+
               <div className="form-row">
                 <div className="form-group">
-                  <div className="form-label">Products</div>
-                  {/* TODO: For API integration:
-                      - Replace text input with dropdown/autocomplete of available products
-                      - Store productId instead of name
-                      - Display product name from lookup table/API response
-                      Example: <select onChange={e => updateProductId(i, parseInt(e.target.value))}>
-                               {availableProducts.map(p => <option key={p.id} value={p.id}>{p.name}</option>)}
-                             </select>
-                  */}
-                  <div>
-                    {formData.products.map((p, i) => (
-                      <div
-                        key={`${p.name}-${String(i)}`}
-                        style={{ display: 'flex', gap: 8, marginBottom: 6 }}
+                  <label className="form-label">Products</label>
+
+                  {formData.products.map((p, i) => (
+                    <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+                      <select
+                        className="form-input"
+                        value={p.name}
+                        onChange={(e) => updateProduct(i, 'name', e.target.value)}
+                      >
+                        <option value="">-- Select Product --</option>
+                        {products.map((prod) => (
+                          <option key={prod.id} value={prod.name}>
+                            {prod.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      <input
+                        type="number"
+                        className="form-input"
+                        style={{ width: 90 }}
+                        value={p.quantity}
+                        onChange={(e) => updateProduct(i, 'quantity', Number(e.target.value) || 1)}
+                      />
+
+                      <label
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 4,
+                        }}
                       >
                         <input
-                          value={p.name}
-                          className="form-input"
-                          onChange={(e) => {
-                            updateProductName(i, e.target.value);
-                          }}
-                          placeholder="Product name"
+                          type="checkbox"
+                          checked={p.is_optional}
+                          onChange={(e) => updateProduct(i, 'is_optional', e.target.checked)}
                         />
-                        <input
-                          type="number"
-                          className="form-input"
-                          value={p.quantity}
-                          onChange={(e) => {
-                            updateProductQuantity(i, parseInt(e.target.value) || 1);
-                          }}
-                          style={{ width: 80 }}
-                        />
-                        <button
-                          className="btn-remove"
-                          onClick={() => {
-                            removeProduct(i);
-                          }}
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    ))}
-                    <button className="btn-small" onClick={addProductToService}>
-                      + Add Product
-                    </button>
-                  </div>
+                        Optional
+                      </label>
+
+                      <button className="btn-remove" onClick={() => removeProduct(i)}>
+                        Remove
+                      </button>
+                    </div>
+                  ))}
+
+                  <button className="btn-small" onClick={addProductToService}>
+                    + Add Product
+                  </button>
                 </div>
               </div>
             </div>
+
             <div className="modal-footer">
               <button className="btn-secondary" onClick={closeModal}>
                 Cancel

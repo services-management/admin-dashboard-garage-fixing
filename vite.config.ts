@@ -28,7 +28,10 @@ export default defineConfig({
           if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) {
             return 'router-vendor';
           }
-          if (id.includes('node_modules/@reduxjs/toolkit') || id.includes('node_modules/react-redux')) {
+          if (
+            id.includes('node_modules/@reduxjs/toolkit') ||
+            id.includes('node_modules/react-redux')
+          ) {
             return 'redux-vendor';
           }
           if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-icons')) {

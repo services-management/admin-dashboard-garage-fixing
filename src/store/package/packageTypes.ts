@@ -47,5 +47,3 @@ export interface UpdateComboServicePayload {
 export interface UploadComboImagePayload {
   file: File;
 }
-
-

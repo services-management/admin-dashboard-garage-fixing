@@ -4,9 +4,15 @@ interface ServicePackage {
   description: string;
   price: number;
   status: 'active' | 'inactive';
-  services: string[];
+  services: string[]; // This will be service names
   products: { name: string; quantity: number }[];
   image?: string;
+  // Add the actual service details from the API response
+  serviceDetails?: {
+    name: string;
+    image_url: string;
+    price: number | string;
+  }[];
 }
 
 interface ServicePackageCardProps {
@@ -49,28 +55,36 @@ export default function ServicePackageCard({
           <div className="content-section">
             <div className="content-label">Services Included</div>
             <div className="content-items">
-              {pkg.services.map((service) => (
-                <span key={service} className="item-tag">
-                  {service}
-                </span>
-              ))}
+              {pkg.services.length > 0 ? (
+                pkg.services.map((name, index) => (
+                  <span key={`${name}-${index}`} className="item-tag">
+                    {name}
+                  </span>
+                ))
+              ) : (
+                <div className="no-services">No services included</div>
+              )}
             </div>
           </div>
 
           <div className="content-section">
             <div className="content-label">Products Included</div>
             <div className="content-items">
-              {pkg.products.map((product) => (
-                <span key={product.name} className="item-tag">
-                  {product.name} × {product.quantity}
-                </span>
-              ))}
+              {pkg.products.length > 0 ? (
+                pkg.products.map((product) => (
+                  <span key={product.name} className="item-tag">
+                    {product.name} × {product.quantity}
+                  </span>
+                ))
+              ) : (
+                <div className="no-services">No products included</div>
+              )}
             </div>
           </div>
         </div>
 
         <div className="service-card-footer">
-          <div className="service-price">${pkg.price.toFixed(2)}</div>
+          <div className="service-total-price">${(pkg.price || 0).toFixed(2)}</div>
           <div className="card-actions">
             <button
               className="btn-small btn-edit"

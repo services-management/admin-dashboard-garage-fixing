@@ -36,4 +36,34 @@ export const ServiceService = {
     });
     return response.data;
   },
+
+  // ✅ ADD THIS
+  uploadServiceImage: async (service_id: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.post(`${API_BASE}/service/${service_id}/image`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data; // image_url
+  },
+
+  // ✅ ADD THIS
+  updateServiceImage: async (service_id: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.put(`${API_BASE}/service/${service_id}/image`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  },
 };

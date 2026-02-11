@@ -18,5 +18,34 @@ export default defineConfig({
       },
     },
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: (id) => {
+          if (id.includes('node_modules/react/') || id.includes('node_modules/react-dom/')) {
+            return 'react-vendor';
+          }
+          if (id.includes('node_modules/react-router') || id.includes('node_modules/@remix-run')) {
+            return 'router-vendor';
+          }
+          if (
+            id.includes('node_modules/@reduxjs/toolkit') ||
+            id.includes('node_modules/react-redux')
+          ) {
+            return 'redux-vendor';
+          }
+          if (id.includes('node_modules/lucide-react') || id.includes('node_modules/react-icons')) {
+            return 'ui-vendor';
+          }
+          if (id.includes('node_modules/axios')) {
+            return 'http-vendor';
+          }
+          if (id.includes('node_modules/tailwindcss') || id.includes('node_modules/@tailwindcss')) {
+            return 'tailwind-vendor';
+          }
+        },
+      },
+    },
+  },
   plugins: [react()],
 });

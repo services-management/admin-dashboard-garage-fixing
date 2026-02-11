@@ -1,6 +1,7 @@
 import { createSlice, type PayloadAction } from '@reduxjs/toolkit';
-import type { Service } from './serviceTypes';
+
 import { fetchServices, createService, updateService, deleteService } from './serviceThunk';
+import type { Service } from './serviceTypes';
 
 interface ServiceState {
   list: Service[];

@@ -18,7 +18,7 @@ export const ProductService = {
   },
 
   createProduct: async (payload: any) =>
-    axios.post(`${API_BASE}/product`, payload, {
+    axios.post(`${API_BASE}/product/`, payload, {
       headers: getAuthHeader(),
     }),
 
@@ -26,6 +26,20 @@ export const ProductService = {
     axios.put(`${API_BASE}/product/${id}`, payload, {
       headers: getAuthHeader(),
     }),
+
+  uploadProductImage: async (productId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    const response = await axios.post(`${API_BASE}/product/${productId}/image`, formData, {
+      headers: {
+        ...getAuthHeader(),
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+
+    return response.data;
+  },
 
   deleteProduct: async (id: number) =>
     axios.delete(`${API_BASE}/product/${id}`, {

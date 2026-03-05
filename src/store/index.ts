@@ -4,6 +4,8 @@ import productReducer from './product/productSlice';
 import categoryReducer from './category/categorySlice';
 import serviceReducer from './service/serviceSlice';
 import packageReducer from './package/packageSlice';
+import vehicleReducer from './vehicle/vehicleSlice';
+import staffReducer from './staff/staffSlice';
 
 export const store = configureStore({
   reducer: {
@@ -12,6 +14,8 @@ export const store = configureStore({
     category: categoryReducer,
     service: serviceReducer,
     package: packageReducer,
+    vehicle: vehicleReducer,
+    staff: staffReducer,
   },
 });
 

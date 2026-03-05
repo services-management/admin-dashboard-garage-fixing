@@ -5,6 +5,7 @@ import { ProductService } from '../../../store/product/productService';
 import { fetchProducts } from '../../../store/product/productThunk';
 import type { Product } from '../../../store/product/productTypes';
 import { fetchServices } from '../../../store/service/serviceThunk';
+import { getProxiedImageUrl } from '../../../utils/imageProxy';
 
 export default function ProductPage() {
   const dispatch = useAppDispatch();
@@ -213,7 +214,7 @@ export default function ProductPage() {
             <div className="service-card-image">
               <img
                 src={
-                  prd.image_url ||
+                  getProxiedImageUrl(prd.image_url) ||
                   'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400'
                 }
                 alt={prd.name}

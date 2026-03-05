@@ -2,6 +2,9 @@ import { useMemo, useState, useEffect } from 'react';
 
 import Icon from '../../components/Icons';
 import '../../styles/user.css';
+import { useAppDispatch, useAppSelector } from '../../store/hooks';
+import { createAdmin, createTechnical } from '../../store/staff/staffThunk';
+import { clearStaffError, clearStaffSuccessMessage } from '../../store/staff/staffSlice';
 
 interface UserItem {
   id: string;
@@ -15,29 +18,13 @@ interface UserItem {
 }
 
 export default function User() {
+  const dispatch = useAppDispatch();
+  const { loading, error, successMessage } = useAppSelector((s) => s.staff);
+
   const [query, setQuery] = useState('');
   const [filterRole, setFilterRole] = useState<'admin' | 'technical'>('admin');
 
-  const [users, setUsers] = useState<UserItem[]>([
-    { id: crypto.randomUUID(), username: 'admin01', role: 'admin', phone_number: '017 870 523' },
-    { id: crypto.randomUUID(), username: 'admin02', role: 'admin', phone_number: '012 345 678' },
-    {
-      id: crypto.randomUUID(),
-      username: 'tech01',
-      name: 'ជា មាលា',
-      phone_number: '098 765 432',
-      role: 'technical',
-      status: 'busy',
-    },
-    {
-      id: crypto.randomUUID(),
-      username: 'tech02',
-      name: 'ស៊ូ ស៊ីណា',
-      phone_number: '099 123 456',
-      role: 'technical',
-      status: 'free',
-    },
-  ]);
+  const [users, setUsers] = useState<UserItem[]>([]);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
@@ -94,7 +81,22 @@ export default function User() {
     );
   };
 
-  const handleSave = () => {
+  useEffect(() => {
+    if (error) {
+      alert(error);
+      dispatch(clearStaffError());
+    }
+  }, [error, dispatch]);
+
+  useEffect(() => {
+    if (successMessage) {
+      alert(successMessage);
+      dispatch(clearStaffSuccessMessage());
+      setShowModal(false);
+    }
+  }, [successMessage, dispatch]);
+
+  const handleSave = async () => {
     const username = form.username.trim();
     if (username.length < 4 || username.length > 50) {
       alert('Username must be 4-50 characters');
@@ -102,6 +104,7 @@ export default function User() {
     }
 
     if (current) {
+      // TODO: Implement update API when available
       setUsers((prev) =>
         prev.map((u) =>
           u.id === current.id
@@ -133,21 +136,14 @@ export default function User() {
         return;
       }
 
-      setUsers((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
+      await dispatch(
+        createTechnical({
           username: form.username,
-          role: 'technical',
+          password: form.password,
           name: form.name,
           phone_number: form.phone_number,
-          status: form.status,
-          password: form.password,
-        },
-      ]);
-      alert('បុគ្គលិកបានបង្កើត');
-      setShowModal(false);
-      return;
+        }),
+      );
     } else {
       if (!form.password || form.password.length < 8) {
         alert('Password must be at least 8 characters');
@@ -158,19 +154,13 @@ export default function User() {
         return;
       }
 
-      setUsers((prev) => [
-        ...prev,
-        {
-          id: crypto.randomUUID(),
+      await dispatch(
+        createAdmin({
           username: form.username,
-          role: 'admin',
-          phone_number: form.phone_number,
-          ...(form.password ? { password: form.password } : {}),
-        },
-      ]);
-      alert('អ្នកគ្រប់គ្រងបានបង្កើត');
-      setShowModal(false);
-      return;
+          password: form.password,
+          email_phone: form.phone_number,
+        }),
+      );
     }
   };
 
@@ -440,8 +430,8 @@ export default function User() {
               >
                 បោះបង់
               </button>
-              <button className="btn-primary" onClick={handleSave}>
-                រក្សាទុក
+              <button className="btn-primary" onClick={handleSave} disabled={loading}>
+                {loading ? 'កំពុងរក្សាទុក...' : 'រក្សាទុក'}
               </button>
             </div>
           </div>

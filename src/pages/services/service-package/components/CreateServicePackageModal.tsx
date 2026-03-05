@@ -12,6 +12,7 @@ import type {
   CreateComboServicePayload,
   UpdateComboServicePayload,
 } from '../../../../store/package/packageTypes';
+import { getProxiedImageUrl } from '../../../../utils/imageProxy';
 import './CreateServicePackageModal.css';
 
 interface CreateServicePackageModalProps {
@@ -368,7 +369,7 @@ export default function CreateServicePackageModal({
                           <div key={serviceName} className="service-tag">
                             {service?.image_url && (
                               <img
-                                src={service.image_url}
+                                src={getProxiedImageUrl(service.image_url)}
                                 alt={service.name}
                                 className="service-tag-image"
                                 onError={(e) => {

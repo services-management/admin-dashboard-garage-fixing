@@ -222,7 +222,7 @@ const NotificationContent = () => {
   };
 
   return (
-    <div>
+    <div className="notification-page">
       {/* Header */}
       <div className="notification-page-header">
         <div className="notification-page-title">

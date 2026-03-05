@@ -11,10 +11,34 @@ export default defineConfig({
     proxy: {
       // forward /api/* to the real backend to avoid CORS during development
       '/api': {
-        target: 'https://garas-api.itedev.online',
+        target: 'https://garas-api.domrey.online',
         changeOrigin: true,
-        secure: true,
+        secure: false,
+        followRedirects: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
+        configure: (proxy, _options) => {
+          proxy.on('proxyReq', (_proxyReq, req, _res) => {
+            console.log('Proxying:', req.method, req.url);
+          });
+          proxy.on('proxyRes', (proxyRes, req, _res) => {
+            console.log('Response:', proxyRes.statusCode, req.url);
+          });
+          proxy.on('error', (err, req, _res) => {
+            console.log('Proxy error:', err.message, req.url);
+          });
+        },
+      },
+      // Proxy images and uploads to bypass SSL certificate issues
+      // These don't strip the path prefix
+      '/uploads': {
+        target: 'https://garas-api.domrey.online',
+        changeOrigin: true,
+        secure: false,
+      },
+      '/images': {
+        target: 'https://garas-api.domrey.online',
+        changeOrigin: true,
+        secure: false,
       },
     },
   },

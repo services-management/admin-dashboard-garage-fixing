@@ -15,6 +15,9 @@ import Services from '../pages/services/services/Services';
 import Settings from '../pages/settings/Settings';
 import Staff from '../pages/staff/Staff';
 import User from '../pages/user/User';
+import VehicleMake from '../pages/vehicles/VehicleMake';
+import VehicleModel from '../pages/vehicles/VehicleModel';
+import VehicleSpec from '../pages/vehicles/VehicleSpec';
 
 export const router = createBrowserRouter([
   {
@@ -77,6 +80,18 @@ export const router = createBrowserRouter([
           {
             path: 'user',
             element: <User />,
+          },
+          {
+            path: 'vehicles/make',
+            element: <VehicleMake />,
+          },
+          {
+            path: 'vehicles/model',
+            element: <VehicleModel />,
+          },
+          {
+            path: 'vehicles/spec',
+            element: <VehicleSpec />,
           },
         ],
       },

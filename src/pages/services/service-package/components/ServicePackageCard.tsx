@@ -1,3 +1,5 @@
+import { getProxiedImageUrl } from '../../../../utils/imageProxy';
+
 interface ServicePackage {
   id: number;
   name: string;
@@ -31,7 +33,7 @@ export default function ServicePackageCard({
       <div className="service-card-image">
         <img
           src={
-            pkg.image ??
+            getProxiedImageUrl(pkg.image) ||
             'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400&h=250&fit=crop'
           }
           alt={pkg.name}

@@ -12,6 +12,7 @@ import {
   deleteService,
 } from '../../../store/service/serviceThunk';
 import type { Service } from '../../../store/service/serviceTypes';
+import { getProxiedImageUrl } from '../../../utils/imageProxy';
 
 interface Product {
   id: number;
@@ -284,7 +285,7 @@ export default function Services() {
             <div className="service-card-image">
               <img
                 src={
-                  service.image_url ??
+                  getProxiedImageUrl(service.image_url) ||
                   'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400'
                 }
                 alt={service.name}

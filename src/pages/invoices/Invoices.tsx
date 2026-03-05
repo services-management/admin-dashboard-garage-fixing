@@ -569,22 +569,19 @@ export default function Invoices() {
           <table className="booking-table">
             <thead>
               <tr>
-                <th>លេខវិក្កយបត្រ</th>
                 <th>អតិថិជន</th>
-                <th>ផ្លាកលេខ</th>
-                <th>ការកក់</th>
-                <th>ថ្ងៃចេញវិក្កយបត្រ</th>
-                <th>តម្លៃ</th>
+                <th>ព័ត៌មានវិក្កយបត្រ</th>
                 <th>ស្ថានភាព</th>
-                <th>សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
               {paginatedInvoices.map((invoice) => (
-                <tr key={invoice.id}>
-                  <td>
-                    <span className="booking-code">{invoice.invoiceNumber}</span>
-                  </td>
+                <tr
+                  key={invoice.id}
+                  onClick={() => openViewModal(invoice)}
+                  className="booking-row-clickable"
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>
                     <div className="customer-cell">
                       <div className="customer-name">{invoice.customerName}</div>
@@ -592,12 +589,12 @@ export default function Invoices() {
                     </div>
                   </td>
                   <td>
-                    <span className="booking-code">{invoice.plateNumber}</span>
-                  </td>
-                  <td>{invoice.bookingId ?? '-'}</td>
-                  <td>{invoice.issueDate}</td>
-                  <td>
-                    <strong>${invoice.total.toFixed(2)}</strong>
+                    <div className="service-cell">
+                      <span className="booking-code">{invoice.invoiceNumber}</span>
+                      <span className="service-name">
+                        {invoice.plateNumber} • ${invoice.total.toFixed(2)}
+                      </span>
+                    </div>
                   </td>
                   <td>
                     <span
@@ -615,16 +612,6 @@ export default function Invoices() {
                           ? 'កំពុងបង្កើត'
                           : 'បានលុបចោល'}
                     </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn-detail"
-                      onClick={() => {
-                        openViewModal(invoice);
-                      }}
-                    >
-                      មើល
-                    </button>
                   </td>
                 </tr>
               ))}

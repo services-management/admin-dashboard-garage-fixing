@@ -427,45 +427,35 @@ export default function Booking() {
           <table className="booking-table">
             <thead>
               <tr>
-                <th>លេខកូដ</th>
                 <th>អតិថិជន</th>
                 <th>សេវាកម្ម</th>
-                <th>កាលបរិច្ឆេទ</th>
-                <th>ម៉ោង</th>
                 <th>ស្ថានភាព</th>
-                <th>សកម្មភាព</th>
               </tr>
             </thead>
             <tbody>
               {paginatedBookings.map((booking) => (
-                <tr key={booking.id}>
-                  <td>
-                    <span className="booking-code">{booking.serviceCode}</span>
-                  </td>
+                <tr
+                  key={booking.id}
+                  onClick={() => openDetailModal(booking)}
+                  className="booking-row-clickable"
+                  style={{ cursor: 'pointer' }}
+                >
                   <td>
                     <div className="customer-cell">
                       <div className="customer-name">{booking.customerName}</div>
                       <div className="customer-vehicle">{booking.vehicle}</div>
                     </div>
                   </td>
-                  <td>{booking.service}</td>
-                  <td>{booking.date}</td>
-                  <td>{booking.time}</td>
+                  <td>
+                    <div className="service-cell">
+                      <span className="booking-code">{booking.serviceCode}</span>
+                      <span className="service-name">{booking.service}</span>
+                    </div>
+                  </td>
                   <td>
                     <span className={`status-badge-table ${getStatusBadgeClass(booking.status)}`}>
                       {getStatusText(booking.status)}
                     </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn-detail"
-                      onClick={() => {
-                        openDetailModal(booking);
-                      }}
-                      aria-label="View booking details"
-                    >
-                      លម្អិត
-                    </button>
                   </td>
                 </tr>
               ))}

@@ -26,8 +26,9 @@ describe('DashboardLayout', () => {
   test('marks current nav item as active based on location', () => {
     renderLayout(['/dashboard']);
 
-    const dashboardLink = screen.getByRole('link', { name: 'ផ្ទាំងទូទៅ' });
-    expect(dashboardLink).toHaveClass('active');
+    // Use getAllByRole and check the first one (sidebar link, not mobile menu)
+    const dashboardLinks = screen.getAllByRole('link', { name: 'ផ្ទាំងទូទៅ' });
+    expect(dashboardLinks[0]).toHaveClass('active');
     expect(screen.getByText('Dashboard content')).toBeInTheDocument();
   });
 
@@ -45,12 +46,11 @@ describe('DashboardLayout', () => {
     expect(localStorage.getItem('theme')).toBe('light');
   });
 
-  test('updates search query when user types', () => {
+  test('renders topbar with theme toggle button', () => {
     renderLayout(['/dashboard']);
 
-    const searchInput = screen.getByPlaceholderText('ស្វែងរក...');
-    fireEvent.change(searchInput, { target: { value: 'services' } });
-
-    expect(searchInput).toHaveValue('services');
+    // Check that the theme toggle button is present
+    const toggleButton = screen.getByRole('button', { name: /toggle dark mode/i });
+    expect(toggleButton).toBeInTheDocument();
   });
 });

@@ -45,4 +45,28 @@ export const ProductService = {
     axios.delete(`${API_BASE}/product/${id}`, {
       headers: getAuthHeader(),
     }),
+
+  linkProductToVehicle: async (
+    productId: number,
+    vehicleId: number,
+    quantityRequired?: string,
+    unit?: string,
+  ) => {
+    const response = await axios.post(
+      `${API_BASE}/product/${productId}/vehicle/${vehicleId}`,
+      null,
+      {
+        params: { quantity_required: quantityRequired, unit },
+        headers: getAuthHeader(),
+      },
+    );
+    return response.data;
+  },
+
+  getVehiclesByProduct: async (productId: number) => {
+    const response = await axios.get(`${API_BASE}/product/${productId}/vehicles`, {
+      headers: getAuthHeader(),
+    });
+    return response.data;
+  },
 };

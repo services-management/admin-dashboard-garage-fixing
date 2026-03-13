@@ -9,6 +9,7 @@ import Dashboard from '../pages/dashboard/Dashboard';
 import Invoices from '../pages/invoices/Invoices';
 import Notifications from '../pages/notifications/Notifications';
 import Profile from '../pages/profile/Profile';
+import Categories from '../pages/services/categories/Categories';
 import Product from '../pages/services/products/Products';
 import ServicePackage from '../pages/services/service-package/ServicePackage';
 import Services from '../pages/services/services/Services';
@@ -60,6 +61,10 @@ export const router = createBrowserRouter([
           {
             path: 'notifications',
             element: <Notifications />,
+          },
+          {
+            path: 'services/categories',
+            element: <Categories />,
           },
           {
             path: 'services/products',

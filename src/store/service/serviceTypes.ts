@@ -1,7 +1,9 @@
 export interface ServiceAssociation {
-  product_name: string;
-  quantity_required: number;
-  is_optional: boolean;
+  category_id?: number;
+  category_name: string;
+  product_name?: string;
+  quantity_required?: number;
+  is_optional?: boolean;
 }
 
 export interface Service {
@@ -9,8 +11,10 @@ export interface Service {
   name: string;
   description: string;
   image_url: string;
-  price: number;
+  garage_price: string;
+  home_price: string;
   duration_minutes: number;
   is_available: boolean;
+  status: string;
   associations: ServiceAssociation[];
 }

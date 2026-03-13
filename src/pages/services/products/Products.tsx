@@ -1,10 +1,12 @@
 import { useEffect, useState } from 'react';
+import toast from 'react-hot-toast';
 import { fetchCategories } from '../../../store/category/categoryThunk';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
 import { ProductService } from '../../../store/product/productService';
 import { fetchProducts } from '../../../store/product/productThunk';
 import type { Product } from '../../../store/product/productTypes';
 import { fetchServices } from '../../../store/service/serviceThunk';
+import { fetchVehicleSpecs } from '../../../store/vehicle/vehicleThunk';
 import { getProxiedImageUrl } from '../../../utils/imageProxy';
 
 export default function ProductPage() {
@@ -12,6 +14,7 @@ export default function ProductPage() {
   const { products, loading } = useAppSelector((s) => s.product);
   const { list: categories } = useAppSelector((s) => s.category);
   const { list: services } = useAppSelector((s) => s.service);
+  const { vehicleSpecs } = useAppSelector((s) => s.vehicle);
 
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -32,6 +35,12 @@ export default function ProductPage() {
     serviceNames: [],
   });
 
+  // DETAIL MODAL
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
+  const [linkedVehicles, setLinkedVehicles] = useState<any[]>([]);
+  const [loadingVehicles, setLoadingVehicles] = useState(false);
+
   const [formData, setFormData] = useState({
     name: '',
     selling_price: '',
@@ -43,10 +52,16 @@ export default function ProductPage() {
     min_stock_level: 0,
   });
 
+  // VEHICLE LINK
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | ''>('');
+  const [vehicleQuantity, setVehicleQuantity] = useState('');
+  const [vehicleUnit, setVehicleUnit] = useState('');
+
   useEffect(() => {
     dispatch(fetchProducts());
     dispatch(fetchCategories());
     dispatch(fetchServices());
+    dispatch(fetchVehicleSpecs());
   }, [dispatch]);
 
   // ================= CREATE / EDIT =================
@@ -91,6 +106,9 @@ export default function ProductPage() {
     setCurrentProduct(null);
     setImageFile(null);
     setImagePreview('');
+    setSelectedVehicleId('');
+    setVehicleQuantity('');
+    setVehicleUnit('');
   };
 
   // ================= IMAGE UPLOAD =================
@@ -116,9 +134,10 @@ export default function ProductPage() {
       description: formData.description,
       status: formData.status,
       category_name: formData.category_name,
-      image_url: '', // ✅ MUST exist
+      image_url: isEditMode && currentProduct ? currentProduct.image_url : '',
       initial_stock: Number(formData.initial_stock),
       min_stock_level: Number(formData.min_stock_level),
+      price_adjustment: 0,
     };
 
     try {
@@ -129,7 +148,7 @@ export default function ProductPage() {
           await ProductService.uploadProductImage(currentProduct.product_id, imageFile);
         }
 
-        alert('Product updated successfully');
+        toast.success('Product updated successfully');
       } else {
         const res = await ProductService.createProduct(payload);
         const createdProduct = res.data;
@@ -138,13 +157,35 @@ export default function ProductPage() {
           await ProductService.uploadProductImage(createdProduct.product_id, imageFile);
         }
 
-        alert('Product created successfully');
+        // Link product to vehicle if selected
+        if (selectedVehicleId) {
+          try {
+            await ProductService.linkProductToVehicle(
+              createdProduct.product_id,
+              selectedVehicleId,
+              vehicleQuantity || undefined,
+              vehicleUnit || undefined,
+            );
+            toast.success('Product created and linked to vehicle successfully');
+          } catch (linkErr: any) {
+            toast.success('Product created but failed to link with vehicle');
+          }
+        } else {
+          toast.success('Product created successfully');
+        }
       }
 
       closeModal();
       dispatch(fetchProducts());
     } catch (err: any) {
-      alert(err.response?.data?.detail?.[0]?.msg || 'Save failed');
+      console.error('Product save error:', err.response?.data);
+      const errorMsg =
+        err.response?.data?.detail?.[0]?.msg ||
+        err.response?.data?.message ||
+        err.response?.data?.error ||
+        JSON.stringify(err.response?.data) ||
+        'Save failed';
+      toast.error(errorMsg);
     }
   };
 
@@ -210,7 +251,24 @@ export default function ProductPage() {
       {/* ================= PRODUCT CARDS ================= */}
       <div className="product-grid-ecommerce">
         {products.map((prd) => (
-          <div key={prd.product_id} className="service-card-enhanced">
+          <div
+            key={prd.product_id}
+            className="service-card-enhanced"
+            onClick={async () => {
+              setDetailProduct(prd);
+              setShowDetailModal(true);
+              setLoadingVehicles(true);
+              try {
+                const vehicles = await ProductService.getVehiclesByProduct(prd.product_id);
+                setLinkedVehicles(vehicles || []);
+              } catch (err) {
+                setLinkedVehicles([]);
+              } finally {
+                setLoadingVehicles(false);
+              }
+            }}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="service-card-image">
               <img
                 src={
@@ -257,7 +315,8 @@ export default function ProductPage() {
                 <div className="card-actions">
                   <button
                     className="btn-small btn-edit"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       openEditModal(prd);
                     }}
                   >
@@ -266,7 +325,8 @@ export default function ProductPage() {
 
                   <button
                     className="btn-small btn-delete"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeleteClick(prd.product_id);
                     }}
                   >
@@ -408,6 +468,56 @@ export default function ProductPage() {
                   {imagePreview && <img src={imagePreview} style={{ maxWidth: 200 }} />}
                 </div>
               </div>
+
+              {/* Vehicle Link Section */}
+              {!isEditMode && (
+                <div
+                  style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}
+                >
+                  <h4 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>
+                    Link to Vehicle (Optional)
+                  </h4>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Vehicle</label>
+                      <select
+                        className="form-select"
+                        value={selectedVehicleId}
+                        onChange={(e) => setSelectedVehicleId(Number(e.target.value) || '')}
+                      >
+                        <option value="">Select vehicle</option>
+                        {vehicleSpecs.map((v) => (
+                          <option key={v.vehicle_id} value={v.vehicle_id}>
+                            {v.model?.make?.name} {v.model?.name} ({v.year})
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label">Quantity Required</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={vehicleQuantity}
+                        onChange={(e) => setVehicleQuantity(e.target.value)}
+                        placeholder="e.g., 4"
+                      />
+                    </div>
+                  </div>
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label">Unit</label>
+                      <input
+                        type="text"
+                        className="form-input"
+                        value={vehicleUnit}
+                        onChange={(e) => setVehicleUnit(e.target.value)}
+                        placeholder="e.g., liters, pieces"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="modal-footer">
@@ -490,6 +600,151 @@ export default function ProductPage() {
                   យល់ព្រម
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= DETAIL MODAL ================= */}
+      {showDetailModal && detailProduct && (
+        <div className="modal active" onClick={() => setShowDetailModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>ព័ត៌មានផលិតផល</h2>
+              <button className="close-btn" onClick={() => setShowDetailModal(false)}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <img
+                  src={
+                    getProxiedImageUrl(detailProduct.image_url) ||
+                    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400'
+                  }
+                  alt={detailProduct.name}
+                  style={{
+                    width: '200px',
+                    height: '200px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                  }}
+                />
+              </div>
+
+              <div className="detail-section">
+                <h3>{detailProduct.name}</h3>
+                <p className="product-id">
+                  ID: #{String(detailProduct.product_id).padStart(4, '0')}
+                </p>
+                <span
+                  className={`status-badge ${detailProduct.status === 'Active' ? 'active' : 'inactive'}`}
+                >
+                  {detailProduct.status}
+                </span>
+              </div>
+
+              <div
+                className="detail-grid"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
+                  marginTop: '20px',
+                }}
+              >
+                <div className="detail-item">
+                  <label>Category</label>
+                  <p>{detailProduct.category?.name || 'N/A'}</p>
+                </div>
+                <div className="detail-item">
+                  <label>Selling Price</label>
+                  <p>${Number(detailProduct.selling_price).toFixed(2)}</p>
+                </div>
+                <div className="detail-item">
+                  <label>Unit Cost</label>
+                  <p>${Number(detailProduct.unit_cost).toFixed(2)}</p>
+                </div>
+                <div className="detail-item">
+                  <label>Stock Level</label>
+                  <p>{Math.trunc(Number(detailProduct.inventory?.current_stock ?? 0))} units</p>
+                </div>
+                <div className="detail-item">
+                  <label>Min Stock</label>
+                  <p>{Math.trunc(Number(detailProduct.inventory?.min_stock_level ?? 0))} units</p>
+                </div>
+              </div>
+
+              <div className="detail-item" style={{ marginTop: '16px' }}>
+                <label>Description</label>
+                <p>{detailProduct.description || 'No description'}</p>
+              </div>
+
+              {/* Linked Vehicles Section */}
+              <div
+                className="detail-item"
+                style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}
+              >
+                <label
+                  style={{
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    marginBottom: '12px',
+                    display: 'block',
+                  }}
+                >
+                  Linked Vehicles
+                </label>
+                {loadingVehicles ? (
+                  <p>Loading vehicles...</p>
+                ) : linkedVehicles.length === 0 ? (
+                  <p style={{ color: '#6b7280' }}>No vehicles linked to this product</p>
+                ) : (
+                  <div
+                    className="linked-vehicles-list"
+                    style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
+                  >
+                    {linkedVehicles.map((vehicle: any, index: number) => (
+                      <div
+                        key={index}
+                        className="vehicle-tag"
+                        style={{
+                          background: '#f3f4f6',
+                          padding: '10px 14px',
+                          borderRadius: '8px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <span>
+                          {vehicle.make?.name || vehicle.make}{' '}
+                          {vehicle.model?.name || vehicle.model} ({vehicle.year})
+                        </span>
+                        {(vehicle.quantity_required || vehicle.unit) && (
+                          <span style={{ color: '#6b7280', fontSize: '14px' }}>
+                            {vehicle.quantity_required} {vehicle.unit}
+                          </span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={() => setShowDetailModal(false)}>
+                បិទ
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  setShowDetailModal(false);
+                  openEditModal(detailProduct);
+                }}
+              >
+                កែសម្រួល
+              </button>
             </div>
           </div>
         </div>

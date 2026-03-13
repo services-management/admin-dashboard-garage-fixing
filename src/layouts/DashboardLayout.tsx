@@ -112,14 +112,14 @@ export default function DashboardLayout() {
                   iconName: 'services',
                 },
                 {
+                  to: '/dashboard/services/categories',
+                  label: 'ប្រភេទផលិតផល',
+                  iconName: 'category',
+                },
+                {
                   to: '/dashboard/services/products',
                   label: 'ផលិតផល',
                   iconName: 'products',
-                },
-                {
-                  to: '/dashboard/services/service-package',
-                  label: 'កញ្ចប់សេវាកម្ម',
-                  iconName: 'service_package',
                 },
               ]}
             />
@@ -259,12 +259,12 @@ export default function DashboardLayout() {
 
             <li className="mobile-nav-section">សេវាកម្ម</li>
             <MobileNavItem to="/dashboard/services" label="សេវាកម្មទាំងអស់" iconName="services" />
-            <MobileNavItem to="/dashboard/services/products" label="ផលិតផល" iconName="products" />
             <MobileNavItem
-              to="/dashboard/services/service-package"
-              label="កញ្ចប់សេវាកម្ម"
-              iconName="service_package"
+              to="/dashboard/services/categories"
+              label="ប្រភេទផលិតផល"
+              iconName="category"
             />
+            <MobileNavItem to="/dashboard/services/products" label="ផលិតផល" iconName="products" />
 
             <MobileNavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
             <MobileNavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />

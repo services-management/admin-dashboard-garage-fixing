@@ -33,7 +33,7 @@ export const CategoryService = {
       description: string;
     },
   ) => {
-    const response = await axios.put(`${API_BASE}/category/${categoryID}`, payload, {
+    const response = await axios.patch(`${API_BASE}/category/${categoryID}`, payload, {
       headers: getAuthHeader(),
     });
     return response.data;

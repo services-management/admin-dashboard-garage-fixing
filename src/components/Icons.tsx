@@ -22,6 +22,9 @@ import {
   RiEdit2Line,
   RiExpandUpDownLine,
   RiCarLine,
+  RiFolderLine,
+  RiEyeLine,
+  RiEyeOffLine,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -48,7 +51,10 @@ export type IconName =
   | 'trash'
   | 'edit'
   | 'expand_up_down'
-  | 'vehicles';
+  | 'vehicles'
+  | 'category'
+  | 'eye'
+  | 'eye_off';
 
 interface IconProps {
   name: IconName;
@@ -83,6 +89,9 @@ const iconMap: Partial<
   edit: RiEdit2Line,
   expand_up_down: RiExpandUpDownLine,
   vehicles: RiCarLine,
+  category: RiFolderLine,
+  eye: RiEyeLine,
+  eye_off: RiEyeOffLine,
 };
 
 // Render the requested icon, with a safe fallback

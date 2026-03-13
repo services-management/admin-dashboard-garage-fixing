@@ -124,7 +124,7 @@ export const deleteModelApi = async (modelId: number): Promise<void> => {
 
 // Vehicle Spec APIs
 export const getVehicleSpecsApi = async (): Promise<VehicleSpec[]> => {
-  const response = await axios.get(`${API_BASE}/vehicles/filter`, {
+  const response = await axios.get(`${API_BASE}/vehicles/all`, {
     headers: getAuthHeader(),
   });
   return response.data;

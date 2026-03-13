@@ -1,9 +1,14 @@
 import { useMemo, useState, useEffect } from 'react';
-
+import toast from 'react-hot-toast';
 import Icon from '../../components/Icons';
 import '../../styles/user.css';
 import { useAppDispatch, useAppSelector } from '../../store/hooks';
-import { createAdmin, createTechnical } from '../../store/staff/staffThunk';
+import {
+  createAdmin,
+  createTechnical,
+  fetchAdmins,
+  fetchTechnicals,
+} from '../../store/staff/staffThunk';
 import { clearStaffError, clearStaffSuccessMessage } from '../../store/staff/staffSlice';
 
 interface UserItem {
@@ -19,12 +24,17 @@ interface UserItem {
 
 export default function User() {
   const dispatch = useAppDispatch();
-  const { loading, error, successMessage } = useAppSelector((s) => s.staff);
+  const { admins, technicals, loading, error, successMessage } = useAppSelector((s) => s.staff);
 
   const [query, setQuery] = useState('');
   const [filterRole, setFilterRole] = useState<'admin' | 'technical'>('admin');
 
   const [users, setUsers] = useState<UserItem[]>([]);
+
+  useEffect(() => {
+    dispatch(fetchAdmins());
+    dispatch(fetchTechnicals());
+  }, [dispatch]);
 
   const [theme, setTheme] = useState<'light' | 'dark'>(() =>
     document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light',
@@ -52,6 +62,7 @@ export default function User() {
 
   const [showModal, setShowModal] = useState(false);
   const [current, setCurrent] = useState<UserItem | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const [form, setForm] = useState({
     username: '',
@@ -64,6 +75,7 @@ export default function User() {
 
   const openAdd = () => {
     setCurrent(null);
+    setShowPassword(false);
     setForm({
       username: '',
       password: '',
@@ -83,18 +95,37 @@ export default function User() {
 
   useEffect(() => {
     if (error) {
-      alert(error);
+      toast.error(error);
       dispatch(clearStaffError());
     }
   }, [error, dispatch]);
 
   useEffect(() => {
     if (successMessage) {
-      alert(successMessage);
+      toast.success(successMessage);
       dispatch(clearStaffSuccessMessage());
       setShowModal(false);
     }
   }, [successMessage, dispatch]);
+
+  // Sync admins and technicals from Redux to local state
+  useEffect(() => {
+    const mappedAdmins: UserItem[] = admins.map((admin) => ({
+      id: admin.admin_id,
+      username: admin.username,
+      role: 'admin' as const,
+      phone_number: admin.email_phone,
+    }));
+    const mappedTechnicals: UserItem[] = technicals.map((tech) => ({
+      id: tech.technical_id,
+      username: tech.username,
+      role: 'technical' as const,
+      name: tech.name,
+      phone_number: tech.phone_number,
+      status: tech.status,
+    }));
+    setUsers([...mappedAdmins, ...mappedTechnicals]);
+  }, [admins, technicals]);
 
   const handleSave = async () => {
     const username = form.username.trim();
@@ -315,15 +346,34 @@ export default function User() {
                 <label htmlFor="password">
                   {current ? 'ពាក្យសម្ងាត់ (Reset Password)' : 'ពាក្យសម្ងាត់'}
                 </label>
-                <input
-                  type="password"
-                  id="password"
-                  className="form-input"
-                  value={form.password}
-                  onChange={(e) => {
-                    setForm((p) => ({ ...p, password: e.target.value }));
-                  }}
-                />
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    className="form-input"
+                    value={form.password}
+                    onChange={(e) => {
+                      setForm((p) => ({ ...p, password: e.target.value }));
+                    }}
+                    style={{ paddingRight: '40px' }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '10px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '5px',
+                    }}
+                  >
+                    <Icon name={showPassword ? 'eye_off' : 'eye'} size={20} />
+                  </button>
+                </div>
               </div>
 
               {current && (

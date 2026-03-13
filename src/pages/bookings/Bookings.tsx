@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import toast from 'react-hot-toast';
 
 import Icon from '../../components/Icons';
+import { BookingService } from '../../store/booking/bookingService';
 
 // Interfaces matching API structure
 interface Product {
@@ -152,17 +154,17 @@ export default function Booking() {
   const [showDetailModal, setShowDetailModal] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({
-    customerName: '',
-    vehicle: '',
-    service: '',
-    serviceCode: '',
-    date: '',
-    time: '',
-    type: 'service',
-    servicePrice: '',
-    items: '',
-    servicesIncluded: '',
-    description: '',
+    phone: '',
+    full_name: '',
+    car_make: '',
+    car_model: '',
+    car_year: new Date().getFullYear(),
+    car_engine: '',
+    appointment_date: '',
+    start_time: '',
+    service_location: 'garage',
+    note: '',
+    items: [{ service_id: 0, product_id: 0, quantity: 1 }],
   });
 
   const itemsPerPage = 6;
@@ -238,47 +240,78 @@ export default function Booking() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const newBooking: Booking = {
-      id: bookings.length + 1,
-      customerName: formData.customerName,
-      vehicle: formData.vehicle,
-      service: formData.service,
-      serviceCode: formData.serviceCode || `#${String(bookings.length + 1).padStart(4, '0')}`,
-      date: formData.date,
-      time: formData.time,
-      status: 'pending',
-      type: formData.type as 'service' | 'package' | 'product',
-      servicePrice: formData.servicePrice,
-      items: formData.items
-        .split(',')
-        .map((item) => item.trim())
-        .filter((item) => item),
-      ...(formData.type === 'package' &&
-        formData.servicesIncluded && {
-          servicesIncluded: formData.servicesIncluded
-            .split(',')
-            .map((s) => s.trim())
-            .filter((s) => s),
-        }),
-      ...(formData.description && { description: formData.description }),
-    };
-    setBookings([...bookings, newBooking]);
-    setShowModal(false);
-    setFormData({
-      customerName: '',
-      vehicle: '',
-      service: '',
-      serviceCode: '',
-      date: '',
-      time: '',
-      type: 'service',
-      servicePrice: '',
-      items: '',
-      servicesIncluded: '',
-      description: '',
-    });
+
+    // Validation
+    if (!formData.phone.trim()) {
+      toast.error('សូមបញ្ចូលលេខទូរស័ព្ទ');
+      return;
+    }
+    if (!formData.full_name.trim()) {
+      toast.error('សូមបញ្ចូលឈ្មោះ');
+      return;
+    }
+    if (!formData.appointment_date) {
+      toast.error('សូមជ្រើសរើសកាលបរិច្ឆេទ');
+      return;
+    }
+    if (!formData.start_time) {
+      toast.error('សូមជ្រើសរើសម៉ោង');
+      return;
+    }
+
+    // Filter valid items
+    const validItems = formData.items.filter((item) => item.service_id > 0 || item.product_id > 0);
+
+    if (validItems.length === 0) {
+      toast.error('សូមបញ្ចូលយ៉ាងតិចមួយសេវាកម្មឬផលិតផល');
+      return;
+    }
+
+    try {
+      const payload = {
+        phone: formData.phone,
+        full_name: formData.full_name,
+        car_make: formData.car_make || 'Unknown',
+        car_model: formData.car_model || 'Unknown',
+        car_year: Number(formData.car_year) || new Date().getFullYear(),
+        car_engine: formData.car_engine || 'Unknown',
+        items: validItems.map((item) => ({
+          service_id: item.service_id > 0 ? item.service_id : undefined,
+          product_id: item.product_id > 0 ? item.product_id : undefined,
+          quantity: Number(item.quantity) || 1,
+        })),
+        appointment_date: formData.appointment_date,
+        start_time: formData.start_time,
+        service_location: formData.service_location,
+        note: formData.note || '',
+        source: 'web',
+      };
+
+      console.log('Booking payload:', payload);
+      await BookingService.createBooking(payload);
+      toast.success('ការកក់ត្រូវបានបង្កើតជោគជ័យ!');
+      setShowModal(false);
+
+      // Reset form
+      setFormData({
+        phone: '',
+        full_name: '',
+        car_make: '',
+        car_model: '',
+        car_year: new Date().getFullYear(),
+        car_engine: '',
+        appointment_date: '',
+        start_time: '',
+        service_location: 'garage',
+        note: '',
+        items: [{ service_id: 0, product_id: 0, quantity: 1 }],
+      });
+    } catch (error: any) {
+      console.error('Failed to create booking:', error);
+      toast.error(error.response?.data?.detail || 'មានបញ្ហាក្នុងការបង្កើតការកក់');
+    }
   };
 
   const countByType = (type: string) => bookings.filter((b) => b.type === type).length;
@@ -655,8 +688,10 @@ export default function Booking() {
       {showModal && (
         <div
           className="booking-modal-overlay"
-          onClick={() => {
-            setShowModal(false);
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowModal(false);
+            }
           }}
           onKeyDown={(e) => {
             if (e.key === 'Escape') setShowModal(false);
@@ -665,7 +700,12 @@ export default function Booking() {
           tabIndex={0}
           aria-label="Close modal"
         >
-          <div className="booking-modal" role="dialog" aria-modal="true">
+          <div
+            className="booking-modal"
+            role="dialog"
+            aria-modal="true"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="booking-modal-header">
               <h2>បង្កើតការកក់ថ្មី</h2>
               <button
@@ -680,82 +720,81 @@ export default function Booking() {
             <form onSubmit={handleSubmit} className="booking-form">
               <div className="booking-form-grid">
                 <div className="booking-form-group">
-                  <label htmlFor="booking-customer-name">ឈ្មោះអតិថិជន *</label>
+                  <label htmlFor="booking-phone">ទូរស័ព្ទ *</label>
                   <input
-                    id="booking-customer-name"
+                    id="booking-phone"
                     type="text"
                     required
-                    value={formData.customerName}
+                    value={formData.phone}
                     onChange={(e) => {
-                      setFormData({ ...formData, customerName: e.target.value });
+                      setFormData({ ...formData, phone: e.target.value });
                     }}
-                    placeholder="បញ្ចូលឈ្មោះអតិថិជន"
+                    placeholder="+1234567890"
                   />
                 </div>
                 <div className="booking-form-group">
-                  <label htmlFor="booking-vehicle">យានជំនិះ *</label>
+                  <label htmlFor="booking-fullname">ឈ្មោះពេញ *</label>
                   <input
-                    id="booking-vehicle"
+                    id="booking-fullname"
                     type="text"
                     required
-                    value={formData.vehicle}
+                    value={formData.full_name}
                     onChange={(e) => {
-                      setFormData({ ...formData, vehicle: e.target.value });
+                      setFormData({ ...formData, full_name: e.target.value });
                     }}
-                    placeholder="ឧ. Toyota Prius"
+                    placeholder="បញ្ចូលឈ្មោះពេញ"
                   />
                 </div>
                 <div className="booking-form-group">
-                  <label htmlFor="booking-type">ប្រភេទ *</label>
-                  <select
-                    id="booking-type"
-                    value={formData.type}
-                    onChange={(e) => {
-                      setFormData({ ...formData, type: e.target.value });
-                    }}
-                    required
-                  >
-                    <option value="service">សេវាកម្ម</option>
-                    <option value="package">កញ្ចប់សេវា</option>
-                    <option value="product">ផលិតផល</option>
-                  </select>
-                </div>
-                <div className="booking-form-group">
-                  <label htmlFor="booking-service">សេវាកម្ម *</label>
+                  <label htmlFor="booking-car-make">ម៉ាករថយន្ត *</label>
                   <input
-                    id="booking-service"
+                    id="booking-car-make"
                     type="text"
                     required
-                    value={formData.service}
+                    value={formData.car_make}
                     onChange={(e) => {
-                      setFormData({ ...formData, service: e.target.value });
+                      setFormData({ ...formData, car_make: e.target.value });
                     }}
-                    placeholder="បញ្ចូលសេវាកម្ម"
+                    placeholder="ឧ. Toyota"
                   />
                 </div>
                 <div className="booking-form-group">
-                  <label htmlFor="booking-service-code">កូដសេវាកម្ម</label>
+                  <label htmlFor="booking-car-model">ម៉ូដែល *</label>
                   <input
-                    id="booking-service-code"
+                    id="booking-car-model"
                     type="text"
-                    value={formData.serviceCode}
+                    required
+                    value={formData.car_model}
                     onChange={(e) => {
-                      setFormData({ ...formData, serviceCode: e.target.value });
+                      setFormData({ ...formData, car_model: e.target.value });
                     }}
-                    placeholder="ស្វ័យប្រវត្តិ"
+                    placeholder="ឧ. Camry"
                   />
                 </div>
                 <div className="booking-form-group">
-                  <label htmlFor="booking-price">តម្លៃ *</label>
+                  <label htmlFor="booking-car-year">ឆ្នាំ *</label>
                   <input
-                    id="booking-price"
+                    id="booking-car-year"
+                    type="number"
+                    required
+                    value={formData.car_year}
+                    onChange={(e) => {
+                      setFormData({ ...formData, car_year: Number(e.target.value) });
+                    }}
+                    placeholder="2023"
+                  />
+                </div>
+                <div className="booking-form-group">
+                  <label htmlFor="booking-car-engine">ម៉ាស៊ីន *</label>
+                  <input
+                    id="booking-car-engine"
                     type="text"
                     required
-                    value={formData.servicePrice}
+                    value={formData.car_engine}
                     onChange={(e) => {
-                      setFormData({ ...formData, servicePrice: e.target.value });
+                      setFormData({ ...formData, car_engine: e.target.value });
                     }}
-                    placeholder="$0.00"
+                    placeholder="ឧ. 2.5L Hybrid"
                   />
                 </div>
                 <div className="booking-form-group">
@@ -764,9 +803,9 @@ export default function Booking() {
                     id="booking-date"
                     type="date"
                     required
-                    value={formData.date}
+                    value={formData.appointment_date}
                     onChange={(e) => {
-                      setFormData({ ...formData, date: e.target.value });
+                      setFormData({ ...formData, appointment_date: e.target.value });
                     }}
                   />
                 </div>
@@ -776,48 +815,33 @@ export default function Booking() {
                     id="booking-time"
                     type="time"
                     required
-                    value={formData.time}
+                    value={formData.start_time}
                     onChange={(e) => {
-                      setFormData({ ...formData, time: e.target.value });
+                      setFormData({ ...formData, start_time: e.target.value });
                     }}
                   />
                 </div>
-                <div className="booking-form-group booking-form-full">
-                  <label htmlFor="booking-items">សម្ភារៈ/ផលិតផល *</label>
-                  <input
-                    id="booking-items"
-                    type="text"
+                <div className="booking-form-group">
+                  <label htmlFor="booking-location">ទីតាំងសេវាកម្ម *</label>
+                  <select
+                    id="booking-location"
+                    value={formData.service_location}
+                    onChange={(e) => {
+                      setFormData({ ...formData, service_location: e.target.value });
+                    }}
                     required
-                    value={formData.items}
-                    onChange={(e) => {
-                      setFormData({ ...formData, items: e.target.value });
-                    }}
-                    placeholder="Engine Oil × 1, Brake Fluid × 2"
-                  />
-                  <small>បំបែកដោយសញ្ញា comma (,)</small>
+                  >
+                    <option value="garage">ហ្គារ៉ាស់</option>
+                    <option value="home">ផ្ទះ</option>
+                  </select>
                 </div>
-                {formData.type === 'package' && (
-                  <div className="booking-form-group booking-form-full">
-                    <label htmlFor="booking-services-included">សេវាកម្មក្នុងកញ្ចប់</label>
-                    <input
-                      id="booking-services-included"
-                      type="text"
-                      value={formData.servicesIncluded}
-                      onChange={(e) => {
-                        setFormData({ ...formData, servicesIncluded: e.target.value });
-                      }}
-                      placeholder="Oil Change, Brake Cleaning, Car Wash"
-                    />
-                    <small>បំបែកដោយសញ្ញា comma (,)</small>
-                  </div>
-                )}
                 <div className="booking-form-group booking-form-full">
-                  <label htmlFor="booking-description">ការពិពណ៌នា</label>
+                  <label htmlFor="booking-note">ចំណាំ</label>
                   <textarea
-                    id="booking-description"
-                    value={formData.description}
+                    id="booking-note"
+                    value={formData.note}
                     onChange={(e) => {
-                      setFormData({ ...formData, description: e.target.value });
+                      setFormData({ ...formData, note: e.target.value });
                     }}
                     placeholder="ព័ត៌មានបន្ថែម..."
                     rows={3}

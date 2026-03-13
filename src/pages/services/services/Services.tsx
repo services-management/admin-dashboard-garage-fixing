@@ -2,8 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 
 import type { RootState, AppDispatch } from '../../../store';
-import { fetchComboServices } from '../../../store/package/packageThunk';
-import { ProductService } from '../../../store/product/productService';
+import { CategoryService } from '../../../store/category/categoryService';
 import { ServiceService } from '../../../store/service/serviceService';
 import {
   fetchServices,
@@ -14,15 +13,15 @@ import {
 import type { Service } from '../../../store/service/serviceTypes';
 import { getProxiedImageUrl } from '../../../utils/imageProxy';
 
-interface Product {
-  id: number;
+interface Category {
+  categoryID: number;
   name: string;
+  description: string;
 }
 
 export default function Services() {
   const dispatch = useDispatch<AppDispatch>();
   const services = useSelector((state: RootState) => state.service.list);
-  const comboServices = useSelector((state: RootState) => state.package.list);
 
   /* ================= LOCAL UI STATE ================= */
   const [showModal, setShowModal] = useState(false);
@@ -39,7 +38,7 @@ export default function Services() {
     comboNames: [],
   });
 
-  const [products, setProducts] = useState<Product[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -47,31 +46,26 @@ export default function Services() {
     price: '',
     duration_minutes: 60,
     status: 'active' as 'active' | 'inactive',
-    products: [] as {
-      name: string;
-      quantity: number;
-      is_optional: boolean;
-    }[],
+    categories: [] as { name: string }[],
   });
 
   /* ================= LOAD SERVICES ================= */
   useEffect(() => {
     dispatch(fetchServices());
-    dispatch(fetchComboServices());
   }, [dispatch]);
 
-  /* ================= LOAD PRODUCTS ================= */
+  /* ================= LOAD CATEGORIES ================= */
   useEffect(() => {
-    const loadProducts = async () => {
+    const loadCategories = async () => {
       try {
-        const data = await ProductService.getProducts();
-        setProducts(data.items ?? data);
+        const data = await CategoryService.getCategories();
+        setCategories(data.items ?? data);
       } catch (err) {
-        console.error('Failed to load products', err);
+        console.error('Failed to load categories', err);
       }
     };
 
-    loadProducts();
+    loadCategories();
   }, []);
 
   /* ================= MODAL ================= */
@@ -86,7 +80,7 @@ export default function Services() {
       price: '',
       duration_minutes: 60,
       status: 'active',
-      products: [],
+      categories: [],
     });
     setShowModal(true);
   };
@@ -99,13 +93,13 @@ export default function Services() {
     setFormData({
       name: service.name,
       description: service.description,
-      price: String(service.price),
+      price: String(service.garage_price || ''),
       duration_minutes: service.duration_minutes,
-      status: service.is_available ? 'active' : 'inactive',
-      products: service.associations.map((a) => ({
-        name: a.product_name,
-        quantity: a.quantity_required,
-        is_optional: a.is_optional,
+      status: (service.status?.toLowerCase() === 'active' || service.is_available
+        ? 'active'
+        : 'inactive') as 'active' | 'inactive',
+      categories: service.associations.map((a) => ({
+        name: a.category_name ?? '',
       })),
     });
 
@@ -133,25 +127,27 @@ export default function Services() {
     reader.readAsDataURL(file);
   };
 
-  /* ================= PRODUCTS ================= */
-  const addProductToService = () => {
+  /* ================= CATEGORIES ================= */
+  const addCategoryToService = () => {
     setFormData((p) => ({
       ...p,
-      products: [...p.products, { name: '', quantity: 1, is_optional: false }],
+      categories: [...p.categories, { name: '' }],
     }));
   };
 
-  const removeProduct = (index: number) => {
+  const removeCategory = (index: number) => {
     setFormData((p) => ({
       ...p,
-      products: p.products.filter((_, i) => i !== index),
+      categories: p.categories.filter((_c: any, i: number) => i !== index),
     }));
   };
 
-  const updateProduct = (index: number, key: 'name' | 'quantity' | 'is_optional', value: any) => {
+  const updateCategory = (index: number, key: 'name', value: string) => {
     setFormData((p) => ({
       ...p,
-      products: p.products.map((v, i) => (i === index ? { ...v, [key]: value } : v)),
+      categories: p.categories.map((c: any, i: number) =>
+        i === index ? { ...c, [key]: value } : c,
+      ),
     }));
   };
 
@@ -169,14 +165,13 @@ export default function Services() {
     const payload = {
       name: formData.name,
       description: formData.description,
-      image_url: '',
-      price: Number(formData.price),
+      image_url: isEditMode && currentService ? currentService.image_url : '',
+      garage_price: Number(formData.price),
+      home_price: Number(formData.price),
       duration_minutes: formData.duration_minutes,
       is_available: formData.status === 'active',
-      associations: formData.products.map((p) => ({
-        product_name: p.name,
-        quantity_required: p.quantity,
-        is_optional: p.is_optional,
+      associations: formData.categories.map((c) => ({
+        category_name: c.name,
       })),
     };
 
@@ -203,8 +198,11 @@ export default function Services() {
           await ServiceService.uploadServiceImage(created.service_id, imageFile);
         }
 
-        alert('សេវាកម្មត្រូវបានបង្កើតជោគជ័យ!');
+        alert('សេវាកម្មត្រូវបង្កើតជោគជ័យ!');
       }
+
+      // ✅ Refresh services list
+      dispatch(fetchServices());
 
       closeModal();
     } catch (err) {
@@ -214,37 +212,9 @@ export default function Services() {
   };
 
   /* ================= DELETE ================= */
-  const isServiceUsedInCombo = (serviceId: number): { isUsed: boolean; comboNames: string[] } => {
-    const usedInCombos: string[] = [];
-
-    // Find the name of the service we want to delete
-    const serviceToDelete = services.find((s) => s.service_id === serviceId);
-    if (!serviceToDelete) return { isUsed: false, comboNames: [] };
-
-    comboServices.forEach((combo) => {
-      let isUsed = false;
-
-      // Check in service_names array (strings)
-      if (combo.service_names && combo.service_names.includes(serviceToDelete.name)) {
-        isUsed = true;
-      }
-
-      // Also check in services array (objects) if it exists
-      if (!isUsed && combo.services && Array.isArray(combo.services)) {
-        isUsed = combo.services.some(
-          (s) => s.service_id === serviceId || s.name === serviceToDelete.name,
-        );
-      }
-
-      if (isUsed) {
-        usedInCombos.push(combo.name);
-      }
-    });
-
-    return {
-      isUsed: usedInCombos.length > 0,
-      comboNames: usedInCombos,
-    };
+  const isServiceUsedInCombo = (_serviceId: number): { isUsed: boolean; comboNames: string[] } => {
+    // Note: Combo services check removed as the endpoint is no longer available
+    return { isUsed: false, comboNames: [] };
   };
 
   const handleDeleteClick = (id: number) => {
@@ -310,15 +280,14 @@ export default function Services() {
                 </div>
 
                 <div className="content-section">
-                  <div className="content-label">ផលិតផល ({service.associations.length})</div>
+                  <div className="content-label">ប្រភេទ</div>
                   <div className="content-items">
                     {service.associations.length === 0 ? (
-                      <span className="item-tag">មិនមានផលិតផល</span>
+                      <span className="item-tag">មិនមានប្រភេទ</span>
                     ) : (
-                      service.associations.map((p, i) => (
+                      service.associations.map((a, i) => (
                         <span key={i} className="item-tag">
-                          {p.product_name} × {p.quantity_required}
-                          {p.is_optional && ' (Optional)'}
+                          {a.category_name}
                         </span>
                       ))
                     )}
@@ -327,7 +296,9 @@ export default function Services() {
               </div>
 
               <div className="service-card-footer">
-                <div className="service-price">${service.price.toFixed(2)}</div>
+                <div className="service-price">
+                  ${parseFloat(service.garage_price || '0').toFixed(2)}
+                </div>
                 <div className="card-actions">
                   <button
                     className="btn-small btn-edit"
@@ -451,56 +422,29 @@ export default function Services() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Products</label>
+                  <label className="form-label">Categories</label>
 
-                  {formData.products.map((p, i) => (
+                  {formData.categories.map((c, i) => (
                     <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
                       <select
                         className="form-input"
-                        value={p.name}
+                        value={c.name}
                         onChange={(e) => {
-                          updateProduct(i, 'name', e.target.value);
+                          updateCategory(i, 'name', e.target.value);
                         }}
                       >
-                        <option value="">-- Select Product --</option>
-                        {products.map((prod) => (
-                          <option key={prod.id} value={prod.name}>
-                            {prod.name}
+                        <option value="">-- Select Category --</option>
+                        {categories.map((cat) => (
+                          <option key={cat.categoryID} value={cat.name}>
+                            {cat.name}
                           </option>
                         ))}
                       </select>
 
-                      <input
-                        type="number"
-                        className="form-input"
-                        style={{ width: 90 }}
-                        value={p.quantity}
-                        onChange={(e) => {
-                          updateProduct(i, 'quantity', Number(e.target.value) || 1);
-                        }}
-                      />
-
-                      <label
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: 4,
-                        }}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={p.is_optional}
-                          onChange={(e) => {
-                            updateProduct(i, 'is_optional', e.target.checked);
-                          }}
-                        />
-                        Optional
-                      </label>
-
                       <button
                         className="btn-remove"
                         onClick={() => {
-                          removeProduct(i);
+                          removeCategory(i);
                         }}
                       >
                         Remove
@@ -508,8 +452,8 @@ export default function Services() {
                     </div>
                   ))}
 
-                  <button className="btn-small" onClick={addProductToService}>
-                    + Add Product
+                  <button className="btn-small" onClick={addCategoryToService}>
+                    + Add Category
                   </button>
                 </div>
               </div>

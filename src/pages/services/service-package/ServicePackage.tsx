@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
-import { fetchComboServices, deleteComboService } from '../../../store/package/packageThunk';
+import { deleteComboService } from '../../../store/package/packageThunk';
 import ServicePackageCard from './components/ServicePackageCard';
 import CreateServicePackageModal from './components/CreateServicePackageModal';
 import type { ComboService } from '../../../store/package/packageTypes';
@@ -23,9 +23,7 @@ export default function ServicePackage() {
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingPackage, setEditingPackage] = useState<ComboService | null>(null);
 
-  useEffect(() => {
-    dispatch(fetchComboServices());
-  }, [dispatch]);
+  // Note: fetchComboServices removed - endpoint no longer available
 
   const handleCreateClick = () => {
     setEditingPackage(null);
@@ -54,7 +52,7 @@ export default function ServicePackage() {
   };
 
   const handleModalSuccess = () => {
-    dispatch(fetchComboServices());
+    // Note: fetchComboServices removed - endpoint no longer available
   };
 
   return (

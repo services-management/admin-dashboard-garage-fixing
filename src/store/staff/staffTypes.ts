@@ -1,16 +1,22 @@
 export interface Admin {
-  id: number;
+  admin_id: string;
   username: string;
   email_phone: string;
   role: 'admin';
+  is_active: boolean;
+  telegram_magic_link?: string;
 }
 
 export interface Technical {
-  id: number;
+  technical_id: string;
   username: string;
   name: string;
   phone_number: string;
   role: 'technical';
+  status: 'free' | 'busy' | 'off_duty';
+  team_id?: string;
+  is_active: boolean;
+  telegram_magic_link?: string;
 }
 
 export interface AdminInput {

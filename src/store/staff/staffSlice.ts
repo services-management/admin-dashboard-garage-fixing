@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { StaffState } from './staffTypes';
-import { createAdmin, createTechnical } from './staffThunk';
+import { createAdmin, createTechnical, fetchAdmins, fetchTechnicals } from './staffThunk';
 
 const initialState: StaffState = {
   admins: [],
@@ -23,6 +23,30 @@ const staffSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
+      .addCase(fetchAdmins.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchAdmins.fulfilled, (state, action) => {
+        state.loading = false;
+        state.admins = action.payload;
+      })
+      .addCase(fetchAdmins.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchTechnicals.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchTechnicals.fulfilled, (state, action) => {
+        state.loading = false;
+        state.technicals = action.payload;
+      })
+      .addCase(fetchTechnicals.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
       .addCase(createAdmin.pending, (state) => {
         state.loading = true;
         state.error = null;

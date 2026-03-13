@@ -1,6 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { Category } from './categoryTypes';
-import { fetchCategories } from './categoryThunk';
+import { fetchCategories, createCategory, updateCategory, deleteCategory } from './categoryThunk';
 
 interface CategoryState {
   list: Category[];
@@ -23,6 +23,7 @@ const categorySlice = createSlice({
       // GET
       .addCase(fetchCategories.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchCategories.fulfilled, (state, action) => {
         state.loading = false;
@@ -31,29 +32,52 @@ const categorySlice = createSlice({
       .addCase(fetchCategories.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
+      })
+
+      // CREATE
+      .addCase(createCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(createCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list.push(action.payload);
+      })
+      .addCase(createCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // UPDATE
+      .addCase(updateCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(updateCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        const index = state.list.findIndex((c) => c.categoryID === action.payload.categoryID);
+        if (index !== -1) {
+          state.list[index] = action.payload;
+        }
+      })
+      .addCase(updateCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+
+      // DELETE
+      .addCase(deleteCategory.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteCategory.fulfilled, (state, action) => {
+        state.loading = false;
+        state.list = state.list.filter((c) => c.categoryID !== action.payload);
+      })
+      .addCase(deleteCategory.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
       });
-
-    //   // CREATE
-    //   .addCase(createCategory.fulfilled, (state, action) => {
-    //     state.list.push(action.payload);
-    //   })
-
-    //   // UPDATE
-    //   .addCase(updateCategory.fulfilled, (state, action) => {
-    //     const index = state.list.findIndex(
-    //       (c) => c.categoryID === action.payload.categoryID
-    //     );
-    //     if (index !== -1) {
-    //       state.list[index] = action.payload;
-    //     }
-    //   })
-
-    //   // DELETE
-    //   .addCase(deleteCategory.fulfilled, (state, action) => {
-    //     state.list = state.list.filter(
-    //       (c) => c.categoryID !== action.payload
-    //     );
-    //   });
   },
 });
 

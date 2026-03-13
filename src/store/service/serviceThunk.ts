@@ -7,11 +7,7 @@ export const fetchServices = createAsyncThunk<Service[]>(
   async (_, { rejectWithValue }) => {
     try {
       const data = await ServiceService.getServices();
-
-      return data.map((s: any) => ({
-        ...s,
-        price: Number(s.price), // ✅ FIX
-      }));
+      return data;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Failed to fetch services');
     }
@@ -23,10 +19,7 @@ export const createService = createAsyncThunk<Service, any>(
   async (payload, { rejectWithValue }) => {
     try {
       const res = await ServiceService.createService(payload);
-      return {
-        ...res,
-        price: Number(res.price), // ✅ FIX
-      };
+      return res;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Failed to create service');
     }
@@ -38,10 +31,7 @@ export const updateService = createAsyncThunk<Service, { service_id: number; pay
   async ({ service_id, payload }, { rejectWithValue }) => {
     try {
       const res = await ServiceService.updateService(service_id, payload);
-      return {
-        ...res,
-        price: Number(res.price), // ✅ FIX
-      };
+      return res;
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.detail || 'Failed to update service');
     }

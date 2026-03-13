@@ -44,7 +44,7 @@ export default function CreateServicePackageModal({
 
     return serviceNames.reduce((total, serviceName) => {
       const service = services.find((s) => s.name === serviceName);
-      return total + (service?.price || 0);
+      return total + (parseFloat(service?.garage_price || '0') || 0);
     }, 0);
   };
 
@@ -346,7 +346,8 @@ export default function CreateServicePackageModal({
                     </option>
                     {services.map((service) => (
                       <option key={service.service_id} value={service.name}>
-                        [{service.name}] - ${service.price?.toFixed(2) || '0.00'} -{' '}
+                        [{service.name}] - $
+                        {parseFloat(service.garage_price || '0').toFixed(2) || '0.00'} -{' '}
                         {service.description.substring(0, 50)}
                         {service.description.length > 50 ? '...' : ''}
                       </option>

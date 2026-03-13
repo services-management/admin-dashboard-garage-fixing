@@ -134,7 +134,7 @@ export default function VehicleSpec() {
   };
 
   const getModelName = (modelId: number) => {
-    const model = models.find((m) => m.model_id === modelId);
+    const model = models.find((m) => (m as any).id === modelId || m.model_id === modelId);
     return model ? `${model.name} (${model.make?.name || '-'})` : '-';
   };
 
@@ -173,18 +173,25 @@ export default function VehicleSpec() {
                     <label htmlFor="modelId">Model *</label>
                     <select
                       id="modelId"
+                      className="form-select"
                       value={formData.model_id}
-                      onChange={(e) =>
-                        setFormData({ ...formData, model_id: parseInt(e.target.value) })
-                      }
+                      onChange={(e) => {
+                        console.log('Selected model_id:', e.target.value);
+                        setFormData({ ...formData, model_id: parseInt(e.target.value) });
+                      }}
+                      onClick={(e) => e.stopPropagation()}
                       required
+                      style={{ cursor: 'pointer', minHeight: '40px' }}
                     >
-                      <option value={0}>Select Model</option>
-                      {models.map((model) => (
-                        <option key={model.model_id} value={model.model_id}>
-                          {model.name} ({model.make?.name || '-'})
-                        </option>
-                      ))}
+                      <option value="">Select Model</option>
+                      {models.map((model) => {
+                        const modelId = (model as any).id || model.model_id;
+                        return (
+                          <option key={modelId} value={modelId}>
+                            {model.name} ({model.make?.name || '-'})
+                          </option>
+                        );
+                      })}
                     </select>
                   </div>
                   <div className="form-group">

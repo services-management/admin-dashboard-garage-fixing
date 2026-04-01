@@ -1,17 +1,14 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
-// import react from '@vitejs/plugin-react'
 
-// https://vite.dev/config/
 export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    allowedHosts: ['garas-admin.domrey.online'],
+    allowedHosts: [process.env.VITE_ADMIN_HOST],
     proxy: {
-      // forward /api/* to the real backend to avoid CORS during development
       '/api': {
-        target: 'https://garas-api.domrey.online',
+        target: process.env.VITE_API_HOST,
         changeOrigin: true,
         secure: false,
         followRedirects: true,
@@ -28,15 +25,13 @@ export default defineConfig({
           });
         },
       },
-      // Proxy images and uploads to bypass SSL certificate issues
-      // These don't strip the path prefix
       '/uploads': {
-        target: 'https://garas-api.domrey.online',
+        target: process.env.VITE_API_HOST,
         changeOrigin: true,
         secure: false,
       },
       '/images': {
-        target: 'https://garas-api.domrey.online',
+        target: process.env.VITE_API_HOST,
         changeOrigin: true,
         secure: false,
       },

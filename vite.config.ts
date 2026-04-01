@@ -5,7 +5,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    allowedHosts: ['process.env.VITE_ADMIN_HOST'],
+    allowedHosts: [ process.env.VITE_ADMIN_HOST || 'localhost' ],
     proxy: {
       '/api': {
         target: process.env.VITE_API_HOST,

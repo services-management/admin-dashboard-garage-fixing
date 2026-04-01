@@ -5,7 +5,7 @@ export default defineConfig({
   server: {
     host: '0.0.0.0',
     port: 3000,
-    allowedHosts: [process.env.VITE_ADMIN_HOST],
+    allowedHosts: ['process.env.VITE_ADMIN_HOST'],
     proxy: {
       '/api': {
         target: process.env.VITE_API_HOST,
@@ -13,14 +13,14 @@ export default defineConfig({
         secure: false,
         followRedirects: true,
         rewrite: (path) => path.replace(/^\/api/, ''),
-        configure: (proxy, _options) => {
-          proxy.on('proxyReq', (_proxyReq, req, _res) => {
+        configure: (proxy) => {
+          proxy.on('proxyReq', (_proxyReq, req) => {
             console.log('Proxying:', req.method, req.url);
           });
-          proxy.on('proxyRes', (proxyRes, req, _res) => {
+          proxy.on('proxyRes', (proxyRes, req) => {
             console.log('Response:', proxyRes.statusCode, req.url);
           });
-          proxy.on('error', (err, req, _res) => {
+          proxy.on('error', (err, req) => {
             console.log('Proxy error:', err.message, req.url);
           });
         },

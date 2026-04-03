@@ -152,6 +152,7 @@ export default function DashboardLayout() {
             />
 
             <NavItem to="/dashboard/notifications" label="ការជូនដំណឹង" iconName="notifications" />
+            <NavItem to="/dashboard/slideshow" label="Slideshow" iconName="slideshow" />
             <NavItem to="/dashboard/profile" label="ប្រវត្តិរូប" iconName="profile" />
             <NavItem to="/dashboard/settings" label="ការកំណត់" iconName="settings" />
           </ul>
@@ -289,6 +290,7 @@ export default function DashboardLayout() {
               label="ការជូនដំណឹង"
               iconName="notifications"
             />
+            <MobileNavItem to="/dashboard/slideshow" label="Slideshow" iconName="slideshow" />
             <MobileNavItem to="/dashboard/profile" label="ប្រវត្តិរូប" iconName="profile" />
             <MobileNavItem to="/dashboard/settings" label="ការកំណត់" iconName="settings" />
           </ul>

@@ -19,6 +19,7 @@ import User from '../pages/user/User';
 import VehicleMake from '../pages/vehicles/VehicleMake';
 import VehicleModel from '../pages/vehicles/VehicleModel';
 import VehicleSpec from '../pages/vehicles/VehicleSpec';
+import Slideshow from '../pages/slideshow/Slideshow';
 
 export const router = createBrowserRouter([
   {
@@ -97,6 +98,10 @@ export const router = createBrowserRouter([
           {
             path: 'vehicles/spec',
             element: <VehicleSpec />,
+          },
+          {
+            path: 'slideshow',
+            element: <Slideshow />,
           },
         ],
       },

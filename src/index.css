@@ -39,6 +39,13 @@ body {
   font-family: 'Battambang', system-ui, Avenir, Helvetica, Arial, sans-serif;
 }
 
+/* Global image styling - make all images fill container with cover */
+img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 :root {
   --sidebar-bg: #fafafa;
   --brand-red: #dc2626;
@@ -88,6 +95,7 @@ body {
 
 * {
   box-sizing: border-box;
+  font-family: inherit;
 }
 
 body {
@@ -96,6 +104,16 @@ body {
   min-height: 100vh;
   background: var(--surface-2);
   color: var(--text);
+  font-family:
+    'Battambang',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+  line-height: 1.6;
 }
 
 /* Shell */
@@ -178,7 +196,7 @@ body {
   margin: 0;
   padding: 0;
   display: grid;
-  gap: 4px;
+  gap: 8px;
 }
 .sidebar-link {
   display: flex;
@@ -951,15 +969,17 @@ body {
   height: 0;
   padding-bottom: 100%; /* 1:1 aspect ratio (square) */
   position: relative;
+  overflow: hidden;
 }
 
 .product-grid-ecommerce .service-card-image img {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
+  display: block;
 }
 
 /* ==================== SERVICE CARDS ==================== */
@@ -996,13 +1016,14 @@ body {
 .status-badge-overlay {
   position: absolute;
   top: 12px;
-  right: 12px;
+  left: 12px;
   padding: 6px 12px;
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   text-transform: uppercase;
   backdrop-filter: blur(10px);
+  z-index: 10;
 }
 
 .status-badge-overlay.active {
@@ -1117,6 +1138,12 @@ body {
   color: #ef4444;
   font-size: 12px;
   margin-top: 4px;
+}
+
+/* ==================== TOAST STYLES ==================== */
+/* Ensure toast appears above modal */
+[data-role='toast'] {
+  z-index: 9999 !important;
 }
 
 /* ==================== MODAL STYLES ==================== */
@@ -1689,12 +1716,35 @@ body {
 .form-textarea,
 .form-select {
   width: 100%;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #d1d5db;
   border-radius: 6px;
   font-size: 14px;
   box-sizing: border-box;
   transition: all 0.3s;
+  line-height: 1.5;
+  font-family:
+    'Battambang',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    'Helvetica Neue',
+    Arial,
+    sans-serif;
+}
+
+/* Fix for select dropdown text being cut off */
+select.form-input {
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  height: 48px;
 }
 
 .form-input:focus,
@@ -2224,6 +2274,247 @@ body.dark-mode .modal-footer,
 body.dark-mode .service-card-image,
 [data-theme='dark'] .service-card-image {
   background: var(--surface-2);
+}
+
+/* Final Price Input - Light Mode */
+.final-price-input {
+  background-color: #f3f4f6 !important;
+  color: #1f2937 !important;
+}
+
+/* Final Price Input - Dark Mode */
+body.dark-mode .final-price-input,
+[data-theme='dark'] .final-price-input {
+  background-color: #374151 !important;
+  color: #f9fafb !important;
+}
+
+/* Hide scrollbar for modal content */
+.modal-body,
+.modal-content {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.modal-body::-webkit-scrollbar,
+.modal-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+
+/* Hide scrollbar for all elements */
+* {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+*::-webkit-scrollbar {
+  display: none;
+}
+
+/* ==================== VEHICLE SPEC CARDS ==================== */
+.vehicle-spec-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 20px;
+  padding: 20px 0;
+}
+
+@media (min-width: 640px) {
+  .vehicle-spec-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .vehicle-spec-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .vehicle-spec-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.vehicle-spec-card {
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.vehicle-spec-card:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.vehicle-spec-image {
+  position: relative;
+  height: 180px;
+  overflow: hidden;
+}
+
+.vehicle-spec-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-spec-year {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.vehicle-spec-content {
+  padding: 16px;
+}
+
+.vehicle-spec-title {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 8px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vehicle-spec-engine {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 12px 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.vehicle-spec-tags {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.spec-tag {
+  background: #f3f4f6;
+  color: #4b5563;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.vehicle-spec-actions {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.vehicle-spec-card:hover .vehicle-spec-actions {
+  opacity: 1;
+}
+
+/* Vehicle Detail Modal */
+.vehicle-detail-content {
+  padding: 24px;
+}
+
+.vehicle-detail-image {
+  width: 100%;
+  height: 250px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.vehicle-detail-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.vehicle-detail-info h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0 0 20px 0;
+}
+
+.vehicle-detail-info .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.vehicle-detail-info .detail-item {
+  background: #f9fafb;
+  padding: 16px;
+  border-radius: 12px;
+}
+
+.vehicle-detail-info .detail-item label {
+  font-size: 12px;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.vehicle-detail-info .detail-item p {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+/* Dark Mode - Vehicle Spec Cards */
+body.dark-mode .vehicle-spec-card,
+[data-theme='dark'] .vehicle-spec-card {
+  background: var(--surface);
+}
+
+body.dark-mode .vehicle-spec-title,
+[data-theme='dark'] .vehicle-spec-title {
+  color: var(--text);
+}
+
+body.dark-mode .spec-tag,
+[data-theme='dark'] .spec-tag {
+  background: var(--surface-2);
+  color: var(--text-secondary);
+}
+
+body.dark-mode .vehicle-detail-info .detail-item,
+[data-theme='dark'] .vehicle-detail-info .detail-item {
+  background: var(--surface-2);
+}
+
+body.dark-mode .vehicle-detail-info .detail-item p,
+[data-theme='dark'] .vehicle-detail-info .detail-item p {
+  color: var(--text);
+}
+
+body.dark-mode .vehicle-detail-info h2,
+[data-theme='dark'] .vehicle-detail-info h2 {
+  color: var(--text);
 }
 
 /* Dark Mode - Enhance readability */
@@ -2953,7 +3244,7 @@ body.dark-mode .dialog-footer,
 .booking-form-group input,
 .booking-form-group select,
 .booking-form-group textarea {
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid var(--border);
   border-radius: 8px;
   background-color: var(--background);
@@ -2965,6 +3256,7 @@ body.dark-mode .dialog-footer,
     -apple-system,
     sans-serif;
   transition: border-color 0.2s;
+  line-height: 1.5;
 }
 
 .booking-form-group input:focus,
@@ -8100,7 +8392,8 @@ body.dark-mode .dialog-footer,
   border-bottom: 1px solid var(--border);
 }
 
-.modal-header h3 {
+.modal-header h3,
+.modal-header h2 {
   margin: 0;
   font-size: 18px;
   font-weight: 600;

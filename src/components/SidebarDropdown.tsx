@@ -36,14 +36,15 @@ export default function SidebarDropdown({ label, iconName, items }: SidebarDropd
         <span className="sidebar-label">{label}</span>
       </div>
       {open && (
-        <ul className="ml-6 mt-1 space-y-1">
+        <ul className="ml-6 mt-3 space-y-3">
           {items.map((item) => {
             const isActive = location.pathname === item.to;
             return (
-              <li key={item.to}>
+              <li key={item.to} style={{ marginBottom: 8 }}>
                 <Link
                   to={item.to}
                   className={`sidebar-link ${isActive ? 'active' : ''} sidebar-subitem`}
+                  style={{ marginTop: 4 }}
                 >
                   {item.iconName && (
                     <span className="sidebar-icon sidebar-subicon" aria-hidden="true">

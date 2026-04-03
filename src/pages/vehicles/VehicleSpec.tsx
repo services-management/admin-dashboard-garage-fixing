@@ -9,7 +9,9 @@ import {
   fetchModels,
 } from '../../store/vehicle/vehicleThunk';
 import { clearError, clearSuccessMessage } from '../../store/vehicle/vehicleSlice';
+import { uploadVehicleImageApi } from '../../store/vehicle/vehicleService';
 import type { VehicleSpec, VehicleSpecInput } from '../../store/vehicle/vehicleTypes';
+import { getProxiedImageUrl } from '../../utils/imageProxy';
 import toast from 'react-hot-toast';
 
 const VEHICLE_TYPES = [
@@ -43,6 +45,18 @@ export default function VehicleSpec() {
     drive_type: 'FWD',
     transmission: 'Manual',
   });
+
+  // Image upload state
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string>('');
+
+  // Detail modal state
+  const [detailSpec, setDetailSpec] = useState<VehicleSpec | null>(null);
+  const [showDetailModal, setShowDetailModal] = useState(false);
+
+  // Delete confirmation modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteVehicleId, setDeleteVehicleId] = useState<number | null>(null);
 
   useEffect(() => {
     dispatch(fetchVehicleSpecs());
@@ -78,6 +92,8 @@ export default function VehicleSpec() {
   const handleCreate = () => {
     setEditingSpec(null);
     resetForm();
+    setImageFile(null);
+    setImagePreview('');
     setShowForm(true);
   };
 
@@ -92,17 +108,42 @@ export default function VehicleSpec() {
       drive_type: spec.drive_type,
       transmission: spec.transmission,
     });
+    setImageFile(null);
+    setImagePreview(spec.img_url || '');
     setShowForm(true);
   };
 
-  const handleDelete = async (vehicleId: number) => {
-    if (confirm('Are you sure you want to delete this vehicle specification?')) {
-      try {
-        await dispatch(deleteVehicleSpec(vehicleId)).unwrap();
-        toast.success('Vehicle spec deleted successfully');
-      } catch (err: any) {
-        toast.error(err?.message || 'Failed to delete vehicle spec');
-      }
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setImageFile(file);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const openDeleteModal = (vehicleId: number) => {
+    setDeleteVehicleId(vehicleId);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setDeleteVehicleId(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteVehicleId) return;
+    try {
+      await dispatch(deleteVehicleSpec(deleteVehicleId)).unwrap();
+      toast.success('Vehicle spec deleted successfully');
+      closeDeleteModal();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete vehicle spec');
     }
   };
 
@@ -113,14 +154,29 @@ export default function VehicleSpec() {
       return;
     }
     try {
+      let vehicleId: number;
+
       if (editingSpec) {
         await dispatch(
           updateVehicleSpec({ vehicleId: editingSpec.vehicle_id, payload: formData }),
         ).unwrap();
+        vehicleId = editingSpec.vehicle_id;
         toast.success('Vehicle spec updated successfully');
       } else {
-        await dispatch(createVehicleSpec(formData)).unwrap();
+        const created = await dispatch(createVehicleSpec(formData)).unwrap();
+        vehicleId = created.vehicle_id;
         toast.success('Vehicle spec created successfully');
+      }
+
+      // Upload image if selected
+      if (imageFile && vehicleId) {
+        try {
+          await uploadVehicleImageApi(vehicleId, imageFile);
+          toast.success('Vehicle image uploaded successfully');
+          dispatch(fetchVehicleSpecs()); // Refresh to get updated image URL
+        } catch (err: any) {
+          toast.error('Failed to upload vehicle image');
+        }
       }
     } catch (err: any) {
       toast.error(err?.message || 'Failed to save vehicle spec');
@@ -136,6 +192,16 @@ export default function VehicleSpec() {
   const getModelName = (modelId: number) => {
     const model = models.find((m) => (m as any).id === modelId || m.model_id === modelId);
     return model ? `${model.name} (${model.make?.name || '-'})` : '-';
+  };
+
+  const openDetailModal = (spec: VehicleSpec) => {
+    setDetailSpec(spec);
+    setShowDetailModal(true);
+  };
+
+  const closeDetailModal = () => {
+    setDetailSpec(null);
+    setShowDetailModal(false);
   };
 
   return (
@@ -286,6 +352,26 @@ export default function VehicleSpec() {
                   </div>
                 </div>
 
+                {/* Image Upload */}
+                <div className="form-group">
+                  <label htmlFor="vehicleImage">Vehicle Image</label>
+                  <input
+                    type="file"
+                    id="vehicleImage"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                  />
+                  {imagePreview && (
+                    <div style={{ marginTop: '10px' }}>
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        style={{ maxWidth: '200px', maxHeight: '150px', borderRadius: '8px' }}
+                      />
+                    </div>
+                  )}
+                </div>
+
                 <div className="modal-actions">
                   <button type="button" className="btn-secondary" onClick={handleCancel}>
                     Cancel
@@ -305,6 +391,7 @@ export default function VehicleSpec() {
             <thead>
               <tr>
                 <th>ID</th>
+                <th>Image</th>
                 <th>Model</th>
                 <th>Year</th>
                 <th>Engine</th>
@@ -318,8 +405,46 @@ export default function VehicleSpec() {
             <tbody>
               {vehicleSpecs.length > 0 ? (
                 vehicleSpecs.map((spec, index) => (
-                  <tr key={spec.vehicle_id || index}>
+                  <tr key={`spec-${spec.vehicle_id}-${index}`}>
                     <td>{spec.vehicle_id}</td>
+                    <td>
+                      {spec.img_url ? (
+                        <img
+                          src={getProxiedImageUrl(spec.img_url)}
+                          alt={`${getModelName(spec.model_id)}`}
+                          style={{
+                            width: '60px',
+                            height: '60px',
+                            objectFit: 'cover',
+                            borderRadius: '8px',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => openDetailModal(spec)}
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).src =
+                              'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400';
+                          }}
+                        />
+                      ) : (
+                        <div
+                          style={{
+                            width: '60px',
+                            height: '60px',
+                            background: '#e5e7eb',
+                            borderRadius: '8px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            fontSize: '12px',
+                            color: '#9ca3af',
+                            cursor: 'pointer',
+                          }}
+                          onClick={() => openDetailModal(spec)}
+                        >
+                          No Image
+                        </div>
+                      )}
+                    </td>
                     <td>{getModelName(spec.model_id)}</td>
                     <td>{spec.year}</td>
                     <td>{spec.engine}</td>
@@ -334,7 +459,7 @@ export default function VehicleSpec() {
                         </button>
                         <button
                           className="icon-btn delete"
-                          onClick={() => handleDelete(spec.vehicle_id)}
+                          onClick={() => openDeleteModal(spec.vehicle_id)}
                           title="Delete"
                         >
                           <Icon name="trash" size={18} />
@@ -345,7 +470,7 @@ export default function VehicleSpec() {
                 ))
               ) : (
                 <tr key="no-data">
-                  <td colSpan={9} className="no-data">
+                  <td colSpan={10} className="no-data">
                     No vehicle specifications available
                   </td>
                 </tr>
@@ -353,6 +478,106 @@ export default function VehicleSpec() {
             </tbody>
           </table>
         </div>
+
+        {/* Detail Modal */}
+        {showDetailModal && detailSpec && (
+          <div className="modal-overlay" onClick={closeDetailModal}>
+            <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+              <div className="modal-header">
+                <h3>Vehicle Details</h3>
+                <button className="modal-close" onClick={closeDetailModal}>
+                  ×
+                </button>
+              </div>
+              <div className="vehicle-detail-content">
+                <div className="vehicle-detail-image">
+                  {detailSpec.img_url ? (
+                    <img
+                      src={getProxiedImageUrl(detailSpec.img_url)}
+                      alt={getModelName(detailSpec.model_id)}
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400';
+                      }}
+                    />
+                  ) : (
+                    <img
+                      src="https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400"
+                      alt="Default vehicle"
+                    />
+                  )}
+                </div>
+                <div className="vehicle-detail-info">
+                  <h2>{getModelName(detailSpec.model_id)}</h2>
+                  <div className="detail-grid">
+                    <div className="detail-item">
+                      <label>Vehicle ID</label>
+                      <p>#{detailSpec.vehicle_id}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Year</label>
+                      <p>{detailSpec.year}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Engine</label>
+                      <p>{detailSpec.engine}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Type</label>
+                      <p>{detailSpec.vehicle_type}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Fuel</label>
+                      <p>{detailSpec.fuel_type}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Drive</label>
+                      <p>{detailSpec.drive_type}</p>
+                    </div>
+                    <div className="detail-item">
+                      <label>Transmission</label>
+                      <p>{detailSpec.transmission}</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Delete Confirmation Modal */}
+        {deleteModalOpen && (
+          <div className="modal-overlay" onClick={closeDeleteModal}>
+            <div
+              className="modal-content"
+              style={{ maxWidth: '400px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h3>Confirm Delete</h3>
+                <button className="modal-close" onClick={closeDeleteModal}>
+                  ×
+                </button>
+              </div>
+              <div className="modal-body" style={{ padding: '24px' }}>
+                <p style={{ margin: 0, color: '#6b7280' }}>
+                  Are you sure you want to delete this vehicle specification?
+                </p>
+                <p style={{ margin: '12px 0 0 0', fontSize: '14px', color: '#ef4444' }}>
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div className="modal-actions" style={{ padding: '0 24px 24px' }}>
+                <button type="button" className="btn-secondary" onClick={closeDeleteModal}>
+                  Cancel
+                </button>
+                <button type="button" className="btn-danger" onClick={confirmDelete}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

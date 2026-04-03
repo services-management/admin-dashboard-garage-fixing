@@ -6,7 +6,7 @@ import type {
   UploadComboImagePayload,
 } from './packageTypes';
 
-const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE as string);
+const API_BASE = import.meta.env.VITE_API_BASE as string;
 
 const getAuthHeader = () => {
   const token = localStorage.getItem('admin_token');

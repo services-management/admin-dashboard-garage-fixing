@@ -397,7 +397,6 @@ export default function Settings() {
                   >
                     <option value="USD">USD - ដុល្លារអាមេរិក</option>
                     <option value="KHR">KHR - រៀល</option>
-                    <option value="THB">THB - បាត</option>
                   </select>
                 </div>
               </div>

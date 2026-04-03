@@ -1,17 +1,28 @@
 import { useState } from 'react';
+import type { IconType } from 'react-icons';
 import {
   RiBellLine,
   RiCheckDoubleLine,
   RiDeleteBinLine,
   RiCalendarLine,
-  RiToolsLine,
   RiAlertLine,
-  RiUserLine,
   RiTimeLine,
   RiArrowRightSLine,
   RiSendPlaneLine,
   RiCloseLine,
 } from 'react-icons/ri';
+
+interface Notification {
+  id: number;
+  type: string;
+  icon: IconType;
+  title: string;
+  description: string;
+  timestamp: string;
+  status: 'read' | 'unread';
+  priority: 'normal' | 'action' | 'critical';
+  link: string;
+}
 
 const NotificationContent = () => {
   const [activeFilter, setActiveFilter] = useState('all');
@@ -21,98 +32,7 @@ const NotificationContent = () => {
     title: '',
     message: '',
   });
-  const [notifications, setNotifications] = useState([
-    {
-      id: 1,
-      type: 'booking',
-      icon: RiCalendarLine,
-      title: 'សំណើកក់ថ្មី',
-      description:
-        'អតិថិជន John Doe បានកក់ "កញ្ចប់សេវាថែទាំរថយន្តពេញលេញ" សម្រាប់ Toyota Camry 2020',
-      timestamp: '៥ នាទីមុន',
-      status: 'unread',
-      priority: 'normal',
-      link: '/bookings/12345',
-    },
-    {
-      id: 2,
-      type: 'technician',
-      icon: RiToolsLine,
-      title: 'សេវាបានបញ្ចប់',
-      description: 'ជាងបច្ចេកទេស Mike Johnson បានបញ្ចប់សេវាប្តូរប្រេងម៉ាស៊ីនសម្រាប់ការកក់ #12340',
-      timestamp: '១៥ នាទីមុន',
-      status: 'unread',
-      priority: 'normal',
-      link: '/bookings/12340',
-    },
-    {
-      id: 3,
-      type: 'booking',
-      icon: RiAlertLine,
-      title: 'ត្រូវការសកម្មភាព: លុបចោលការកក់',
-      description:
-        'អតិថិជន Sarah Smith បានស្នើសុំលុបចោលការកក់ #12338។ សងប្រាក់វិញកំពុងរងចាំការអនុម័ត។',
-      timestamp: '៣០ នាទីមុន',
-      status: 'unread',
-      priority: 'critical',
-      link: '/bookings/12338',
-    },
-    {
-      id: 4,
-      type: 'system',
-      icon: RiAlertLine,
-      title: 'បានទទួលការទូទាត់',
-      description: 'បានទទួលការទូទាត់ $150 សម្រាប់ការកក់ #12335',
-      timestamp: '១ ម៉ោងមុន',
-      status: 'read',
-      priority: 'normal',
-      link: '/payments/12335',
-    },
-    {
-      id: 5,
-      type: 'technician',
-      icon: RiUserLine,
-      title: 'បានធ្វើបច្ចុប្បន្នភាពភាពអាចរកបានរបស់ជាងបច្ចេកទេស',
-      description: 'ជាងបច្ចេកទេស David Lee បានសម្គាល់ខ្លួនឯងថាមិនអាចរកបានសម្រាប់ថ្ងៃស្អែក',
-      timestamp: '២ ម៉ោងមុន',
-      status: 'unread',
-      priority: 'action',
-      link: '/technicians/tech_005',
-    },
-    {
-      id: 6,
-      type: 'booking',
-      icon: RiTimeLine,
-      title: 'សេវាបានចាប់ផ្តើម',
-      description: 'ជាងបច្ចេកទេស Emma Wilson បានចាប់ផ្តើមសេវាពិនិត្យចន្លោះសម្រាប់ការកក់ #12330',
-      timestamp: '៣ ម៉ោងមុន',
-      status: 'read',
-      priority: 'normal',
-      link: '/bookings/12330',
-    },
-    {
-      id: 7,
-      type: 'system',
-      icon: RiCalendarLine,
-      title: 'ការព្រមានស្តុកទាប',
-      description: 'ស្តុកប្រេងម៉ាស៊ីនកំពុងអស់ (នៅសល់ 5 ឯកតា)',
-      timestamp: '៤ ម៉ោងមុន',
-      status: 'unread',
-      priority: 'action',
-      link: '/inventory',
-    },
-    {
-      id: 8,
-      type: 'booking',
-      icon: RiCalendarLine,
-      title: 'បានកំណត់ពេលវេលាការកក់ឡើងវិញ',
-      description: 'អតិថិជន Michael Brown បានកំណត់ពេលវេលាការកក់ #12325 ឡើងវិញទៅសប្តាហ៍ក្រោយ',
-      timestamp: '៥ ម៉ោងមុន',
-      status: 'read',
-      priority: 'normal',
-      link: '/bookings/12325',
-    },
-  ]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
 
   const getFilteredNotifications = () => {
     switch (activeFilter) {

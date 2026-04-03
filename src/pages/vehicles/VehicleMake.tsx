@@ -14,6 +14,10 @@ export default function VehicleMake() {
   const [editingMake, setEditingMake] = useState<Make | null>(null);
   const [formData, setFormData] = useState<MakeInput>({ name: '' });
 
+  // Delete confirmation modal state
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteMakeId, setDeleteMakeId] = useState<number | null>(null);
+
   useEffect(() => {
     dispatch(fetchMakes());
   }, [dispatch]);
@@ -44,14 +48,24 @@ export default function VehicleMake() {
     setShowForm(true);
   };
 
-  const handleDelete = async (makeId: number) => {
-    if (confirm('Are you sure you want to delete this make?')) {
-      try {
-        await dispatch(deleteMake(makeId)).unwrap();
-        toast.success('Make deleted successfully');
-      } catch (err: any) {
-        toast.error(err?.message || 'Failed to delete make');
-      }
+  const openDeleteModal = (makeId: number) => {
+    setDeleteMakeId(makeId);
+    setDeleteModalOpen(true);
+  };
+
+  const closeDeleteModal = () => {
+    setDeleteModalOpen(false);
+    setDeleteMakeId(null);
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteMakeId) return;
+    try {
+      await dispatch(deleteMake(deleteMakeId)).unwrap();
+      toast.success('Make deleted successfully');
+      closeDeleteModal();
+    } catch (err: any) {
+      toast.error(err?.message || 'Failed to delete make');
     }
   };
 
@@ -87,11 +101,11 @@ export default function VehicleMake() {
       {/* Main Card */}
       <div className="card-container">
         <div className="card-header">
-          <h2>All Makes ({makes.length})</h2>
+          <h2>ឈ្មោះរថយន្ត ({makes.length})</h2>
 
           {!showForm && (
             <button className="btn-primary" onClick={handleCreate} disabled={loading}>
-              + Add Make
+              + ឈ្មោះរថយន្ត
             </button>
           )}
         </div>
@@ -108,13 +122,13 @@ export default function VehicleMake() {
               </div>
               <form onSubmit={handleSubmit} className="modal-form">
                 <div className="form-group">
-                  <label htmlFor="makeName">Make Name</label>
+                  <label htmlFor="makeName">ឈ្មោះរថយន្ត</label>
                   <input
                     id="makeName"
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ name: e.target.value })}
-                    placeholder="Enter make name (e.g., Toyota)"
+                    placeholder="បញ្ចូលឈ្មោះប្រភេទរថយន្ត (ឧ. Toyota)"
                     required
                   />
                 </div>
@@ -138,7 +152,7 @@ export default function VehicleMake() {
             <thead>
               <tr>
                 <th>ID</th>
-                <th>Make Name</th>
+                <th>ឈ្មោះរថយន្ត</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -153,7 +167,7 @@ export default function VehicleMake() {
                   .map((make, index) => {
                     const makeId = make.make_id || (make as any).id;
                     return (
-                      <tr key={makeId || index}>
+                      <tr key={`make-${makeId}-${index}`}>
                         <td>{makeId}</td>
                         <td>{make.name}</td>
                         <td>
@@ -163,7 +177,7 @@ export default function VehicleMake() {
                             </button>
                             <button
                               className="icon-btn delete"
-                              onClick={() => handleDelete(makeId)}
+                              onClick={() => openDeleteModal(makeId)}
                               title="Delete"
                             >
                               <Icon name="trash" size={18} />
@@ -176,13 +190,47 @@ export default function VehicleMake() {
               ) : (
                 <tr key="no-data">
                   <td colSpan={3} className="no-data">
-                    No makes available
+                    គ្មានឈ្មោះរថយន្ត
                   </td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Delete Confirmation Modal */}
+        {deleteModalOpen && (
+          <div className="modal-overlay" onClick={closeDeleteModal}>
+            <div
+              className="modal-content"
+              style={{ maxWidth: '400px' }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="modal-header">
+                <h3>Confirm Delete</h3>
+                <button className="modal-close" onClick={closeDeleteModal}>
+                  ×
+                </button>
+              </div>
+              <div className="modal-body" style={{ padding: '24px' }}>
+                <p style={{ margin: 0, color: '#6b7280' }}>
+                  Are you sure you want to delete this make?
+                </p>
+                <p style={{ margin: '12px 0 0 0', fontSize: '14px', color: '#ef4444' }}>
+                  This action cannot be undone.
+                </p>
+              </div>
+              <div className="modal-actions" style={{ padding: '0 24px 24px' }}>
+                <button type="button" className="btn-secondary" onClick={closeDeleteModal}>
+                  Cancel
+                </button>
+                <button type="button" className="btn-danger" onClick={confirmDelete}>
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

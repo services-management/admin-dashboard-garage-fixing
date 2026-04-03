@@ -1,4 +1,8 @@
 /* Moved from src/pages/user/User.css */
+.page-user {
+  font-family: 'Battambang', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
 .page-user .page-header {
   display: flex;
   align-items: center;

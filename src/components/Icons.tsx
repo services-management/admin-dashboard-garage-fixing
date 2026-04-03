@@ -25,6 +25,7 @@ import {
   RiFolderLine,
   RiEyeLine,
   RiEyeOffLine,
+  RiSlideshowLine,
 } from 'react-icons/ri';
 
 // Allowed icon names used across the app
@@ -54,7 +55,8 @@ export type IconName =
   | 'vehicles'
   | 'category'
   | 'eye'
-  | 'eye_off';
+  | 'eye_off'
+  | 'slideshow';
 
 interface IconProps {
   name: IconName;
@@ -92,6 +94,7 @@ const iconMap: Partial<
   category: RiFolderLine,
   eye: RiEyeLine,
   eye_off: RiEyeOffLine,
+  slideshow: RiSlideshowLine,
 };
 
 // Render the requested icon, with a safe fallback

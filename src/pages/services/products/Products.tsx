@@ -2,12 +2,361 @@ import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
 import { fetchCategories } from '../../../store/category/categoryThunk';
 import { useAppDispatch, useAppSelector } from '../../../store/hooks';
+import { store } from '../../../store';
 import { ProductService } from '../../../store/product/productService';
-import { fetchProducts } from '../../../store/product/productThunk';
+import { fetchProducts, fetchAllProducts } from '../../../store/product/productThunk';
 import type { Product } from '../../../store/product/productTypes';
 import { fetchServices } from '../../../store/service/serviceThunk';
 import { fetchVehicleSpecs } from '../../../store/vehicle/vehicleThunk';
 import { getProxiedImageUrl } from '../../../utils/imageProxy';
+import type { VehicleSpec } from '../../../store/vehicle/vehicleTypes';
+
+// Component to manage linked vehicles in edit mode
+function LinkedVehiclesManager({
+  productId,
+  vehicleSpecs,
+}: {
+  productId: number;
+  vehicleSpecs: VehicleSpec[];
+}) {
+  const [linkedVehicles, setLinkedVehicles] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [editingVehicle, setEditingVehicle] = useState<any>(null);
+  const [editQuantity, setEditQuantity] = useState('');
+  const [editUnit, setEditUnit] = useState('');
+  const [editNote, setEditNote] = useState('');
+  const [showAddNew, setShowAddNew] = useState(false);
+  const [newVehicleId, setNewVehicleId] = useState<number | ''>('');
+  const [newQuantity, setNewQuantity] = useState('');
+  const [newUnit, setNewUnit] = useState('');
+  const [newNote, setNewNote] = useState('');
+
+  // Enrich linked vehicles with model/make names from vehicleSpecs
+  const enrichVehiclesWithSpecs = (vehicles: any[]) => {
+    return vehicles.map((v) => {
+      // Find matching vehicle spec
+      const spec = vehicleSpecs.find((s) => s.vehicle_id === v.vehicle_id);
+      return {
+        ...v,
+        // Add make/model names from vehicleSpecs if available
+        make_name: spec?.model?.make?.name || v.make_name || v.make,
+        model_name: spec?.model?.name || v.model_name || v.model,
+        // Keep original year from response
+        year: v.year,
+      };
+    });
+  };
+
+  const fetchLinkedVehicles = async () => {
+    try {
+      setLoading(true);
+      console.log('Fetching linked vehicles for product:', productId);
+      const vehicles = await ProductService.getVehiclesByProduct(productId);
+      console.log('Linked vehicles response:', vehicles);
+      console.log('Available vehicleSpecs:', vehicleSpecs);
+
+      // Enrich with vehicle spec data
+      const enrichedVehicles = enrichVehiclesWithSpecs(vehicles || []);
+      console.log('Enriched vehicles:', enrichedVehicles);
+
+      setLinkedVehicles(enrichedVehicles);
+    } catch (err) {
+      console.error('Failed to fetch linked vehicles:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLinkedVehicles();
+  }, [productId]);
+
+  const handleUpdate = async (vehicleId: number) => {
+    try {
+      await ProductService.updateProductVehicleLink(
+        productId,
+        vehicleId,
+        editQuantity || undefined,
+        editUnit || undefined,
+        editNote || undefined,
+      );
+      toast.success('ផលិតផលបានភ្ចាប់ជាមួយរថយន្តបានកែប្រែ');
+      setEditingVehicle(null);
+      fetchLinkedVehicles();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to update');
+    }
+  };
+
+  const handleDelete = async (vehicleId: number) => {
+    if (!confirm('Are you sure you want to remove this vehicle link?')) return;
+    try {
+      await ProductService.unlinkProductFromVehicle(productId, vehicleId);
+      toast.success('Vehicle link removed');
+      fetchLinkedVehicles();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to remove');
+    }
+  };
+
+  const handleAddNew = async () => {
+    if (!newVehicleId) {
+      toast.error('សូមជ្រើសរើសរថយន្ត');
+      return;
+    }
+    try {
+      await ProductService.linkProductToVehicle(
+        productId,
+        newVehicleId,
+        newQuantity || undefined,
+        newUnit || undefined,
+        newNote || undefined,
+      );
+      toast.success('រថយន្តបានភ្ចាប់ជាមួយផលិតផលជោគជ័យ');
+      setShowAddNew(false);
+      setNewVehicleId('');
+      setNewQuantity('');
+      setNewUnit('');
+      setNewNote('');
+      fetchLinkedVehicles();
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'Failed to link vehicle');
+    }
+  };
+
+  if (loading) return <p>Loading linked vehicles...</p>;
+
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      {/* Existing Linked Vehicles */}
+      {linkedVehicles.length === 0 ? (
+        <p style={{ color: '#6b7280', fontStyle: 'italic' }}>No vehicles linked yet</p>
+      ) : (
+        <div style={{ marginBottom: '16px' }}>
+          <h5 style={{ fontSize: '14px', marginBottom: '8px' }}>Linked Vehicles:</h5>
+          {linkedVehicles.map((v: any) => (
+            <div
+              key={v.vehicle_id}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                padding: '12px',
+                background: '#f9fafb',
+                borderRadius: '8px',
+                marginBottom: '8px',
+              }}
+            >
+              {editingVehicle?.vehicle_id === v.vehicle_id ? (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>
+                      {v.make_name || v.make?.name || v.make || v.vehicle_make || 'Unknown Make'}{' '}
+                      {v.model_name ||
+                        v.model?.name ||
+                        v.model ||
+                        v.vehicle_model ||
+                        'Unknown Model'}{' '}
+                      ({v.year || 'N/A'})
+                    </div>
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '8px' }}>
+                      <input
+                        type="text"
+                        placeholder="Quantity"
+                        value={editQuantity}
+                        onChange={(e) => setEditQuantity(e.target.value)}
+                        style={{ width: '100px', padding: '4px 8px' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Unit"
+                        value={editUnit}
+                        onChange={(e) => setEditUnit(e.target.value)}
+                        style={{ width: '100px', padding: '4px 8px' }}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Note"
+                        value={editNote}
+                        onChange={(e) => setEditNote(e.target.value)}
+                        style={{ flex: 1, padding: '4px 8px' }}
+                      />
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => handleUpdate(v.vehicle_id)}
+                    style={{
+                      padding: '6px 12px',
+                      background: '#22c55e',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Save
+                  </button>
+                  <button
+                    onClick={() => setEditingVehicle(null)}
+                    style={{
+                      padding: '6px 12px',
+                      background: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontWeight: 600 }}>
+                      {v.make_name || v.make?.name || v.make || v.vehicle_make || 'Unknown Make'}{' '}
+                      {v.model_name ||
+                        v.model?.name ||
+                        v.model ||
+                        v.vehicle_model ||
+                        'Unknown Model'}{' '}
+                      ({v.year || 'N/A'})
+                    </div>
+                    <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                      {v.quantity_required && `Qty: ${v.quantity_required}`}
+                      {v.unit && ` ${v.unit}`}
+                      {v.note && ` • ${v.note}`}
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setEditingVehicle(v);
+                      setEditQuantity(v.quantity_required || '');
+                      setEditUnit(v.unit || '');
+                      setEditNote(v.note || '');
+                    }}
+                    style={{
+                      padding: '6px 12px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Edit
+                  </button>
+                  <button
+                    onClick={() => handleDelete(v.vehicle_id)}
+                    style={{
+                      padding: '6px 12px',
+                      background: '#ef4444',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '4px',
+                    }}
+                  >
+                    Remove
+                  </button>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* Add New Vehicle Link */}
+      {!showAddNew ? (
+        <button
+          onClick={() => setShowAddNew(true)}
+          style={{
+            padding: '8px 16px',
+            background: '#10b981',
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+          }}
+        >
+          + Link New Vehicle
+        </button>
+      ) : (
+        <div
+          style={{
+            padding: '16px',
+            background: '#f0fdf4',
+            borderRadius: '8px',
+            border: '1px solid #86efac',
+          }}
+        >
+          <h5 style={{ fontSize: '14px', marginBottom: '12px' }}>Link New Vehicle:</h5>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <select
+              value={newVehicleId}
+              onChange={(e) => setNewVehicleId(Number(e.target.value) || '')}
+              style={{ flex: 1, padding: '8px' }}
+            >
+              <option value="">Select vehicle</option>
+              {vehicleSpecs.map((v) => (
+                <option key={v.vehicle_id} value={v.vehicle_id}>
+                  {v.model?.make?.name} {v.model?.name} ({v.year})
+                </option>
+              ))}
+            </select>
+          </div>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '12px' }}>
+            <input
+              type="text"
+              placeholder="Quantity Required"
+              value={newQuantity}
+              onChange={(e) => setNewQuantity(e.target.value)}
+              style={{ flex: 1, padding: '8px' }}
+            />
+            <input
+              type="text"
+              placeholder="Unit"
+              value={newUnit}
+              onChange={(e) => setNewUnit(e.target.value)}
+              style={{ flex: 1, padding: '8px' }}
+            />
+          </div>
+          <input
+            type="text"
+            placeholder="Note (optional)"
+            value={newNote}
+            onChange={(e) => setNewNote(e.target.value)}
+            style={{ width: '100%', padding: '8px', marginBottom: '12px' }}
+          />
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button
+              onClick={handleAddNew}
+              style={{
+                padding: '8px 16px',
+                background: '#22c55e',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Link Vehicle
+            </button>
+            <button
+              onClick={() => setShowAddNew(false)}
+              style={{
+                padding: '8px 16px',
+                background: '#6b7280',
+                color: 'white',
+                border: 'none',
+                borderRadius: '4px',
+                cursor: 'pointer',
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function ProductPage() {
   const dispatch = useAppDispatch();
@@ -44,6 +393,7 @@ export default function ProductPage() {
   const [formData, setFormData] = useState({
     name: '',
     selling_price: '',
+    price_adjustment: '',
     unit_cost: '',
     description: '',
     status: 'Active',
@@ -57,12 +407,24 @@ export default function ProductPage() {
   const [vehicleQuantity, setVehicleQuantity] = useState('');
   const [vehicleUnit, setVehicleUnit] = useState('');
 
+  // PRODUCT FILTER
+  const [showAllProducts, setShowAllProducts] = useState(false);
+
   useEffect(() => {
     dispatch(fetchProducts());
     dispatch(fetchCategories());
     dispatch(fetchServices());
     dispatch(fetchVehicleSpecs());
   }, [dispatch]);
+
+  // Fetch products based on filter
+  useEffect(() => {
+    if (showAllProducts) {
+      dispatch(fetchAllProducts());
+    } else {
+      dispatch(fetchProducts());
+    }
+  }, [dispatch, showAllProducts]);
 
   // ================= CREATE / EDIT =================
   const openCreateModal = () => {
@@ -73,6 +435,7 @@ export default function ProductPage() {
     setFormData({
       name: '',
       selling_price: '',
+      price_adjustment: '',
       unit_cost: '',
       description: '',
       status: 'Active',
@@ -91,6 +454,7 @@ export default function ProductPage() {
     setFormData({
       name: p.name,
       selling_price: p.selling_price,
+      price_adjustment: p.price_adjustment ? String(Number(p.price_adjustment)) : '',
       unit_cost: p.unit_cost,
       description: p.description,
       status: p.status,
@@ -98,6 +462,10 @@ export default function ProductPage() {
       initial_stock: Number(p.inventory?.current_stock ?? 0),
       min_stock_level: Number(p.inventory?.min_stock_level ?? 0),
     });
+    // Reset vehicle selection for edit mode
+    setSelectedVehicleId('');
+    setVehicleQuantity('');
+    setVehicleUnit('');
     setShowModal(true);
   };
 
@@ -127,39 +495,110 @@ export default function ProductPage() {
 
   // ================= SAVE =================
   const handleSave = async () => {
-    const payload = {
+    // Build payload based on whether it's create or update
+    const basePayload = {
       name: formData.name,
-      selling_price: Number(formData.selling_price),
-      unit_cost: Number(formData.unit_cost),
+      selling_price: String(formData.selling_price),
+      price_adjustment: String(formData.price_adjustment || 0),
+      unit_cost: String(formData.unit_cost),
       description: formData.description,
       status: formData.status,
       category_name: formData.category_name,
       image_url: isEditMode && currentProduct ? currentProduct.image_url : '',
-      initial_stock: Number(formData.initial_stock),
-      min_stock_level: Number(formData.min_stock_level),
-      price_adjustment: 0,
     };
+
+    // Only include stock fields for new products
+    const payload = isEditMode
+      ? basePayload
+      : {
+          ...basePayload,
+          initial_stock: Number(formData.initial_stock),
+          min_stock_level: Number(formData.min_stock_level),
+        };
+
+    console.log('Saving product - isEditMode:', isEditMode);
+    console.log('Form data price_adjustment:', formData.price_adjustment);
+    console.log('Payload being sent:', payload);
 
     try {
       if (isEditMode && currentProduct) {
-        await ProductService.updateProduct(currentProduct.product_id, payload);
+        console.log('Updating product ID:', currentProduct.product_id);
+        const updateRes = await ProductService.updateProduct(currentProduct.product_id, payload);
+        console.log('Update response:', updateRes);
 
         if (imageFile) {
-          await ProductService.uploadProductImage(currentProduct.product_id, imageFile);
+          try {
+            console.log('Uploading image for product:', currentProduct.product_id);
+            console.log('Product object:', currentProduct);
+            console.log('Image file:', imageFile.name, imageFile.size, imageFile.type);
+            await ProductService.uploadProductImage(currentProduct.product_id, imageFile);
+            console.log('Image uploaded successfully');
+          } catch (imgErr: any) {
+            console.error('Image upload error:', imgErr);
+            console.error('Error response:', imgErr.response?.data);
+            console.error('Error status:', imgErr.response?.status);
+            toast.error(
+              'Product updated but image upload failed: ' +
+                (imgErr.response?.data?.detail || imgErr.message),
+            );
+          }
         }
 
-        toast.success('Product updated successfully');
+        // Link product to vehicle if selected (for update mode too)
+        if (selectedVehicleId) {
+          try {
+            console.log('Linking product to vehicle (update):', {
+              productId: currentProduct.product_id,
+              vehicleId: selectedVehicleId,
+              quantity: vehicleQuantity,
+              unit: vehicleUnit,
+            });
+            await ProductService.linkProductToVehicle(
+              currentProduct.product_id,
+              selectedVehicleId,
+              vehicleQuantity || undefined,
+              vehicleUnit || undefined,
+            );
+            toast.success('ផលិតបានកែប្រែនិងភ្ជាប់ជាមួយរថយន្តជោគជ័យ');
+          } catch (linkErr: any) {
+            console.error('Failed to link vehicle:', linkErr);
+            toast.error(
+              'Product updated but failed to link with vehicle: ' +
+                (linkErr.response?.data?.detail || linkErr.message),
+            );
+          }
+        } else {
+          toast.success('ផលិតបានកែប្រែជោគជ័យ');
+        }
       } else {
         const res = await ProductService.createProduct(payload);
         const createdProduct = res.data;
 
         if (imageFile) {
-          await ProductService.uploadProductImage(createdProduct.product_id, imageFile);
+          try {
+            console.log('Uploading image for new product:', createdProduct.product_id);
+            await ProductService.uploadProductImage(createdProduct.product_id, imageFile);
+            console.log('Image uploaded successfully');
+          } catch (imgErr: any) {
+            console.error('Image upload error:', imgErr);
+            console.error('Error response:', imgErr.response?.data);
+            console.error('Error status:', imgErr.response?.status);
+            toast.error(
+              'Product created but image upload failed: ' +
+                (imgErr.response?.data?.detail || imgErr.message),
+            );
+          }
         }
 
         // Link product to vehicle if selected
         if (selectedVehicleId) {
           try {
+            console.log('Linking product to vehicle:', {
+              productId: createdProduct.product_id,
+              vehicleId: selectedVehicleId,
+              quantity: vehicleQuantity,
+              unit: vehicleUnit,
+            });
             await ProductService.linkProductToVehicle(
               createdProduct.product_id,
               selectedVehicleId,
@@ -168,7 +607,11 @@ export default function ProductPage() {
             );
             toast.success('Product created and linked to vehicle successfully');
           } catch (linkErr: any) {
-            toast.success('Product created but failed to link with vehicle');
+            console.error('Failed to link vehicle:', linkErr);
+            toast.error(
+              'Product created but failed to link with vehicle: ' +
+                (linkErr.response?.data?.detail || linkErr.message),
+            );
           }
         } else {
           toast.success('Product created successfully');
@@ -241,9 +684,18 @@ export default function ProductPage() {
     <div>
       <div className="service-package-header">
         <h1>Products</h1>
-        <button className="btn-primary" onClick={openCreateModal}>
-          + បង្កើតផលិតផលថ្មី
-        </button>
+        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+          <button
+            className="btn-secondary"
+            onClick={() => setShowAllProducts(!showAllProducts)}
+            style={{ whiteSpace: 'nowrap' }}
+          >
+            {showAllProducts ? 'បង្ហាញតែActive' : 'បង្ហាញទាំងអស់'}
+          </button>
+          <button className="btn-primary" onClick={openCreateModal}>
+            + បង្កើតផលិតផលថ្មី
+          </button>
+        </div>
       </div>
 
       {loading && <p>Loading...</p>}
@@ -259,8 +711,28 @@ export default function ProductPage() {
               setShowDetailModal(true);
               setLoadingVehicles(true);
               try {
-                const vehicles = await ProductService.getVehiclesByProduct(prd.product_id);
-                setLinkedVehicles(vehicles || []);
+                // Fetch vehicles and ensure vehicleSpecs are loaded
+                const [vehicles] = await Promise.all([
+                  ProductService.getVehiclesByProduct(prd.product_id),
+                  vehicleSpecs.length === 0
+                    ? dispatch(fetchVehicleSpecs()).unwrap()
+                    : Promise.resolve(),
+                ]);
+
+                // Get latest vehicleSpecs after potential fetch
+                const latestSpecs =
+                  vehicleSpecs.length > 0 ? vehicleSpecs : store.getState().vehicle.vehicleSpecs;
+
+                // Enrich with vehicle spec data (make/model names)
+                const enrichedVehicles = (vehicles || []).map((v: any) => {
+                  const spec = latestSpecs.find((s: any) => s.vehicle_id === v.vehicle_id);
+                  return {
+                    ...v,
+                    make_name: spec?.model?.make?.name,
+                    model_name: spec?.model?.name,
+                  };
+                });
+                setLinkedVehicles(enrichedVehicles);
               } catch (err) {
                 setLinkedVehicles([]);
               } finally {
@@ -276,6 +748,10 @@ export default function ProductPage() {
                   'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400'
                 }
                 alt={prd.name}
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src =
+                    'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=400';
+                }}
               />
               <span
                 className={`status-badge-overlay ${prd.status === 'Active' ? 'active' : 'inactive'}`}
@@ -295,22 +771,25 @@ export default function ProductPage() {
               <div className="service-card-description">{prd.description}</div>
 
               <div className="service-card-content">
-                <div className="content-section">
-                  <div className="content-label">Category</div>
-                  <span className="item-tag">{prd.category?.name || 'N/A'}</span>
-                </div>
+                <div className="content-row" style={{ display: 'flex', gap: '24px' }}>
+                  <div className="content-section">
+                    <div className="content-label">Category</div>
+                    <span className="item-tag">{prd.category?.name || 'N/A'}</span>
+                  </div>
 
-                <div className="content-section">
-                  <div className="content-label">Stock</div>
-                  <span className="item-tag">
-                    {' '}
-                    {Math.trunc(Number(prd.inventory?.min_stock_level ?? 0))} units
-                  </span>
+                  <div className="content-section">
+                    <div className="content-label">Stock</div>
+                    <span className="item-tag">
+                      {Math.trunc(Number(prd.inventory?.current_stock ?? 0))} units
+                    </span>
+                  </div>
                 </div>
               </div>
 
               <div className="service-card-footer">
-                <div className="service-price">${Number(prd.selling_price).toFixed(2)}</div>
+                <div className="service-price">
+                  ${(Number(prd.selling_price) + Number(prd.price_adjustment || 0)).toFixed(2)}
+                </div>
 
                 <div className="card-actions">
                   <button
@@ -354,7 +833,7 @@ export default function ProductPage() {
               {/* Form Fields (unchanged) */}
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Name</label>
+                  <label className="form-label">ឈ្មោះផលិតផល</label>
                   <input
                     className="form-input"
                     value={formData.name}
@@ -364,7 +843,7 @@ export default function ProductPage() {
                   />
                 </div>
                 <div className="form-group">
-                  <label className="form-label">Selling Price</label>
+                  <label className="form-label">តម្លៃលក់</label>
                   <input
                     type="number"
                     className="form-input"
@@ -374,9 +853,31 @@ export default function ProductPage() {
                     }}
                   />
                 </div>
+                <div className="form-group">
+                  <label className="form-label">តម្លៃបន្ថែម</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={formData.price_adjustment}
+                    onChange={(e) => {
+                      setFormData({ ...formData, price_adjustment: e.target.value });
+                    }}
+                    placeholder="e.g., 5 or -2"
+                  />
+                </div>
               </div>
 
               <div className="form-row">
+                <div className="form-group">
+                  <label className="form-label">តម្លៃសរុប</label>
+                  <input
+                    type="text"
+                    className="form-input final-price-input"
+                    value={`$${(Number(formData.selling_price) + Number(formData.price_adjustment || 0)).toFixed(2)}`}
+                    readOnly
+                    style={{ fontWeight: 'bold' }}
+                  />
+                </div>
                 <div className="form-group">
                   <label className="form-label">Unit Cost</label>
                   <input
@@ -463,61 +964,73 @@ export default function ProductPage() {
 
               <div className="form-row">
                 <div className="form-group">
-                  <label className="form-label">Image</label>
+                  <label className="form-label">រូបភាព</label>
                   <input type="file" accept="image/*" onChange={handleImageUpload} />
                   {imagePreview && <img src={imagePreview} style={{ maxWidth: 200 }} />}
                 </div>
               </div>
 
               {/* Vehicle Link Section */}
-              {!isEditMode && (
-                <div
-                  style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}
-                >
-                  <h4 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>
-                    Link to Vehicle (Optional)
-                  </h4>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Vehicle</label>
-                      <select
-                        className="form-select"
-                        value={selectedVehicleId}
-                        onChange={(e) => setSelectedVehicleId(Number(e.target.value) || '')}
-                      >
-                        <option value="">Select vehicle</option>
-                        {vehicleSpecs.map((v) => (
-                          <option key={v.vehicle_id} value={v.vehicle_id}>
-                            {v.model?.make?.name} {v.model?.name} ({v.year})
-                          </option>
-                        ))}
-                      </select>
+              <div
+                style={{ marginTop: '20px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}
+              >
+                <h4 style={{ marginBottom: '16px', fontSize: '16px', fontWeight: '600' }}>
+                  {isEditMode ? 'គ្រប់គ្រងការភ្ជាប់ជាមួយរថយន្ត' : 'ត្រូវជាមួយរថយន្ត'}
+                </h4>
+
+                {/* Show existing linked vehicles in edit mode */}
+                {isEditMode && currentProduct && (
+                  <LinkedVehiclesManager
+                    productId={currentProduct.product_id}
+                    vehicleSpecs={vehicleSpecs}
+                  />
+                )}
+
+                {/* Add new vehicle link */}
+                {!isEditMode && (
+                  <>
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">រថយន្ត</label>
+                        <select
+                          className="form-select"
+                          value={selectedVehicleId}
+                          onChange={(e) => setSelectedVehicleId(Number(e.target.value) || '')}
+                        >
+                          <option value="">Select vehicle</option>
+                          {vehicleSpecs.map((v) => (
+                            <option key={v.vehicle_id} value={v.vehicle_id}>
+                              {v.model?.make?.name} {v.model?.name} ({v.year})
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Quantity Required</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={vehicleQuantity}
+                          onChange={(e) => setVehicleQuantity(e.target.value)}
+                          placeholder="e.g., 4"
+                        />
+                      </div>
                     </div>
-                    <div className="form-group">
-                      <label className="form-label">Quantity Required</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={vehicleQuantity}
-                        onChange={(e) => setVehicleQuantity(e.target.value)}
-                        placeholder="e.g., 4"
-                      />
+                    <div className="form-row">
+                      <div className="form-group">
+                        <label className="form-label">Unit</label>
+                        <input
+                          type="text"
+                          className="form-input"
+                          value={vehicleUnit}
+                          onChange={(e) => setVehicleUnit(e.target.value)}
+                          placeholder="e.g., liters, pieces"
+                        />
+                      </div>
                     </div>
-                  </div>
-                  <div className="form-row">
-                    <div className="form-group">
-                      <label className="form-label">Unit</label>
-                      <input
-                        type="text"
-                        className="form-input"
-                        value={vehicleUnit}
-                        onChange={(e) => setVehicleUnit(e.target.value)}
-                        placeholder="e.g., liters, pieces"
-                      />
-                    </div>
-                  </div>
-                </div>
-              )}
+                  </>
+                )}
+              </div>
             </div>
 
             <div className="modal-footer">
@@ -557,7 +1070,7 @@ export default function ProductPage() {
               ) : (
                 <div>
                   <p style={{ color: '#ef4444', fontWeight: 'bold', marginBottom: '12px' }}>
-                    ⚠️ មិនអាចលុបផលិតផលនេះបានទេ!
+                    មិនអាចលុបផលិតផលនេះបានទេ!
                   </p>
                   <p style={{ marginBottom: '12px' }}>
                     ផលិតផលនេះកំពុងត្រូវបានប្រើប្រាស់ក្នុងសេវាកម្ម:
@@ -662,6 +1175,24 @@ export default function ProductPage() {
                   <p>${Number(detailProduct.selling_price).toFixed(2)}</p>
                 </div>
                 <div className="detail-item">
+                  <label>Price Adjustment</label>
+                  <p>
+                    {Number(detailProduct.price_adjustment || 0) !== 0
+                      ? `${Number(detailProduct.price_adjustment) > 0 ? '+' : ''}${Number(detailProduct.price_adjustment).toFixed(2)}`
+                      : '0.00'}
+                  </p>
+                </div>
+                <div className="detail-item">
+                  <label>Final Price</label>
+                  <p style={{ fontWeight: 'bold', color: '#059669' }}>
+                    $
+                    {(
+                      Number(detailProduct.selling_price) +
+                      Number(detailProduct.price_adjustment || 0)
+                    ).toFixed(2)}
+                  </p>
+                </div>
+                <div className="detail-item">
                   <label>Unit Cost</label>
                   <p>${Number(detailProduct.unit_cost).toFixed(2)}</p>
                 </div>
@@ -683,18 +1214,16 @@ export default function ProductPage() {
               {/* Linked Vehicles Section */}
               <div
                 className="detail-item"
-                style={{ marginTop: '24px', paddingTop: '20px', borderTop: '1px solid #e5e7eb' }}
+                style={{
+                  marginTop: '24px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid #e5e7eb',
+                  display: 'block',
+                }}
               >
-                <label
-                  style={{
-                    fontSize: '16px',
-                    fontWeight: '600',
-                    marginBottom: '12px',
-                    display: 'block',
-                  }}
-                >
-                  Linked Vehicles
-                </label>
+                <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  ត្រូវប្រើជាមួយរថយន្ត
+                </div>
                 {loadingVehicles ? (
                   <p>Loading vehicles...</p>
                 ) : linkedVehicles.length === 0 ? (
@@ -704,30 +1233,69 @@ export default function ProductPage() {
                     className="linked-vehicles-list"
                     style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}
                   >
-                    {linkedVehicles.map((vehicle: any, index: number) => (
-                      <div
-                        key={index}
-                        className="vehicle-tag"
-                        style={{
-                          background: '#f3f4f6',
-                          padding: '10px 14px',
-                          borderRadius: '8px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'space-between',
-                        }}
-                      >
-                        <span>
-                          {vehicle.make?.name || vehicle.make}{' '}
-                          {vehicle.model?.name || vehicle.model} ({vehicle.year})
-                        </span>
-                        {(vehicle.quantity_required || vehicle.unit) && (
-                          <span style={{ color: '#6b7280', fontSize: '14px' }}>
-                            {vehicle.quantity_required} {vehicle.unit}
-                          </span>
-                        )}
-                      </div>
-                    ))}
+                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '14px' }}>
+                      <thead>
+                        <tr style={{ background: '#f3f4f6', textAlign: 'left' }}>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            រថយន្ត
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            ឆ្នាំ
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            Type
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            Engine
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            ប្រេង
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            ចង្កូត
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            Transmission
+                          </th>
+                          <th style={{ padding: '10px 12px', borderBottom: '2px solid #e5e7eb' }}>
+                            ចំនួន
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {linkedVehicles.map((vehicle: any, index: number) => {
+                          const vehicleName =
+                            vehicle.make_name && vehicle.model_name
+                              ? `${vehicle.make_name} ${vehicle.model_name}`
+                              : vehicle.make?.name && vehicle.model?.name
+                                ? `${vehicle.make.name} ${vehicle.model.name}`
+                                : `Vehicle #${vehicle.vehicle_id}`;
+
+                          return (
+                            <tr key={index} style={{ borderBottom: '1px solid #e5e7eb' }}>
+                              <td style={{ padding: '10px 12px', fontWeight: 600 }}>
+                                {vehicleName}
+                              </td>
+                              <td style={{ padding: '10px 12px' }}>{vehicle.year}</td>
+                              <td style={{ padding: '10px 12px' }}>
+                                {vehicle.vehicle_type || '-'}
+                              </td>
+                              <td style={{ padding: '10px 12px' }}>{vehicle.engine || '-'}</td>
+                              <td style={{ padding: '10px 12px' }}>{vehicle.fuel_type || '-'}</td>
+                              <td style={{ padding: '10px 12px' }}>{vehicle.drive_type || '-'}</td>
+                              <td style={{ padding: '10px 12px' }}>
+                                {vehicle.transmission || '-'}
+                              </td>
+                              <td
+                                style={{ padding: '10px 12px', color: '#dc2626', fontWeight: 600 }}
+                              >
+                                {vehicle.quantity_required || '-'}
+                              </td>
+                            </tr>
+                          );
+                        })}
+                      </tbody>
+                    </table>
                   </div>
                 )}
               </div>

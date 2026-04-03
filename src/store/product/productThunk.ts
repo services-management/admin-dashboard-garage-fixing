@@ -12,3 +12,15 @@ export const fetchProducts = createAsyncThunk(
     }
   },
 );
+
+export const fetchAllProducts = createAsyncThunk(
+  'product/fetchAllProducts',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await ProductService.getAllProducts(0, 100);
+      return response.data || response.items || response;
+    } catch (error: any) {
+      return rejectWithValue(error.response?.data || 'Failed to fetch all products');
+    }
+  },
+);

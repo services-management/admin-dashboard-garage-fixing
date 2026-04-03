@@ -1,27 +1,17 @@
-import axios from 'axios';
-
-const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE as string);
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem('admin_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
+import { apiClient } from '../auth/authService';
 
 export const CategoryService = {
   // GET categories
   getCategories: async (skip = 0, limit = 100) => {
-    const response = await axios.get(`${API_BASE}/category/`, {
+    const response = await apiClient.get('/category/', {
       params: { skip, limit },
-      headers: getAuthHeader(),
     });
     return response.data;
   },
 
   // CREATE category
   createCategory: async (payload: { name: string; description: string }) => {
-    const response = await axios.post(`${API_BASE}/category/`, payload, {
-      headers: getAuthHeader(),
-    });
+    const response = await apiClient.post('/category/', payload);
     return response.data;
   },
 
@@ -33,17 +23,13 @@ export const CategoryService = {
       description: string;
     },
   ) => {
-    const response = await axios.patch(`${API_BASE}/category/${categoryID}`, payload, {
-      headers: getAuthHeader(),
-    });
+    const response = await apiClient.patch(`/category/${categoryID}`, payload);
     return response.data;
   },
 
   // DELETE category
   deleteCategory: async (categoryID: number) => {
-    const response = await axios.delete(`${API_BASE}/category/${categoryID}`, {
-      headers: getAuthHeader(),
-    });
+    const response = await apiClient.delete(`/category/${categoryID}`);
     return response.data;
   },
 };

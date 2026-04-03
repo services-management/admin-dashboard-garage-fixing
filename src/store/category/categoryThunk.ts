@@ -7,10 +7,15 @@ export const fetchCategories = createAsyncThunk<Category[]>(
   'category/fetchAll',
   async (_, { rejectWithValue }) => {
     try {
-      const response = await CategoryService.getCategories();
-      return response.data || response;
+      const data = await CategoryService.getCategories();
+      console.log('Categories API response:', data);
+      // Handle both array response and nested data response
+      const categories = Array.isArray(data) ? data : data.data || [];
+      console.log('Parsed categories:', categories);
+      return categories;
     } catch (error: any) {
-      return rejectWithValue(error.message);
+      console.error('Categories API error:', error);
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   },
 );
@@ -20,8 +25,8 @@ export const createCategory = createAsyncThunk<Category, CreateCategoryPayload>(
   'category/create',
   async (payload, { rejectWithValue }) => {
     try {
-      const response = await CategoryService.createCategory(payload);
-      return response.data || response;
+      const data = await CategoryService.createCategory(payload);
+      return data.data || data;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }
@@ -34,8 +39,8 @@ export const updateCategory = createAsyncThunk<Category, UpdateCategoryPayload>(
   async (payload, { rejectWithValue }) => {
     try {
       const { categoryID, ...data } = payload;
-      const response = await CategoryService.updateCategory(categoryID, data);
-      return response.data || response;
+      const result = await CategoryService.updateCategory(categoryID, data);
+      return result.data || result;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || error.message);
     }

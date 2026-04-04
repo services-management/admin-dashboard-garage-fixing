@@ -27,6 +27,7 @@ export interface VehicleSpec {
   fuel_type: string;
   drive_type: string;
   transmission: string;
+  img_url?: string;
   model?: Model;
 }
 

@@ -33,3 +33,8 @@ dist-ssr
 
 coverage
 .nyc_output
+
+# Qoder and Qodo IDE directories
+.qoder
+.qodo
+

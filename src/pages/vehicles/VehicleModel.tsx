@@ -125,7 +125,7 @@ export default function VehicleModel() {
               </div>
               <form onSubmit={handleSubmit} className="modal-form">
                 <div className="form-group">
-                  <label htmlFor="modelName">Model Name</label>
+                  <label htmlFor="modelName">ឈ្មោះModel </label>
                   <input
                     id="modelName"
                     type="text"
@@ -137,7 +137,7 @@ export default function VehicleModel() {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="makeSelect">Make</label>
+                  <label htmlFor="makeSelect">ប្រភេទ</label>
                   <select
                     id="makeSelect"
                     value={formData.make_id || ''}

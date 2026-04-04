@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import toast from 'react-hot-toast';
 
 import type { RootState, AppDispatch } from '../../../store';
 import { CategoryService } from '../../../store/category/categoryService';
@@ -38,12 +39,17 @@ export default function Services() {
     comboNames: [],
   });
 
+  // DETAIL MODAL
+  const [showDetailModal, setShowDetailModal] = useState(false);
+  const [detailService, setDetailService] = useState<Service | null>(null);
+
   const [categories, setCategories] = useState<Category[]>([]);
 
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    price: '',
+    garage_price: '',
+    home_price: '',
     duration_minutes: 60,
     status: 'active' as 'active' | 'inactive',
     categories: [] as { name: string }[],
@@ -77,7 +83,8 @@ export default function Services() {
     setFormData({
       name: '',
       description: '',
-      price: '',
+      garage_price: '',
+      home_price: '',
       duration_minutes: 60,
       status: 'active',
       categories: [],
@@ -93,7 +100,8 @@ export default function Services() {
     setFormData({
       name: service.name,
       description: service.description,
-      price: String(service.garage_price || ''),
+      garage_price: String(service.garage_price || ''),
+      home_price: String(service.home_price || ''),
       duration_minutes: service.duration_minutes,
       status: (service.status?.toLowerCase() === 'active' || service.is_available
         ? 'active'
@@ -111,6 +119,17 @@ export default function Services() {
     setCurrentService(null);
     setImagePreview('');
     setImageFile(null);
+  };
+
+  /* ================= DETAIL MODAL ================= */
+  const openDetailModal = (service: Service) => {
+    setDetailService(service);
+    setShowDetailModal(true);
+  };
+
+  const closeDetailModal = () => {
+    setShowDetailModal(false);
+    setDetailService(null);
   };
 
   /* ================= IMAGE ================= */
@@ -154,10 +173,10 @@ export default function Services() {
   /* ================= SAVE ================= */
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      alert('សូមបញ្ចូលឈ្មោះសេវាកម្ម');
+      toast.error('សូមបញ្ចូលឈ្មោះសេវាកម្ម');
       return;
     }
-    if (!formData.price || Number(formData.price) <= 0) {
+    if (!formData.garage_price || Number(formData.garage_price) <= 0) {
       alert('សូមបញ្ចូលតម្លៃត្រឹមត្រូវ');
       return;
     }
@@ -166,8 +185,8 @@ export default function Services() {
       name: formData.name,
       description: formData.description,
       image_url: isEditMode && currentService ? currentService.image_url : '',
-      garage_price: Number(formData.price),
-      home_price: Number(formData.price),
+      garage_price: Number(formData.garage_price),
+      home_price: Number(formData.home_price) || Number(formData.garage_price),
       duration_minutes: formData.duration_minutes,
       is_available: formData.status === 'active',
       associations: formData.categories.map((c) => ({
@@ -189,7 +208,7 @@ export default function Services() {
           await ServiceService.updateServiceImage(updated.service_id, imageFile);
         }
 
-        alert('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
+        toast.success('សេវាកម្មត្រូវបានកែប្រែជោគជ័យ!');
       } else {
         const created = await dispatch(createService(payload)).unwrap();
 
@@ -198,7 +217,7 @@ export default function Services() {
           await ServiceService.uploadServiceImage(created.service_id, imageFile);
         }
 
-        alert('សេវាកម្មត្រូវបង្កើតជោគជ័យ!');
+        toast.success('សេវាកម្មត្រូវបង្កើតជោគជ័យ!');
       }
 
       // ✅ Refresh services list
@@ -207,7 +226,7 @@ export default function Services() {
       closeModal();
     } catch (err) {
       console.error(err);
-      alert('មានបញ្ហាក្នុងការរក្សាទុកសេវាកម្ម');
+      toast.error('មានបញ្ហាក្នុងការរក្សាទុកសេវាកម្ម');
     }
   };
 
@@ -234,9 +253,9 @@ export default function Services() {
       await dispatch(deleteService(deleteServiceId));
       setShowDeleteModal(false);
       setDeleteServiceId(null);
-      alert('សេវាកម្មត្រូវបានលុប!');
+      toast.success('សេវាកម្មត្រូវបានលុប!');
     } catch {
-      alert('មានបញ្ហាក្នុងការលុបសេវាកម្ម');
+      toast.error('មានបញ្ហាក្នុងការលុបសេវាកម្ម');
     }
   };
 
@@ -251,7 +270,12 @@ export default function Services() {
 
       <div className="service-grid-two-col">
         {services.map((service) => (
-          <div key={service.service_id} className="service-card-enhanced">
+          <div
+            key={service.service_id}
+            className="service-card-enhanced"
+            onClick={() => openDetailModal(service)}
+            style={{ cursor: 'pointer' }}
+          >
             <div className="service-card-image">
               <img
                 src={
@@ -274,35 +298,52 @@ export default function Services() {
               <div className="service-card-description">{service.description}</div>
 
               <div className="service-card-content">
-                <div className="content-section">
-                  <div className="content-label">រយៈពេល</div>
-                  <span className="item-tag">{service.duration_minutes} នាទី</span>
-                </div>
+                <div className="content-row" style={{ display: 'flex', gap: '24px' }}>
+                  <div className="content-section">
+                    <div className="content-label">រយៈពេល</div>
+                    <span className="item-tag">{service.duration_minutes} នាទី</span>
+                  </div>
 
-                <div className="content-section">
-                  <div className="content-label">ប្រភេទ</div>
-                  <div className="content-items">
-                    {service.associations.length === 0 ? (
-                      <span className="item-tag">មិនមានប្រភេទ</span>
-                    ) : (
-                      service.associations.map((a, i) => (
-                        <span key={i} className="item-tag">
-                          {a.category_name}
-                        </span>
-                      ))
-                    )}
+                  <div className="content-section">
+                    <div className="content-label">ប្រភេទ</div>
+                    <div className="content-items">
+                      {service.associations.length === 0 ? (
+                        <span className="item-tag">មិនមានប្រភេទ</span>
+                      ) : (
+                        service.associations.map((a, i) => (
+                          <span key={i} className="item-tag">
+                            {a.category_name}
+                          </span>
+                        ))
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>
 
               <div className="service-card-footer">
-                <div className="service-price">
-                  ${parseFloat(service.garage_price || '0').toFixed(2)}
+                <div
+                  className="service-prices"
+                  style={{ display: 'flex', gap: '12px', alignItems: 'center' }}
+                >
+                  <div className="service-price">
+                    <small style={{ fontSize: '10px', color: '#6b7280', display: 'block' }}>
+                      Garage
+                    </small>
+                    ${parseFloat(service.garage_price || '0').toFixed(2)}
+                  </div>
+                  <div className="service-price">
+                    <small style={{ fontSize: '10px', color: '#6b7280', display: 'block' }}>
+                      Home
+                    </small>
+                    ${parseFloat(service.home_price || service.garage_price || '0').toFixed(2)}
+                  </div>
                 </div>
                 <div className="card-actions">
                   <button
                     className="btn-small btn-edit"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       openEditModal(service);
                     }}
                   >
@@ -310,7 +351,8 @@ export default function Services() {
                   </button>
                   <button
                     className="btn-small btn-delete"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeleteClick(service.service_id);
                     }}
                   >
@@ -348,17 +390,31 @@ export default function Services() {
                 </div>
 
                 <div className="form-group">
-                  <label className="form-label">Price</label>
+                  <label className="form-label">Garage Price</label>
                   <input
                     type="number"
                     className="form-input"
-                    value={formData.price}
+                    value={formData.garage_price}
                     onChange={(e) => {
-                      setFormData((p) => ({ ...p, price: e.target.value }));
+                      setFormData((p) => ({ ...p, garage_price: e.target.value }));
                     }}
                   />
                 </div>
 
+                <div className="form-group">
+                  <label className="form-label">Home Price</label>
+                  <input
+                    type="number"
+                    className="form-input"
+                    value={formData.home_price}
+                    onChange={(e) => {
+                      setFormData((p) => ({ ...p, home_price: e.target.value }));
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">Duration (minutes)</label>
                   <input
@@ -539,6 +595,172 @@ export default function Services() {
                   យល់ព្រម
                 </button>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= DETAIL MODAL ================= */}
+      {showDetailModal && detailService && (
+        <div className="modal active" onClick={closeDetailModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>ព័ត៌មានសេវាកម្ម</h2>
+              <button className="close-btn" onClick={closeDetailModal}>
+                &times;
+              </button>
+            </div>
+            <div className="modal-body">
+              <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+                <img
+                  src={
+                    getProxiedImageUrl(detailService.image_url) ||
+                    'https://images.unsplash.com/photo-1492144534655-ae79c964c9d7?w=400'
+                  }
+                  alt={detailService.name}
+                  style={{
+                    width: '200px',
+                    height: '200px',
+                    objectFit: 'cover',
+                    borderRadius: '8px',
+                  }}
+                />
+              </div>
+
+              <div className="detail-section">
+                <h3>{detailService.name}</h3>
+                <p className="product-id">
+                  ID: #{String(detailService.service_id).padStart(4, '0')}
+                </p>
+                <span
+                  className={`status-badge ${detailService.is_available ? 'active' : 'inactive'}`}
+                >
+                  {detailService.is_available ? 'Active' : 'Inactive'}
+                </span>
+              </div>
+
+              <div
+                className="detail-grid"
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr',
+                  gap: '16px',
+                  marginTop: '20px',
+                }}
+              >
+                <div className="detail-item">
+                  <label>Garage Price</label>
+                  <p>${parseFloat(detailService.garage_price || '0').toFixed(2)}</p>
+                </div>
+                <div className="detail-item">
+                  <label>Home Price</label>
+                  <p>
+                    $
+                    {parseFloat(
+                      detailService.home_price || detailService.garage_price || '0',
+                    ).toFixed(2)}
+                  </p>
+                </div>
+                <div className="detail-item">
+                  <label>Duration</label>
+                  <p>{detailService.duration_minutes} នាទី</p>
+                </div>
+                <div className="detail-item">
+                  <label>Status</label>
+                  <p>{detailService.is_available ? 'Available' : 'Not Available'}</p>
+                </div>
+              </div>
+
+              <div className="detail-item" style={{ marginTop: '16px' }}>
+                <label>Description</label>
+                <p>{detailService.description || 'No description'}</p>
+              </div>
+
+              {/* Categories Section */}
+              <div
+                className="detail-item"
+                style={{
+                  marginTop: '24px',
+                  paddingTop: '20px',
+                  borderTop: '1px solid #e5e7eb',
+                  display: 'block',
+                }}
+              >
+                <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                  ប្រភេទ (Categories)
+                </div>
+                {detailService.associations.length === 0 ? (
+                  <p style={{ color: '#6b7280' }}>No categories assigned</p>
+                ) : (
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {detailService.associations.map((assoc, index) => (
+                      <span
+                        key={index}
+                        className="item-tag"
+                        style={{
+                          padding: '6px 12px',
+                          background: '#fee2e2',
+                          color: '#dc2626',
+                          borderRadius: '4px',
+                          fontSize: '14px',
+                        }}
+                      >
+                        {assoc.category_name}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Products Section */}
+              {detailService.associations.some((a) => a.product_name) && (
+                <div
+                  className="detail-item"
+                  style={{
+                    marginTop: '24px',
+                    paddingTop: '20px',
+                    borderTop: '1px solid #e5e7eb',
+                    display: 'block',
+                  }}
+                >
+                  <div style={{ fontSize: '16px', fontWeight: '600', marginBottom: '12px' }}>
+                    ផលិតផលដែលប្រើ (Products)
+                  </div>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
+                    {detailService.associations
+                      .filter((a) => a.product_name)
+                      .map((assoc, index) => (
+                        <span
+                          key={index}
+                          className="item-tag"
+                          style={{
+                            padding: '6px 12px',
+                            background: '#dbeafe',
+                            color: '#2563eb',
+                            borderRadius: '4px',
+                            fontSize: '14px',
+                          }}
+                        >
+                          {assoc.product_name}
+                        </span>
+                      ))}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="modal-footer">
+              <button className="btn-secondary" onClick={closeDetailModal}>
+                បិទ
+              </button>
+              <button
+                className="btn-primary"
+                onClick={() => {
+                  closeDetailModal();
+                  openEditModal(detailService);
+                }}
+              >
+                កែសម្រួល
+              </button>
             </div>
           </div>
         </div>

@@ -11,8 +11,17 @@ import type { Category } from '../../../store/category/categoryTypes';
 
 export default function Categories() {
   const dispatch = useAppDispatch();
-  const { list: categories, loading } = useAppSelector((s) => s.category);
+  const { list: categories, loading, error } = useAppSelector((s) => s.category);
   const { products } = useAppSelector((s) => s.product);
+  const { list: services } = useAppSelector((s) => s.service);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Categories from Redux:', categories);
+    console.log('Categories length:', categories?.length);
+    console.log('Loading:', loading);
+    console.log('Error:', error);
+  }, [categories, loading, error]);
 
   const [showModal, setShowModal] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -30,6 +39,7 @@ export default function Categories() {
   const [searchKeyword, setSearchKeyword] = useState('');
 
   useEffect(() => {
+    console.log('Dispatching fetchCategories...');
     dispatch(fetchCategories());
   }, [dispatch]);
 
@@ -64,7 +74,7 @@ export default function Categories() {
 
   const handleSave = async () => {
     if (!formData.name.trim()) {
-      toast.error('Please enter category name');
+      toast.error('សូមបញ្ចូលឈ្មោះ Category');
       return;
     }
 
@@ -77,7 +87,7 @@ export default function Categories() {
             description: formData.description,
           }),
         ).unwrap();
-        toast.success('Category updated successfully');
+        toast.success('Category ត្រូវបានកែប្រែជោគជ័យ');
       } else {
         await dispatch(
           createCategory({
@@ -85,7 +95,7 @@ export default function Categories() {
             description: formData.description,
           }),
         ).unwrap();
-        toast.success('Category created successfully');
+        toast.success('Category ត្រូវបានបង្កើតជោគជ័យ');
       }
       closeModal();
     } catch (err: any) {
@@ -94,21 +104,38 @@ export default function Categories() {
   };
 
   const isCategoryInUse = (categoryId: number): boolean => {
-    return products.some((p) => p.category?.categoryID === categoryId);
+    const usedInProducts = products.some((p) => p.category?.categoryID === categoryId);
+    const usedInServices = services.some((svc) =>
+      svc.associations.some((assoc) => assoc.category_id === categoryId),
+    );
+    return usedInProducts || usedInServices;
   };
 
   const getProductsUsingCategory = (categoryId: number): string[] => {
     return products.filter((p) => p.category?.categoryID === categoryId).map((p) => p.name);
   };
 
+  const getServicesUsingCategory = (categoryId: number): string[] => {
+    return services
+      .filter((svc) => svc.associations.some((assoc) => assoc.category_id === categoryId))
+      .map((svc) => svc.name);
+  };
+
   const handleDeleteClick = (category: Category) => {
     setDeleteError(null);
     if (isCategoryInUse(category.categoryID)) {
       const productNames = getProductsUsingCategory(category.categoryID);
-      setDeleteError(
-        `Cannot delete "${category.name}" because it is used by products: ${productNames.join(', ')}`,
-      );
+      const serviceNames = getServicesUsingCategory(category.categoryID);
+      let errorMsg = `Cannot delete "${category.name}" because it is used by:`;
+      if (productNames.length > 0) {
+        errorMsg += `\n- Products: ${productNames.join(', ')}`;
+      }
+      if (serviceNames.length > 0) {
+        errorMsg += `\n- Services: ${serviceNames.join(', ')}`;
+      }
+      setDeleteError(errorMsg);
     }
+    setCurrentCategory(category);
     setDeleteCategoryId(category.categoryID);
     setShowDeleteModal(true);
   };
@@ -116,16 +143,18 @@ export default function Categories() {
   const handleDeleteConfirm = async () => {
     if (!deleteCategoryId) return;
 
-    if (isCategoryInUse(deleteCategoryId)) {
+    if (deleteError || isCategoryInUse(deleteCategoryId)) {
+      toast.error('មិនអាចលុបបានទេ');
       return;
     }
 
     try {
       await dispatch(deleteCategory(deleteCategoryId)).unwrap();
-      toast.success('Category deleted successfully');
+      toast.success('Category ត្រូវបានលុបជោគជ័យ');
       setShowDeleteModal(false);
       setDeleteCategoryId(null);
       setDeleteError(null);
+      setCurrentCategory(null);
     } catch (err: any) {
       toast.error(err || 'Delete failed');
     }
@@ -153,6 +182,20 @@ export default function Categories() {
       </div>
 
       {loading && <p>Loading...</p>}
+
+      {error && (
+        <div
+          style={{
+            color: 'red',
+            padding: '10px',
+            background: '#fee',
+            borderRadius: '4px',
+            marginBottom: '10px',
+          }}
+        >
+          Error: {error}
+        </div>
+      )}
 
       {/* Category List */}
       <div className="category-grid">
@@ -242,35 +285,32 @@ export default function Categories() {
         <div className="modal active">
           <div className="modal-content" style={{ maxWidth: 420 }}>
             <div className="modal-header">
-              <h2>{deleteError ? 'Cannot Delete' : 'Confirm Delete'}</h2>
+              <h2>{deleteError ? 'Cannot Delete' : 'តើអ្នកចង់លុបមែនទេ'}</h2>
               <button
                 className="close-btn"
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteError(null);
+                  setCurrentCategory(null);
                 }}
               >
                 &times;
               </button>
             </div>
             <div className="modal-body">
-              {deleteError ? (
-                <div>
-                  <p style={{ color: '#ef4444', fontWeight: 'bold', marginBottom: '12px' }}>
+              {deleteError && (
+                <div style={{ marginBottom: '16px' }}>
+                  <p style={{ color: '#ef4444', fontWeight: 'bold', marginBottom: '8px' }}>
                     ⚠️ Cannot delete this category!
                   </p>
-                  <p style={{ marginBottom: '12px' }}>{deleteError}</p>
-                  <p style={{ fontSize: '14px', color: '#6b7280' }}>
-                    Please remove this category from all products before deleting.
-                  </p>
+                  <p style={{ marginBottom: '8px', fontSize: '14px' }}>{deleteError}</p>
                 </div>
-              ) : (
-                <p>
-                  Are you sure you want to delete this category?
-                  <br />
-                  <strong style={{ color: '#ef4444' }}>This action cannot be undone.</strong>
-                </p>
               )}
+              <p>
+                <strong style={{ color: '#ef4444' }}>
+                  តើអ្នកចង់លុបមែនទេ {currentCategory?.name || 'Category'}
+                </strong>
+              </p>
             </div>
             <div className="modal-footer">
               <button
@@ -278,15 +318,19 @@ export default function Categories() {
                 onClick={() => {
                   setShowDeleteModal(false);
                   setDeleteError(null);
+                  setCurrentCategory(null);
                 }}
               >
                 Cancel
               </button>
-              {!deleteError && (
-                <button className="btn-danger" onClick={handleDeleteConfirm}>
-                  Delete
-                </button>
-              )}
+              <button
+                className="btn-danger"
+                onClick={handleDeleteConfirm}
+                disabled={!!deleteError}
+                style={deleteError ? { opacity: 0.5, cursor: 'not-allowed' } : {}}
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>

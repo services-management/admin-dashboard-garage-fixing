@@ -1,6 +1,7 @@
 import { useState } from 'react';
-
+import toast from 'react-hot-toast';
 import Icon from '../../components/Icons';
+import { BookingService } from '../../store/booking/bookingService';
 
 // TypeScript Types
 type InvoiceStatus = 'draft' | 'paid' | 'cancelled';
@@ -51,187 +52,8 @@ interface FormData {
 type StatusFilter = 'all' | 'draft' | 'paid' | 'cancelled';
 
 export default function Invoices() {
-  // Sample Data - 5 invoices with plate numbers
-  const [invoices, setInvoices] = useState<Invoice[]>([
-    {
-      id: 1,
-      invoiceNumber: 'INV-2025-001',
-      customerName: 'សុខ ចន្ទា',
-      customerEmail: 'chantha@email.com',
-      customerPhone: '012-345-678',
-      plateNumber: 'PP-1234',
-      vehicle: 'Toyota Camry 2020',
-      issueDate: '2025-12-20',
-      status: 'paid',
-      bookingId: 'BK-001',
-      items: [
-        { id: '1', description: 'ប្រេងម៉ាស៊ីន', quantity: 4, unitPrice: 12.5, total: 50 },
-        { id: '2', description: 'ការធ្វើសេវាកម្មប្រេង', quantity: 1, unitPrice: 25, total: 25 },
-      ],
-      subtotal: 75,
-      taxRate: 10,
-      taxAmount: 7.5,
-      discount: 5,
-      total: 77.5,
-      notes: 'អតិថិជនប្រចាំ',
-    },
-    {
-      id: 2,
-      invoiceNumber: 'INV-2025-002',
-      customerName: 'វិចិត្រា ឃុន',
-      customerEmail: 'vichitra@email.com',
-      customerPhone: '011-222-333',
-      plateNumber: 'PP-5678',
-      vehicle: 'Honda Civic 2019',
-      issueDate: '2025-12-21',
-      status: 'draft',
-      bookingId: 'BK-002',
-      items: [
-        { id: '1', description: 'ប្រេកខាងមុខ', quantity: 2, unitPrice: 45, total: 90 },
-        { id: '2', description: 'ប្រេកខាងក្រោយ', quantity: 2, unitPrice: 40, total: 80 },
-        { id: '3', description: 'ការដំឡើង', quantity: 1, unitPrice: 30, total: 30 },
-      ],
-      subtotal: 200,
-      taxRate: 10,
-      taxAmount: 20,
-      discount: 0,
-      total: 220,
-    },
-    {
-      id: 3,
-      invoiceNumber: 'INV-2025-003',
-      customerName: 'ប៉ូលីន ហេង',
-      customerEmail: 'polin@email.com',
-      customerPhone: '015-444-555',
-      plateNumber: 'PP-9012',
-      vehicle: 'Mazda 3 2021',
-      issueDate: '2025-12-22',
-      status: 'paid',
-      items: [
-        { id: '1', description: 'សម្អាតឡានពេញលេញ', quantity: 1, unitPrice: 50, total: 50 },
-        { id: '2', description: 'ជ័រខាងក្នុង', quantity: 1, unitPrice: 30, total: 30 },
-      ],
-      subtotal: 80,
-      taxRate: 10,
-      taxAmount: 8,
-      discount: 10,
-      total: 78,
-      notes: 'បញ្ចុះតម្លៃ 10%',
-    },
-    {
-      id: 4,
-      invoiceNumber: 'INV-2025-004',
-      customerName: 'រតនា សុវណ្ណ',
-      customerEmail: 'ratana@email.com',
-      customerPhone: '017-666-777',
-      plateNumber: 'PP-3456',
-      vehicle: 'BMW 320i 2022',
-      issueDate: '2025-12-23',
-      status: 'cancelled',
-      bookingId: 'BK-004',
-      items: [
-        { id: '1', description: 'ការពិនិត្យម៉ាស៊ីន', quantity: 1, unitPrice: 100, total: 100 },
-      ],
-      subtotal: 100,
-      taxRate: 10,
-      taxAmount: 10,
-      discount: 0,
-      total: 110,
-      notes: 'លុបចោលដោយអតិថិជន',
-    },
-    {
-      id: 5,
-      invoiceNumber: 'INV-2025-005',
-      customerName: 'ម៉េងលី ផាន',
-      customerEmail: 'mengly@email.com',
-      customerPhone: '012-888-999',
-      plateNumber: 'PP-7890',
-      vehicle: 'Lexus RX350 2023',
-      issueDate: '2025-12-24',
-      status: 'draft',
-      items: [
-        { id: '1', description: 'កញ្ចប់ថែទាំពេញលេញ', quantity: 1, unitPrice: 200, total: 200 },
-        {
-          id: '2',
-          description: 'ផ្លាស់ប្តូរថ្នាំបញ្ចេញសម្បុរ',
-          quantity: 1,
-          unitPrice: 80,
-          total: 80,
-        },
-        { id: '3', description: 'ពិនិត្យប្រព័ន្ធត្រជាក់', quantity: 1, unitPrice: 50, total: 50 },
-      ],
-      subtotal: 330,
-      taxRate: 10,
-      taxAmount: 33,
-      discount: 20,
-      total: 343,
-      notes: 'សេវាកម្មពិសេស',
-    },
-    {
-      id: 6,
-      invoiceNumber: 'INV-2025-006',
-      customerName: 'ចន្ទ្រា អ៊ុក',
-      customerEmail: 'chandra@email.com',
-      customerPhone: '016-111-222',
-      plateNumber: 'PP-1122',
-      vehicle: 'Mercedes-Benz E-Class 2022',
-      issueDate: '2025-12-25',
-      status: 'paid',
-      bookingId: 'BK-006',
-      items: [
-        { id: '1', description: 'ផ្លាស់ប្តូរសំបកកង់', quantity: 4, unitPrice: 60, total: 240 },
-        { id: '2', description: 'ការតម្រឹមកង់', quantity: 4, unitPrice: 15, total: 60 },
-      ],
-      subtotal: 300,
-      taxRate: 10,
-      taxAmount: 30,
-      discount: 15,
-      total: 315,
-      notes: 'បានបង់គ្រប់ជាមួយលក់',
-    },
-    {
-      id: 7,
-      invoiceNumber: 'INV-2025-007',
-      customerName: 'ពិសី យឹម',
-      customerEmail: 'pisey@email.com',
-      customerPhone: '093-333-444',
-      plateNumber: 'PP-3344',
-      vehicle: 'Audi A4 2020',
-      issueDate: '2025-12-26',
-      status: 'draft',
-      items: [
-        { id: '1', description: 'ពិនិត្យម៉ាស៊ីនរថយន្ត', quantity: 1, unitPrice: 120, total: 120 },
-        { id: '2', description: 'ជំនួសទឹកម៉ាស៊ីន', quantity: 5, unitPrice: 8, total: 40 },
-      ],
-      subtotal: 160,
-      taxRate: 10,
-      taxAmount: 16,
-      discount: 0,
-      total: 176,
-    },
-    {
-      id: 8,
-      invoiceNumber: 'INV-2025-008',
-      customerName: 'សុភ័ក្រា លី',
-      customerEmail: 'sophea@email.com',
-      customerPhone: '077-555-666',
-      plateNumber: 'PP-5566',
-      vehicle: 'Volvo XC90 2023',
-      issueDate: '2025-12-27',
-      status: 'paid',
-      bookingId: 'BK-008',
-      items: [
-        { id: '1', description: 'ការថែទាំប្រចាំឆ្នាំ', quantity: 1, unitPrice: 350, total: 350 },
-        { id: '2', description: 'ពិនិត្យសុវត្ថិភាព', quantity: 1, unitPrice: 80, total: 80 },
-      ],
-      subtotal: 430,
-      taxRate: 10,
-      taxAmount: 43,
-      discount: 30,
-      total: 443,
-      notes: 'កញ្ចប់ប្រចាំឆ្នាំ VIP',
-    },
-  ]);
+  // Invoices state - starts empty, populated from API
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
 
   // State Management
   const [searchTerm, setSearchTerm] = useState('');
@@ -240,6 +62,14 @@ export default function Invoices() {
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState<ModalMode>('view');
   const [currentPage, setCurrentPage] = useState(1);
+
+  // Simple invoice upload modal state
+  const [showUploadModal, setShowUploadModal] = useState(false);
+  const [bookingId, setBookingId] = useState('');
+  const [invoiceUrl, setInvoiceUrl] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [bookings, setBookings] = useState<any[]>([]);
+  const [loadingBookings, setLoadingBookings] = useState(false);
 
   const initialFormData: FormData = {
     customerName: '',
@@ -306,14 +136,6 @@ export default function Invoices() {
         items: prev.items.filter((item) => item.id !== itemId),
       }));
     }
-  };
-
-  // Open create modal
-  const openCreateModal = () => {
-    setModalMode('create');
-    setFormData(initialFormData);
-    setSelectedInvoice(null);
-    setShowModal(true);
   };
 
   // Open view modal
@@ -460,6 +282,47 @@ export default function Invoices() {
 
   const countByStatus = (status: string) => invoices.filter((i) => i.status === status).length;
 
+  // Handle invoice upload
+  const handleUploadInvoice = async () => {
+    if (!bookingId.trim()) {
+      toast.error('សូមជ្រើសរើសការកក់');
+      return;
+    }
+    if (!invoiceUrl.trim()) {
+      toast.error('សូមបញ្ចូលតំណវិក្កយបត្រ');
+      return;
+    }
+    setUploading(true);
+    try {
+      await BookingService.uploadInvoice(parseInt(bookingId), invoiceUrl);
+      toast.success('វិក្កយបត្រត្រូវបានផ្ញើជោគជ័យ');
+      setShowUploadModal(false);
+      setBookingId('');
+      setInvoiceUrl('');
+    } catch (err: any) {
+      toast.error(err.response?.data?.detail || 'មានបញ្ហាក្នុងការផ្ញើវិក្កយបត្រ');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  // Fetch bookings when modal opens
+  const fetchBookings = async () => {
+    setLoadingBookings(true);
+    try {
+      const response = await BookingService.getBookings(0, 100);
+      // Filter only confirmed bookings that can have invoices
+      const availableBookings = (response.data || response || []).filter(
+        (b: any) => b.status === 'confirmed' || b.status === 'completed',
+      );
+      setBookings(availableBookings);
+    } catch (err) {
+      toast.error('មិនអាចទាញយកការកក់បានទេ');
+    } finally {
+      setLoadingBookings(false);
+    }
+  };
+
   return (
     <div className="booking-admin-container">
       {/* Header */}
@@ -553,7 +416,7 @@ export default function Invoices() {
       {/* Main Header with Create Button */}
       <div className="booking-main-header">
         <h1>គ្រប់គ្រងវិក្កយបត្រ</h1>
-        <button className="btn-primary" onClick={openCreateModal}>
+        <button className="btn-primary" onClick={() => setShowUploadModal(true)}>
           + បង្កើតវិក្កយបត្រថ្មី
         </button>
       </div>
@@ -1055,6 +918,120 @@ export default function Invoices() {
                   </div>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Simple Invoice Upload Modal */}
+      {showUploadModal && (
+        <div
+          className="booking-modal-overlay"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowUploadModal(false);
+            }
+          }}
+        >
+          <div className="booking-modal" style={{ maxWidth: '500px' }}>
+            <div className="booking-modal-header" style={{ backgroundColor: '#dc2626' }}>
+              <h2>បង្កើតវិក្កយបត្រ</h2>
+              <button
+                className="modal-close-btn"
+                onClick={() => setShowUploadModal(false)}
+                aria-label="Close modal"
+              >
+                ×
+              </button>
+            </div>
+
+            <div className="booking-modal-body" style={{ padding: '24px' }}>
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+                  ជ្រើសរើសការកក់ (Booking) *
+                </label>
+                <select
+                  value={bookingId}
+                  onChange={(e) => setBookingId(e.target.value)}
+                  onFocus={() => {
+                    if (bookings.length === 0) fetchBookings();
+                  }}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                    backgroundColor: 'white',
+                  }}
+                >
+                  <option value="">
+                    {loadingBookings ? 'កំពុងផ្ទុក...' : '-- ជ្រើសរើសការកក់ --'}
+                  </option>
+                  {bookings.map((booking) => (
+                    <option key={booking.booking_id} value={booking.booking_id}>
+                      #{booking.booking_id} - {booking.full_name || booking.customer_name} (
+                      {booking.phone || booking.customer_phone}) - {booking.status}
+                    </option>
+                  ))}
+                </select>
+                {bookings.length === 0 && !loadingBookings && (
+                  <button
+                    onClick={fetchBookings}
+                    style={{
+                      marginTop: '8px',
+                      fontSize: '12px',
+                      color: '#dc2626',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    ផ្ទុកការកក់ឡើងវិញ
+                  </button>
+                )}
+              </div>
+
+              <div style={{ marginBottom: '20px' }}>
+                <label style={{ display: 'block', marginBottom: '8px', fontWeight: 500 }}>
+                  តំណវិក្កយបត្រ (Invoice URL) *
+                </label>
+                <input
+                  type="text"
+                  value={invoiceUrl}
+                  onChange={(e) => setInvoiceUrl(e.target.value)}
+                  placeholder="https://example.com/invoice.pdf"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    border: '1px solid #ddd',
+                    borderRadius: '6px',
+                    fontSize: '14px',
+                  }}
+                />
+                <p style={{ fontSize: '12px', color: '#666', marginTop: '6px' }}>
+                  បញ្ចូលតំណភ្ជាប់វិក្កយបត្រ (PDF ឬរូបភាព)
+                </p>
+              </div>
+
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'flex-end' }}>
+                <button
+                  className="btn-secondary"
+                  onClick={() => setShowUploadModal(false)}
+                  disabled={uploading}
+                >
+                  បោះបង់
+                </button>
+                <button
+                  className="btn-primary"
+                  onClick={handleUploadInvoice}
+                  disabled={uploading}
+                  style={{ backgroundColor: '#dc2626' }}
+                >
+                  {uploading ? 'កំពុងផ្ញើ...' : 'ផ្ញើវិក្កយបត្រ'}
+                </button>
+              </div>
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import axios from 'axios';
+import { apiClient } from '../auth/authService';
 import type {
   Make,
   MakeInput,
@@ -8,79 +8,61 @@ import type {
   VehicleSpecInput,
 } from './vehicleTypes';
 
-const API_BASE = import.meta.env.DEV ? '/api' : (import.meta.env.VITE_API_BASE as string);
-
-const getAuthHeader = () => {
-  const token = localStorage.getItem('admin_token');
-  return token ? { Authorization: `Bearer ${token}` } : {};
-};
-
 // Make APIs
 export const getMakesApi = async (): Promise<Make[]> => {
-  const response = await axios.get(`${API_BASE}/vehicles/makes`, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.get('/vehicles/makes');
   return response.data;
 };
 
 export const createMakeApi = async (make: MakeInput): Promise<Make> => {
-  const response = await axios.post(`${API_BASE}/vehicles/make`, make, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.post('/vehicles/make', make);
   return response.data;
 };
 
 export const updateMakeApi = async (makeId: number, make: MakeInput): Promise<Make> => {
-  const response = await axios.patch(`${API_BASE}/vehicles/make/${makeId}?id=${makeId}`, make, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.patch(`/vehicles/make/${makeId}`, make);
   return response.data;
 };
 
 export const deleteMakeApi = async (makeId: number): Promise<void> => {
-  await axios.delete(`${API_BASE}/vehicles/make/${makeId}`, {
-    headers: getAuthHeader(),
-  });
+  await apiClient.delete(`/vehicles/make/${makeId}`);
 };
 
 // Model APIs
 export const getModelsApi = async (makeId?: number): Promise<Model[]> => {
-  if (makeId) {
-    const response = await axios.get(`${API_BASE}/vehicles/makes/${makeId}/models`, {
-      headers: getAuthHeader(),
-    });
-    return response.data;
-  }
-  // Fallback: get all models from all makes
-  const makesResponse = await axios.get(`${API_BASE}/vehicles/makes`, {
-    headers: getAuthHeader(),
-  });
-  const makes = makesResponse.data;
-  const allModels: Model[] = [];
-  for (const make of makes) {
-    const makeId = (make as any).id || (make as any).make_id;
-    if (!makeId) continue;
-    try {
-      const modelsResponse = await axios.get(`${API_BASE}/vehicles/makes/${makeId}/models`, {
-        headers: getAuthHeader(),
-      });
-      allModels.push(...modelsResponse.data);
-    } catch (err: any) {
-      // Skip makes that don't have models or where endpoint returns 404
-      if (err.response?.status !== 404) {
-        console.warn(`Failed to fetch models for make ${makeId}:`, err.message);
+  try {
+    if (makeId) {
+      // Get models for a specific make
+      const response = await apiClient.get(`/vehicles/makes/${makeId}/models`);
+      return response.data || [];
+    } else {
+      // Get all models by fetching from all makes
+      const makesResponse = await apiClient.get('/vehicles/makes');
+      const makes = makesResponse.data || [];
+
+      // Fetch models for each make
+      const allModels: Model[] = [];
+      for (const make of makes) {
+        try {
+          const makeId = make.id || make.make_id;
+          const modelsResponse = await apiClient.get(`/vehicles/makes/${makeId}/models`);
+          const models = modelsResponse.data || [];
+          allModels.push(...models);
+        } catch (err) {
+          console.error(`Failed to fetch models for make ${make.name}:`, err);
+        }
       }
-      continue;
+      return allModels;
     }
+  } catch (error) {
+    console.error('Error fetching models:', error);
+    return [];
   }
-  return allModels;
 };
 
 export const createModelApi = async (model: ModelInput): Promise<Model> => {
   // Find the make name from make_id for the API
-  const makesResponse = await axios.get(`${API_BASE}/vehicles/makes`, {
-    headers: getAuthHeader(),
-  });
+  const makesResponse = await apiClient.get('/vehicles/makes');
   const makes = makesResponse.data;
   const make = makes.find((m: any) => (m.id || m.make_id) === model.make_id);
 
@@ -90,17 +72,13 @@ export const createModelApi = async (model: ModelInput): Promise<Model> => {
       name: make?.name || '',
     },
   };
-  const response = await axios.post(`${API_BASE}/vehicles/model`, payload, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.post('/vehicles/model', payload);
   return response.data;
 };
 
 export const updateModelApi = async (modelId: number, model: ModelInput): Promise<Model> => {
   // Find the make name from make_id for the API
-  const makesResponse = await axios.get(`${API_BASE}/vehicles/makes`, {
-    headers: getAuthHeader(),
-  });
+  const makesResponse = await apiClient.get('/vehicles/makes');
   const makes = makesResponse.data;
   const make = makes.find((m: any) => (m.id || m.make_id) === model.make_id);
 
@@ -110,30 +88,22 @@ export const updateModelApi = async (modelId: number, model: ModelInput): Promis
       name: make?.name || '',
     },
   };
-  const response = await axios.put(`${API_BASE}/vehicles/model/${modelId}`, payload, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.put(`/vehicles/model/${modelId}`, payload);
   return response.data;
 };
 
 export const deleteModelApi = async (modelId: number): Promise<void> => {
-  await axios.delete(`${API_BASE}/vehicles/model/${modelId}`, {
-    headers: getAuthHeader(),
-  });
+  await apiClient.delete(`/vehicles/model/${modelId}`);
 };
 
 // Vehicle Spec APIs
 export const getVehicleSpecsApi = async (): Promise<VehicleSpec[]> => {
-  const response = await axios.get(`${API_BASE}/vehicles/all`, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.get('/vehicles/all');
   return response.data;
 };
 
 export const createVehicleSpecApi = async (spec: VehicleSpecInput): Promise<VehicleSpec> => {
-  const response = await axios.post(`${API_BASE}/vehicles/`, spec, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.post('/vehicles/', spec);
   return response.data;
 };
 
@@ -141,14 +111,26 @@ export const updateVehicleSpecApi = async (
   vehicleId: number,
   spec: VehicleSpecInput,
 ): Promise<VehicleSpec> => {
-  const response = await axios.put(`${API_BASE}/vehicles/${vehicleId}`, spec, {
-    headers: getAuthHeader(),
-  });
+  const response = await apiClient.put(`/vehicles/${vehicleId}`, spec);
   return response.data;
 };
 
 export const deleteVehicleSpecApi = async (vehicleId: number): Promise<void> => {
-  await axios.delete(`${API_BASE}/vehicles/${vehicleId}`, {
-    headers: getAuthHeader(),
+  await apiClient.delete(`/vehicles/${vehicleId}`);
+};
+
+// Upload Vehicle Image
+export const uploadVehicleImageApi = async (
+  vehicleId: number,
+  file: File,
+): Promise<VehicleSpec> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await apiClient.post(`/vehicles/${vehicleId}/image`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
   });
+  return response.data;
 };

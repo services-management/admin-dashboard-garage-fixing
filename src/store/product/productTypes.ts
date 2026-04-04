@@ -14,6 +14,7 @@ export interface Product {
   product_id: number;
   name: string;
   selling_price: string;
+  price_adjustment: string;
   unit_cost: string;
   description: string;
   image_url: string;

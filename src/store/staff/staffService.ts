@@ -8,7 +8,7 @@ import type {
 } from './staffTypes';
 import { authAxios } from '../auth/authService';
 
-const API_BASE = import.meta.env.VITE_API_BASE as string;
+const API_BASE = import.meta.env.VITE_API_HOST as string;
 
 export const getAdminsApi = async (skip = 0, limit = 100): Promise<Admin[]> => {
   const response = await authAxios.get(`${API_BASE}/admin/accounts/admins`, {

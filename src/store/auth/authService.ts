@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { LoginResponse } from './authTypes';
 
-const API_BASE = import.meta.env.VITE_API_BASE as string;
+const API_BASE = import.meta.env.VITE_API_HOST as string;
 
 // Create axios instance for auth requests
 export const authAxios = axios.create({

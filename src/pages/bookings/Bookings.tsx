@@ -346,7 +346,7 @@ export default function Booking() {
     console.log('Assigning technical:', {
       bookingId,
       technicalId: selectedTechnicalId,
-      apiUrl: `${import.meta.env.VITE_API_BASE}/admin/bookings/${bookingId}/assign`,
+      apiUrl: `${import.meta.env.VITE_API_HOST}/admin/bookings/${bookingId}/assign`,
     });
 
     try {

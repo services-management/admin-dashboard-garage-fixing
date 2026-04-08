@@ -1,11 +1,12 @@
 import { createSlice } from '@reduxjs/toolkit';
 import type { AuthState } from './authTypes';
-import { adminLogin } from './authThunk';
+import { adminLogin, fetchCurrentAdmin } from './authThunk';
 
 const initialState: AuthState = {
   token: localStorage.getItem('admin_token'),
   refreshToken: localStorage.getItem('admin_refresh_token'),
   isAuthenticated: !!localStorage.getItem('admin_token'),
+  user: null,
   loading: false,
   error: null,
 };
@@ -48,6 +49,18 @@ const authSlice = createSlice({
         }
       })
       .addCase(adminLogin.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      })
+      .addCase(fetchCurrentAdmin.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchCurrentAdmin.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+      })
+      .addCase(fetchCurrentAdmin.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });

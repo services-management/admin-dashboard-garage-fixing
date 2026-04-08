@@ -2,18 +2,29 @@ import '@testing-library/jest-dom';
 import { beforeEach, describe, expect, test } from '@jest/globals';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
 
 import DashboardLayout from '../DashboardLayout';
+import authReducer from '../../store/auth/authSlice';
 
 function renderLayout(initialEntries = ['/dashboard']) {
+  const store = configureStore({
+    reducer: {
+      auth: authReducer,
+    },
+  });
+
   return render(
-    <MemoryRouter initialEntries={initialEntries}>
-      <Routes>
-        <Route path="/" element={<DashboardLayout />}>
-          <Route path="dashboard" element={<div>Dashboard content</div>} />
-        </Route>
-      </Routes>
-    </MemoryRouter>,
+    <Provider store={store}>
+      <MemoryRouter initialEntries={initialEntries}>
+        <Routes>
+          <Route path="/" element={<DashboardLayout />}>
+            <Route path="dashboard" element={<div>Dashboard content</div>} />
+          </Route>
+        </Routes>
+      </MemoryRouter>
+    </Provider>,
   );
 }
 

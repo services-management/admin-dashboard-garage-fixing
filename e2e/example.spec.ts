@@ -54,7 +54,7 @@ test.describe('Admin dashboard login flow', () => {
     await page.getByRole('button', { name: 'ចូលគណនី' }).click();
 
     await expect(page).toHaveURL(/.*\/dashboard/);
-    // Check for dashboard content instead of specific date text
-    await expect(page.getByText('ផ្ទាំងទូទៅ')).toBeVisible();
+    // Check for dashboard content - use role to avoid matching both sidebar and mobile nav
+    await expect(page.getByRole('link', { name: 'ផ្ទាំងទូទៅ' })).toBeVisible();
   });
 });

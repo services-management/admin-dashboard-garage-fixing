@@ -7,13 +7,13 @@ test.describe('Admin dashboard login flow', () => {
     await expect(page.getByRole('heading', { name: 'ចូលគណនីរបស់អ្នក' })).toBeVisible();
     await expect(page.getByPlaceholder('ឈ្មោះ')).toBeVisible();
     await expect(page.getByPlaceholder('ពាក្យសម្ងាត់')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'ចូលគណី' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'ចូលគណនី' })).toBeVisible();
   });
 
   test('shows validation error for empty credentials', async ({ page }) => {
     await page.goto('/');
 
-    await page.getByRole('button', { name: 'ចូលគណី' }).click();
+    await page.getByRole('button', { name: 'ចូលគណនី' }).click();
     await expect(page.getByText('សូមបញ្ចូល ឈ្មោះ')).toBeVisible();
   });
 
@@ -51,9 +51,10 @@ test.describe('Admin dashboard login flow', () => {
 
     await page.getByPlaceholder('ឈ្មោះ').fill('admin');
     await page.getByPlaceholder('ពាក្យសម្ងាត់').fill('password123');
-    await page.getByRole('button', { name: 'ចូលគណី' }).click();
+    await page.getByRole('button', { name: 'ចូលគណនី' }).click();
 
     await expect(page).toHaveURL(/.*\/dashboard/);
-    await expect(page.getByText('ថ្ងៃជ្រើសរើស:')).toBeVisible();
+    // Check for dashboard content - use role to avoid matching both sidebar and mobile nav
+    await expect(page.getByRole('link', { name: 'ផ្ទាំងទូទៅ' })).toBeVisible();
   });
 });

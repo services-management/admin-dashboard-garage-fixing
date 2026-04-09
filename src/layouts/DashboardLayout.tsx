@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react';
 import { Outlet, Link, useLocation } from 'react-router-dom';
-import { useAppDispatch, useAppSelector } from '../store/hooks';
-import { fetchCurrentAdmin } from '../store/auth/authThunk';
 
 import companyLogo from '../assets/garage-logo.svg';
 import Icon, { type IconName } from '../components/Icons';
@@ -60,8 +58,6 @@ function NavItem({ to, label, iconName }: { to: string; label: string; iconName:
 ======================= */
 export default function DashboardLayout() {
   const location = useLocation();
-  const dispatch = useAppDispatch();
-  const { user } = useAppSelector((state) => state.auth);
 
   // Hide topbar for pages that have their own header (staff & user)
   // Hide search also for profile page, but keep topbar actions (theme) visible on profile
@@ -86,11 +82,6 @@ export default function DashboardLayout() {
     setMobileMenuOpen(false);
   }, [location.pathname]);
 
-  // Fetch current admin user on mount
-  useEffect(() => {
-    dispatch(fetchCurrentAdmin());
-  }, [dispatch]);
-
   return (
     <div className="app-shell">
       {/* ================= Sidebar ================= */}
@@ -112,7 +103,7 @@ export default function DashboardLayout() {
             <NavItem to="/dashboard" label="ផ្ទាំងទូទៅ" iconName="dashboard" />
 
             <SidebarDropdown
-              label="ទិន្នន័យសេវាកម្ម"
+              label="ព័ត៌មានសេវាកម្ម"
               iconName="box"
               items={[
                 {
@@ -134,7 +125,7 @@ export default function DashboardLayout() {
             />
 
             <SidebarDropdown
-              label="ទិន្នន័យយានយន្ត"
+              label="ព័ត៌មានយានយន្ត"
               iconName="vehicles"
               items={[
                 {
@@ -156,26 +147,15 @@ export default function DashboardLayout() {
             />
 
             <NavItem to="/dashboard/booking" label="គ្រប់គ្រងការកក់" iconName="booking" />
-            <NavItem to="/dashboard/invoices" label="គ្រប់គ្រង​​វិក្កយបត្រ" iconName="invoices" />
-            <NavItem to="/dashboard/staff" label="គ្រប់គ្រង​​បុគ្គលិក" iconName="staff" />
+            <NavItem to="/dashboard/invoices" label="គ្រប់គ្រងវិក្កយបត្រ" iconName="invoices" />
+            <NavItem to="/dashboard/staff" label="គ្រប់គ្រងបុគ្គលិក" iconName="staff" />
             <NavItem to="/dashboard/user" label="គ្រប់គ្រងអ្នកប្រើប្រាស់" iconName="user" />
-
             <NavItem to="/dashboard/notifications" label="ការជូនដំណឹង" iconName="notifications" />
             <NavItem to="/dashboard/slideshow" label="Slideshow" iconName="slideshow" />
             <NavItem to="/dashboard/profile" label="ប្រវត្តិរូបអ្នកគ្រប់គ្រង" iconName="profile" />
             <NavItem to="/dashboard/settings" label="ការកំណត់ប្រព័ន្ធ" iconName="settings" />
           </ul>
         </nav>
-
-        <div className="sidebar-footer">
-          <div className="user-avatar">{user?.username?.charAt(0).toUpperCase() || 'A'}</div>
-          <div className="user-meta">
-            <div className="user-name">{user?.username || 'Admin User'}</div>
-            <div className="user-email">
-              {user?.email || user?.email_phone || 'admin@garage.com'}
-            </div>
-          </div>
-        </div>
       </aside>
 
       {/* ================= Main Content ================= */}
@@ -269,7 +249,7 @@ export default function DashboardLayout() {
           <ul>
             <MobileNavItem to="/dashboard" label="ផ្ទាំងទូទៅ" iconName="dashboard" />
 
-            <li className="mobile-nav-section">សេវាកម្ម</li>
+            <li className="mobile-nav-section">ព៍សេវាកម្ម</li>
             <MobileNavItem to="/dashboard/services" label="សេវាកម្មទាំងអស់" iconName="services" />
             <MobileNavItem
               to="/dashboard/services/categories"
@@ -278,11 +258,6 @@ export default function DashboardLayout() {
             />
             <MobileNavItem to="/dashboard/services/products" label="ផលិតផល" iconName="products" />
 
-            <MobileNavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
-            <MobileNavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />
-            <MobileNavItem to="/dashboard/staff" label="បុគ្គលិក" iconName="staff" />
-            <MobileNavItem to="/dashboard/user" label="អ្នកប្រើប្រាស់" iconName="user" />
-
             <li className="mobile-nav-section">យានយន្ត</li>
             <MobileNavItem to="/dashboard/vehicles/make" label="ម៉ាករថយន្ត" iconName="vehicles" />
             <MobileNavItem
@@ -290,11 +265,12 @@ export default function DashboardLayout() {
               label="ម៉ូដែលរថយន្ត"
               iconName="vehicles"
             />
-            <MobileNavItem
-              to="/dashboard/vehicles/spec"
-              label="លក្ខណៈសម្បត្តិរថយន្ត"
-              iconName="vehicles"
-            />
+            <MobileNavItem to="/dashboard/vehicles/spec" label="រថយន្ត" iconName="vehicles" />
+
+            <MobileNavItem to="/dashboard/booking" label="ការកក់" iconName="booking" />
+            <MobileNavItem to="/dashboard/invoices" label="វិក្កយបត្រ" iconName="invoices" />
+            <MobileNavItem to="/dashboard/staff" label="បុគ្គលិក" iconName="staff" />
+            <MobileNavItem to="/dashboard/user" label="អ្នកប្រើប្រាស់" iconName="user" />
 
             <MobileNavItem
               to="/dashboard/notifications"
